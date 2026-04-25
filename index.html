@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tierlist | Rankings</title>
+    <title>Tierlist Rankings</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -11,12 +11,18 @@
     <div class="navbar">
         <div class="nav-item active" onclick="showPage('overall')">🏆 Overall</div>
         <div class="nav-item" onclick="showPage('vanilla')">⚔️ Vanilla</div>
+        <div class="nav-item" onclick="showPage('uhc')">🍎 UHC</div>
         <div class="nav-item" onclick="showPage('pot')">🧪 Pot</div>
-        </div>
+        <div class="nav-item" onclick="showPage('nethop')">🌌 NethOP</div>
+        <div class="nav-item" onclick="showPage('smp')">🌳 SMP</div>
+        <div class="nav-item" onclick="showPage('sword')">🗡️ Sword</div>
+        <div class="nav-item" onclick="showPage('axe')">🪓 Axe</div>
+        <div class="nav-item" onclick="showPage('mace')">🔨 Mace</div>
+    </div>
 
     <div id="overall" class="page active">
         <div class="main-content">
-            <h2>Overall Leaderboard</h2>
+            <h2 class="page-title">Overall Leaderboard</h2>
             <div class="leaderboard-table">
                 <div class="table-header"><span>#</span><span>PLAYER</span><span>REGION</span><span>TIERS</span></div>
                 
@@ -29,7 +35,7 @@
                     <span class="region na">NA</span>
                     <div class="tier-badges"><span class="badge ht1">HT1</span></div>
                 </div>
-            </div>
+                </div>
         </div>
     </div>
 
@@ -39,28 +45,55 @@
                 <div class="tier-header t1">Tier 1</div>
                 <div class="sub-label ht">High Tier 1</div>
                 <div class="player-list">
-                    <div class="player-row"><img src="https://mc-heads.net/avatar/K1RBE/24"><span>K1RBE</span></div>
+                    <div class="player-row"><img src="https://mc-heads.net/avatar/K1RBE/20"><span>K1RBE</span></div>
                 </div>
+                <div class="sub-label lt">Low Tier 1</div>
+                <div class="player-list"></div>
             </div>
+            <div class="tier-column">
+                <div class="tier-header t2">Tier 2</div>
+                <div class="sub-label ht">High Tier 2</div>
+                <div class="player-list"></div>
+                <div class="sub-label lt">Low Tier 2</div>
+                <div class="player-list"></div>
             </div>
+            <div class="tier-column">
+                <div class="tier-header t3">Tier 3</div>
+                <div class="sub-label ht">High Tier 3</div>
+                <div class="player-list"></div>
+                <div class="sub-label lt">Low Tier 3</div>
+                <div class="player-list"></div>
+            </div>
+            <div class="tier-column">
+                <div class="tier-header t4">Tier 4</div>
+                <div class="sub-label ht">High Tier 4</div>
+                <div class="player-list"></div>
+                <div class="sub-label lt">Low Tier 4</div>
+                <div class="player-list"></div>
+            </div>
+            <div class="tier-column">
+                <div class="tier-header t5">Tier 5</div>
+                <div class="sub-label ht">High Tier 5</div>
+                <div class="player-list"></div>
+                <div class="sub-label lt">Low Tier 5</div>
+                <div class="player-list"></div>
+            </div>
+        </div>
     </div>
 
-    <div id="pot" class="page">
-        <div class="tier-container">
-            <h2 style="text-align:center; width:100%;">Pot Rankings</h2>
-            </div>
-    </div>
+    <div id="uhc" class="page"><div class="tier-container"><h2>UHC Rankings Coming Soon</h2></div></div>
+    <div id="pot" class="page"><div class="tier-container"><h2>Pot Rankings Coming Soon</h2></div></div>
+    <div id="nethop" class="page"><div class="tier-container"><h2>NethOP Rankings Coming Soon</h2></div></div>
+    <div id="smp" class="page"><div class="tier-container"><h2>SMP Rankings Coming Soon</h2></div></div>
+    <div id="sword" class="page"><div class="tier-container"><h2>Sword Rankings Coming Soon</h2></div></div>
+    <div id="axe" class="page"><div class="tier-container"><h2>Axe Rankings Coming Soon</h2></div></div>
+    <div id="mace" class="page"><div class="tier-container"><h2>Mace Rankings Coming Soon</h2></div></div>
 
     <script>
         function showPage(pageId) {
-            // Hide all pages
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            // Remove active class from all nav items
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            
-            // Show the clicked page
             document.getElementById(pageId).classList.add('active');
-            // Make the clicked nav item glow
             event.currentTarget.classList.add('active');
         }
     </script>
