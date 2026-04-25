@@ -8,33 +8,41 @@
 </head>
 <body>
 
-    <div class="navbar">
-        <div class="nav-item active" onclick="showPage('overall')">🏆 Overall</div>
-        <div class="nav-item" onclick="showPage('vanilla')">💠 Vanilla</div>
-        <div class="nav-item" onclick="showPage('uhc')">❤️ UHC</div>
-        <div class="nav-item" onclick="showPage('pot')">🧪 Pot</div>
-        <div class="nav-item" onclick="showPage('nethop')">🌌 NethOP</div>
-        <div class="nav-item" onclick="showPage('smp')">🟢 SMP</div>
-        <div class="nav-item" onclick="showPage('sword')">⚔️ Sword</div>
-        <div class="nav-item" onclick="showPage('axe')">🪓 Axe</div>
-        <div class="nav-item" onclick="showPage('mace')">🔨 Mace</div>
+    <div class="navbar-container">
+        <div class="navbar">
+            <div class="nav-item active" onclick="showPage('overall')">🏆<br>Overall</div>
+            <div class="nav-item" onclick="showPage('vanilla')">💠<br>Vanilla</div>
+            <div class="nav-item" onclick="showPage('uhc')">❤️<br>UHC</div>
+            <div class="nav-item" onclick="showPage('pot')">🧪<br>Pot</div>
+            <div class="nav-item" onclick="showPage('nethop')">🌌<br>NethOP</div>
+            <div class="nav-item" onclick="showPage('smp')">🟢<br>SMP</div>
+            <div class="nav-item" onclick="showPage('sword')">⚔️<br>Sword</div>
+            <div class="nav-item" onclick="showPage('axe')">🪓<br>Axe</div>
+            <div class="nav-item" onclick="showPage('mace')">🔨<br>Mace</div>
+        </div>
     </div>
 
     <div id="overall" class="page active">
         <div class="main-content">
             <div class="leaderboard-table">
-                <div class="table-header"><span>#</span><span>PLAYER</span><span>REGION</span><span>TIERS</span></div>
-                
-                <div class="player-entry" onclick="openProfile('K1RBE', '1', '450', 'NA', 'Combat Grandmaster')">
-                    <span class="rank-num">1.</span>
-                    <div class="player-info">
-                        <img src="https://mc-heads.net/avatar/K1RBE/40">
-                        <div class="name-box"><span class="ign">K1RBE</span><span class="title gold">Combat Grandmaster</span></div>
+                <div class="player-card" onclick="openProfile('Marlowww', '1', '450', 'NA', 'Combat Grandmaster')">
+                    <div class="rank-side">1.</div>
+                    <div class="player-main">
+                        <img src="https://mc-heads.net/avatar/Marlowww/50" class="head">
+                        <div class="name-info">
+                            <span class="ign">Marlowww</span>
+                            <span class="sub-title">🔶 Combat Grandmaster <span class="pts">(450 points)</span></span>
+                        </div>
                     </div>
-                    <span class="region na">NA</span>
-                    <div class="tier-badges"><span class="badge ht1">HT1</span><span class="badge ht1">HT1</span></div>
+                    <div class="region-box na">NA</div>
+                    <div class="tiers-row">
+                        <div class="t-icon">⚔️<div class="t-label ht1">HT1</div></div>
+                        <div class="t-icon">🧪<div class="t-label ht1">HT1</div></div>
+                        <div class="t-icon">🔨<div class="t-label lt1">LT1</div></div>
+                        <div class="t-icon">❤️<div class="t-label ht1">HT1</div></div>
+                    </div>
                 </div>
-            </div>
+                </div>
         </div>
     </div>
 
@@ -53,47 +61,22 @@
             <img id="modalHead" src="" class="modal-avatar">
             <h2 id="modalName">Name</h2>
             <div id="modalTitle" class="modal-tag">Title</div>
-            <p id="modalRegion">Region</p>
-            
             <div class="modal-stats">
-                <div class="stat-box">
-                    <span class="stat-label">POSITION</span>
-                    <div class="stat-value"><span id="modalRank">0</span>. 🏆 OVERALL <small>(<span id="modalPoints">0</span> pts)</small></div>
-                </div>
-            </div>
-
-            <div class="modal-tiers">
-                <h3>TIERS</h3>
-                <div class="tier-grid">
-                    <div class="mini-badge ht1">💠 HT1</div>
-                    <div class="mini-badge lt3">⚔️ LT3</div>
-                    <div class="mini-badge lt3">🧪 LT3</div>
-                    <div class="mini-badge lt3">🔨 LT3</div>
-                </div>
+                <span class="label">POSITION</span>
+                <div class="val"><span id="modalRank">0</span>. 🏆 OVERALL (<span id="modalPoints">0</span> pts)</div>
             </div>
         </div>
     </div>
 
     <script>
+        // Setup tiers for all pages
         const modes = ['vanilla', 'uhc', 'pot', 'nethop', 'smp', 'sword', 'axe', 'mace'];
-        
-        // Auto-generate Tiers 1 to 5 for every gamemode
         modes.forEach(mode => {
             const container = document.getElementById(`${mode}-tiers`);
             for(let i=1; i<=5; i++) {
-                container.innerHTML += `
-                    <div class="tier-column">
-                        <div class="tier-header t${i}">Tier ${i}</div>
-                        <div class="player-list" id="${mode}-t${i}"></div>
-                    </div>`;
+                container.innerHTML += `<div class="tier-col"><div class="tier-head t${i}">Tier ${i}</div><div class="p-list" id="${mode}-t${i}"></div></div>`;
             }
         });
-
-        // Test Data: Adding K1RBE to Vanilla Tier 1
-        document.getElementById('vanilla-t1').innerHTML = `
-            <div class="player-row" onclick="openProfile('K1RBE', '1', '450', 'NA', 'Combat Grandmaster')">
-                <img src="https://mc-heads.net/avatar/K1RBE/24"><span>K1RBE</span>
-            </div>`;
 
         function showPage(pageId) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -106,12 +89,10 @@
             document.getElementById('modalName').innerText = name;
             document.getElementById('modalRank').innerText = rank;
             document.getElementById('modalPoints').innerText = points;
-            document.getElementById('modalRegion').innerText = region;
             document.getElementById('modalTitle').innerText = title;
             document.getElementById('modalHead').src = `https://mc-heads.net/avatar/${name}/100`;
             document.getElementById('profileModal').style.display = "flex";
         }
-
         function closeModal() { document.getElementById('profileModal').style.display = "none"; }
         function closeModalOutside(e) { if(e.target.id === "profileModal") closeModal(); }
     </script>
