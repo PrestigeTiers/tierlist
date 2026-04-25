@@ -1,39 +1,18 @@
-body { background-color: #0f1113; color: white; font-family: 'Inter', sans-serif; margin: 0; }
+/* ... [Keep previous CSS for navbar and columns] ... */
 
-/* NAVBAR */
-.navbar { display: flex; background-color: #1a1d21; padding: 10px; justify-content: center; gap: 8px; border-bottom: 2px solid #2f3136; position: sticky; top: 0; z-index: 100; flex-wrap: wrap; }
-.nav-item { padding: 8px 12px; cursor: pointer; border-radius: 5px; font-size: 0.85rem; color: #a3a6aa; transition: 0.2s; white-space: nowrap; }
-.nav-item:hover, .nav-item.active { background-color: #2f3136; color: white; border-bottom: 2px solid #ffa502; }
+/* MODAL (POP-UP) STYLING */
+.modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); align-items: center; justify-content: center; }
+.modal-content { background-color: #1a1d21; padding: 30px; border-radius: 20px; width: 350px; text-align: center; position: relative; border: 1px solid #2f3136; }
+.close { position: absolute; right: 20px; top: 15px; font-size: 28px; cursor: pointer; color: #57606f; }
+.modal-avatar { width: 80px; height: 80px; border-radius: 10px; margin-bottom: 10px; }
+.modal-tag { background: #5d3fd3; color: white; padding: 5px 15px; border-radius: 50px; display: inline-block; font-size: 0.8rem; font-weight: bold; margin-bottom: 15px; }
 
-/* PAGE LOGIC */
-.page { display: none; padding: 20px; }
-.page.active { display: block; animation: fadeIn 0.3s; }
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+.modal-stats { background: #111417; padding: 15px; border-radius: 10px; margin: 20px 0; border: 1px solid #2f3136; text-align: left; }
+.stat-label { font-size: 0.7rem; color: #a3a6aa; font-weight: bold; }
+.stat-value { font-size: 1.2rem; font-weight: bold; color: #ffa502; margin-top: 5px; }
 
-/* OVERALL TABLE */
-.main-content { max-width: 900px; margin: auto; }
-.leaderboard-table { background-color: #1e2124; border-radius: 8px; overflow: hidden; }
-.table-header { display: grid; grid-template-columns: 50px 1fr 100px 150px; padding: 15px; background: #16191c; color: #57606f; font-size: 0.75rem; font-weight: bold; }
-.player-entry { display: grid; grid-template-columns: 50px 1fr 100px 150px; align-items: center; padding: 12px 15px; border-bottom: 1px solid #2f3136; }
-.rank-num { font-weight: bold; color: #ffa502; font-style: italic; }
-.player-info { display: flex; align-items: center; gap: 12px; }
-.player-info img { border-radius: 4px; width: 32px; height: 32px; }
-.name-box { display: flex; flex-direction: column; }
-.ign { font-weight: bold; font-size: 1rem; }
-.title { font-size: 0.65rem; font-weight: bold; text-transform: uppercase; }
-.gold { color: #ffa502; }
-
-/* REGIONS & BADGES */
-.region { padding: 2px 6px; border-radius: 4px; font-weight: bold; font-size: 0.7rem; text-align: center; width: 30px; }
-.na { background: rgba(255, 71, 87, 0.2); color: #ff4757; }
-.badge { font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; border: 1px solid #ffa502; color: #ffa502; font-weight: bold; }
-
-/* COLUMN STYLE */
-.tier-container { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; align-items: flex-start; }
-.tier-column { background-color: #1e2124; width: 200px; border-radius: 6px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
-.tier-header { padding: 10px; text-align: center; font-weight: bold; text-transform: uppercase; font-size: 0.9rem; }
-.t1 { background: #ff4757; } .t2 { background: #ffa502; } .t3 { background: #eccc68; } .t4 { background: #2f3542; } .t5 { background: #57606f; }
-.sub-label { font-size: 0.65rem; padding: 6px 10px; color: #a3a6aa; background: rgba(0,0,0,0.2); font-weight: bold; }
-.player-list { padding: 5px; min-height: 20px; }
-.player-row { display: flex; align-items: center; padding: 6px; background: #2f3136; margin-bottom: 3px; border-radius: 4px; font-size: 0.8rem; }
-.player-row img { width: 18px; height: 18px; margin-right: 8px; border-radius: 2px; }
+.modal-tiers h3 { font-size: 0.8rem; color: #a3a6aa; text-align: left; margin-bottom: 10px; }
+.tier-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.mini-badge { background: #2f3136; padding: 5px; border-radius: 5px; font-size: 0.6rem; font-weight: bold; border: 1px solid #57606f; }
+.ht1 { border-color: #ffa502; color: #ffa502; }
+.lt3 { border-color: #cd7f32; color: #cd7f32; }
