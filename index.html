@@ -25,48 +25,40 @@
             <div class="leaderboard-table">
                 <div class="table-header"><span>#</span><span>PLAYER</span><span>REGION</span><span>TIERS</span></div>
                 
-                <div class="player-entry" onclick="openProfile('K1RBE', '60', '98', 'NA', 'Combat Specialist')">
+                <div class="player-entry" onclick="openProfile('K1RBE', '1', '450', 'NA', 'Combat Grandmaster')">
                     <span class="rank-num">1.</span>
                     <div class="player-info">
                         <img src="https://mc-heads.net/avatar/K1RBE/40">
-                        <div class="name-box"><span class="ign">K1RBE</span><span class="title">Combat Specialist</span></div>
+                        <div class="name-box"><span class="ign">K1RBE</span><span class="title gold">Combat Grandmaster</span></div>
                     </div>
                     <span class="region na">NA</span>
-                    <div class="tier-badges"><span class="badge ht1">HT1</span></div>
+                    <div class="tier-badges"><span class="badge ht1">HT1</span><span class="badge ht1">HT1</span></div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div id="vanilla" class="page">
-        <div class="tier-container">
-            <div class="tier-column">
-                <div class="tier-header t1">Tier 1</div>
-                <div class="player-list">
-                    <div class="player-row" onclick="openProfile('K1RBE', '60', '98', 'NA', 'Combat Specialist')">
-                        <img src="https://mc-heads.net/avatar/K1RBE/24"><span>K1RBE</span>
-                    </div>
-                </div>
-            </div>
-            <div class="tier-column"><div class="tier-header t2">Tier 2</div><div class="player-list"></div></div>
-            <div class="tier-column"><div class="tier-header t3">Tier 3</div><div class="player-list"></div></div>
-            <div class="tier-column"><div class="tier-header t4">Tier 4</div><div class="player-list"></div></div>
-            <div class="tier-column"><div class="tier-header t5">Tier 5</div><div class="player-list"></div></div>
-        </div>
-    </div>
+    <div id="vanilla" class="page"><div class="tier-container" id="vanilla-tiers"></div></div>
+    <div id="uhc" class="page"><div class="tier-container" id="uhc-tiers"></div></div>
+    <div id="pot" class="page"><div class="tier-container" id="pot-tiers"></div></div>
+    <div id="nethop" class="page"><div class="tier-container" id="nethop-tiers"></div></div>
+    <div id="smp" class="page"><div class="tier-container" id="smp-tiers"></div></div>
+    <div id="sword" class="page"><div class="tier-container" id="sword-tiers"></div></div>
+    <div id="axe" class="page"><div class="tier-container" id="axe-tiers"></div></div>
+    <div id="mace" class="page"><div class="tier-container" id="mace-tiers"></div></div>
 
-    <div id="profileModal" class="modal">
+    <div id="profileModal" class="modal" onclick="closeModalOutside(event)">
         <div class="modal-content">
             <span class="close" onclick="closeModal()">&times;</span>
             <img id="modalHead" src="" class="modal-avatar">
             <h2 id="modalName">Name</h2>
             <div id="modalTitle" class="modal-tag">Title</div>
-            <p id="modalRegion" style="color: #a3a6aa;">Region</p>
+            <p id="modalRegion">Region</p>
             
             <div class="modal-stats">
                 <div class="stat-box">
                     <span class="stat-label">POSITION</span>
-                    <div class="stat-value"><span id="modalRank">0</span>. 🏆 OVERALL <small>(<span id="modalPoints">0</span> points)</small></div>
+                    <div class="stat-value"><span id="modalRank">0</span>. 🏆 OVERALL <small>(<span id="modalPoints">0</span> pts)</small></div>
                 </div>
             </div>
 
@@ -83,6 +75,26 @@
     </div>
 
     <script>
+        const modes = ['vanilla', 'uhc', 'pot', 'nethop', 'smp', 'sword', 'axe', 'mace'];
+        
+        // Auto-generate Tiers 1 to 5 for every gamemode
+        modes.forEach(mode => {
+            const container = document.getElementById(`${mode}-tiers`);
+            for(let i=1; i<=5; i++) {
+                container.innerHTML += `
+                    <div class="tier-column">
+                        <div class="tier-header t${i}">Tier ${i}</div>
+                        <div class="player-list" id="${mode}-t${i}"></div>
+                    </div>`;
+            }
+        });
+
+        // Test Data: Adding K1RBE to Vanilla Tier 1
+        document.getElementById('vanilla-t1').innerHTML = `
+            <div class="player-row" onclick="openProfile('K1RBE', '1', '450', 'NA', 'Combat Grandmaster')">
+                <img src="https://mc-heads.net/avatar/K1RBE/24"><span>K1RBE</span>
+            </div>`;
+
         function showPage(pageId) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -100,9 +112,8 @@
             document.getElementById('profileModal').style.display = "flex";
         }
 
-        function closeModal() {
-            document.getElementById('profileModal').style.display = "none";
-        }
+        function closeModal() { document.getElementById('profileModal').style.display = "none"; }
+        function closeModalOutside(e) { if(e.target.id === "profileModal") closeModal(); }
     </script>
 </body>
 </html>
