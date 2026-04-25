@@ -1,0 +1,71 @@
+body {
+    background-color: #0f1113;
+    color: white;
+    font-family: 'Inter', sans-serif;
+    padding: 20px;
+}
+
+.container {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.tier-column {
+    background-color: #1e2124;
+    width: 220px;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+
+.tier-header {
+    padding: 12px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+/* Tier Colors */
+.t1 { background: #ff4757; } /* Red */
+.t2 { background: #ffa502; } /* Orange */
+.t3 { background: #eccc68; } /* Yellow */
+.t4 { background: #2f3542; } /* Dark Grey */
+.t5 { background: #57606f; } /* Light Grey */
+
+.sub-label {
+    font-size: 0.75rem;
+    padding: 8px 12px;
+    text-transform: uppercase;
+    font-weight: bold;
+    color: #a3a6aa;
+}
+
+.ht { background-color: rgba(255, 255, 255, 0.05); border-left: 3px solid #2ecc71; } /* Green accent for High */
+.lt { background-color: rgba(255, 255, 255, 0.02); border-left: 3px solid #3498db; } /* Blue accent for Low */
+
+.player-list {
+    padding: 5px 10px 15px 10px;
+    min-height: 40px; /* Keeps box open even if empty */
+}
+
+.player-row {
+    display: flex;
+    align-items: center;
+    padding: 6px 10px;
+    background-color: #2f3136;
+    margin-bottom: 4px;
+    border-radius: 4px;
+}
+
+.player-row img {
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+    border-radius: 2px;
+}
+
+.player-row span {
+    font-size: 0.85rem;
+}
