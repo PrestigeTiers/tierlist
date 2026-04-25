@@ -24,23 +24,21 @@
 
     <div id="overall" class="page active">
         <div class="container">
-            <div class="leaderboard">
-                <div class="player-row" onclick="openProfile('Marlowww', '1', '450', 'NA', 'Combat Grandmaster')">
-                    <div class="rank-badge gold">1.</div>
-                    <div class="player-core">
-                        <img src="https://mc-heads.net/avatar/Marlowww/48" class="player-head">
-                        <div class="player-name-section">
-                            <span class="ign">Marlowww</span>
-                            <span class="rank-title">🔶 Combat Grandmaster <span class="pts">(450 points)</span></span>
-                        </div>
+            <div class="player-card" onclick="openProfile('Marlowww', '1', '450', 'NA', 'Combat Grandmaster')">
+                <div class="rank-side">1.</div>
+                <div class="card-main">
+                    <img src="https://mc-heads.net/avatar/Marlowww/50" class="head">
+                    <div class="info">
+                        <span class="ign">Marlowww</span>
+                        <span class="sub">🔶 Combat Grandmaster <small>(450 points)</small></span>
                     </div>
-                    <div class="region-tag na">NA</div>
-                    <div class="tier-list-icons">
-                        <div class="tier-bubble"><span class="icon">⚔️</span><span class="t-val ht1">HT1</span></div>
-                        <div class="tier-bubble"><span class="icon">🧪</span><span class="t-val ht1">HT1</span></div>
-                        <div class="tier-bubble"><span class="icon">🔨</span><span class="t-val lt1">LT1</span></div>
-                        <div class="tier-bubble"><span class="icon">❤️</span><span class="t-val ht1">HT1</span></div>
-                    </div>
+                </div>
+                <div class="region-pill na">NA</div>
+                <div class="tier-bubbles">
+                    <div class="bubble"><span class="icon">⚔️</span><small class="ht1">HT1</small></div>
+                    <div class="bubble"><span class="icon">🧪</span><small class="ht1">HT1</small></div>
+                    <div class="bubble"><span class="icon">🔨</span><small class="lt1">LT1</small></div>
+                    <div class="bubble"><span class="icon">❤️</span><small class="ht1">HT1</small></div>
                 </div>
             </div>
         </div>
@@ -55,30 +53,31 @@
     <div id="axe" class="page"><div class="tier-grid" id="axe-tiers"></div></div>
     <div id="mace" class="page"><div class="tier-grid" id="mace-tiers"></div></div>
 
-    <div id="modal" class="modal-overlay" onclick="closeModal(event)">
+    <div id="modal" class="modal-bg" onclick="closeM(event)">
         <div class="profile-card">
-            <span class="close-btn">&times;</span>
-            <img id="mHead" src="" class="m-avatar">
-            <h2 id="mName">Name</h2>
-            <div id="mTitle" class="m-badge">Title</div>
-            <div class="m-stats">
-                <span class="label">POSITION</span>
-                <div class="val"><span id="mRank">0</span>. 🏆 OVERALL (<span id="mPts">0</span> pts)</div>
+            <span class="close">&times;</span>
+            <img id="mHead" src="" class="m-head">
+            <h2 id="mName"></h2>
+            <div id="mTitle" class="m-tag"></div>
+            <div class="m-stat">
+                <label>RANKING</label>
+                <div class="val">#<span id="mRank"></span> 🏆 OVERALL (<span id="mPts"></span> pts)</div>
             </div>
         </div>
     </div>
 
     <script>
-        const pages = ['vanilla', 'uhc', 'pot', 'nethop', 'smp', 'sword', 'axe', 'mace'];
-        pages.forEach(p => {
-            const el = document.getElementById(`${p}-tiers`);
+        const gamemodes = ['vanilla', 'uhc', 'pot', 'nethop', 'smp', 'sword', 'axe', 'mace'];
+        gamemodes.forEach(mode => {
+            const container = document.getElementById(`${mode}-tiers`);
             for(let i=1; i<=5; i++) {
-                el.innerHTML += `<div class="tier-col"><div class="tier-header t${i}">Tier ${i}</div><div class="tier-players" id="${p}-t${i}"></div></div>`;
+                container.innerHTML += `<div class="tier-column"><div class="t-header t${i}">Tier ${i}</div><div class="p-list" id="${mode}-t${i}"></div></div>`;
             }
         });
 
         function showPage(id) {
-            document.querySelectorAll('.page, .nav-item').forEach(x => x.classList.remove('active'));
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             document.getElementById(id).classList.add('active');
             event.currentTarget.classList.add('active');
         }
@@ -91,8 +90,7 @@
             document.getElementById('mHead').src = `https://mc-heads.net/avatar/${n}/120`;
             document.getElementById('modal').style.display = "flex";
         }
-
-        function closeModal(e) { if(e.target.id === 'modal' || e.target.className === 'close-btn') document.getElementById('modal').style.display = "none"; }
+        function closeM(e) { if(e.target.id==='modal' || e.target.className==='close') document.getElementById('modal').style.display="none"; }
     </script>
 </body>
 </html>
