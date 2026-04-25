@@ -1,18 +1,51 @@
-/* ... [Keep previous CSS for navbar and columns] ... */
+body { background-color: #0f1113; color: white; font-family: 'Inter', sans-serif; margin: 0; display: flex; flex-direction: column; min-height: 100vh; }
 
-/* MODAL (POP-UP) STYLING */
-.modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); align-items: center; justify-content: center; }
-.modal-content { background-color: #1a1d21; padding: 30px; border-radius: 20px; width: 350px; text-align: center; position: relative; border: 1px solid #2f3136; }
-.close { position: absolute; right: 20px; top: 15px; font-size: 28px; cursor: pointer; color: #57606f; }
-.modal-avatar { width: 80px; height: 80px; border-radius: 10px; margin-bottom: 10px; }
-.modal-tag { background: #5d3fd3; color: white; padding: 5px 15px; border-radius: 50px; display: inline-block; font-size: 0.8rem; font-weight: bold; margin-bottom: 15px; }
+/* NAVBAR */
+.navbar { display: flex; background-color: #1a1d21; padding: 12px; justify-content: center; gap: 10px; border-bottom: 2px solid #2f3136; position: sticky; top: 0; z-index: 100; flex-wrap: wrap; }
+.nav-item { padding: 8px 16px; cursor: pointer; border-radius: 6px; font-size: 0.9rem; color: #a3a6aa; transition: 0.2s; font-weight: 500; }
+.nav-item:hover, .nav-item.active { background-color: #2f3136; color: white; border-bottom: 2px solid #ffa502; }
 
-.modal-stats { background: #111417; padding: 15px; border-radius: 10px; margin: 20px 0; border: 1px solid #2f3136; text-align: left; }
-.stat-label { font-size: 0.7rem; color: #a3a6aa; font-weight: bold; }
+/* PAGES */
+.page { display: none; padding: 30px 10px; flex-grow: 1; }
+.page.active { display: block; animation: fadeIn 0.2s; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* OVERALL LEADERBOARD */
+.main-content { max-width: 950px; margin: 0 auto; }
+.leaderboard-table { background-color: #1e2124; border-radius: 12px; overflow: hidden; border: 1px solid #2f3136; }
+.table-header { display: grid; grid-template-columns: 60px 1fr 100px 180px; padding: 15px 20px; background: #16191c; color: #57606f; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; }
+.player-entry { display: grid; grid-template-columns: 60px 1fr 100px 180px; align-items: center; padding: 15px 20px; border-bottom: 1px solid #2f3136; cursor: pointer; transition: background 0.2s; }
+.player-entry:hover { background: #25282c; }
+.rank-num { font-weight: bold; color: #ffa502; font-size: 1.1rem; }
+.player-info { display: flex; align-items: center; gap: 15px; }
+.player-info img { border-radius: 6px; width: 40px; height: 40px; }
+.ign { font-weight: bold; font-size: 1.1rem; display: block; }
+.title { font-size: 0.7rem; font-weight: bold; text-transform: uppercase; color: #5d3fd3; }
+.region { padding: 4px 10px; border-radius: 5px; font-weight: bold; font-size: 0.75rem; text-align: center; width: fit-content; }
+.na { background: rgba(255, 71, 87, 0.15); color: #ff4757; }
+.badge { font-size: 0.65rem; padding: 3px 8px; border-radius: 50px; border: 1px solid #57606f; color: #a3a6aa; margin-left: 5px; font-weight: bold; }
+
+/* TIER COLUMNS */
+.tier-container { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; align-items: flex-start; }
+.tier-column { background-color: #1e2124; width: 210px; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.4); border: 1px solid #2f3136; }
+.tier-header { padding: 15px; text-align: center; font-weight: bold; text-transform: uppercase; font-size: 1rem; }
+.t1 { background: #d4af37; color: #111; } .t2 { background: #bdc3c7; color: #111; } .t3 { background: #cd7f32; color: #111; } .t4 { background: #34495e; } .t5 { background: #7f8c8d; }
+.player-list { padding: 8px; min-height: 50px; }
+.player-row { display: flex; align-items: center; padding: 10px; background: #2f3136; margin-bottom: 6px; border-radius: 6px; font-size: 0.9rem; cursor: pointer; border: 1px solid transparent; }
+.player-row:hover { border-color: #5d3fd3; background: #393c43; }
+.player-row img { width: 22px; height: 22px; margin-right: 12px; border-radius: 3px; }
+
+/* CENTERED POP-UP (MODAL) */
+.modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+.modal-content { background: #1a1d21; padding: 40px; border-radius: 24px; width: 340px; text-align: center; border: 1px solid #2f3136; position: relative; box-shadow: 0 0 30px rgba(0,0,0,0.5); }
+.close { position: absolute; right: 25px; top: 20px; font-size: 30px; cursor: pointer; color: #57606f; }
+.modal-avatar { width: 90px; height: 90px; border-radius: 15px; margin-bottom: 15px; border: 3px solid #2f3136; }
+.modal-tag { background: #5d3fd3; color: white; padding: 6px 18px; border-radius: 50px; display: inline-block; font-size: 0.8rem; font-weight: bold; margin-bottom: 12px; }
+#modalRegion { color: #a3a6aa; margin-top: 0; font-size: 0.9rem; }
+.modal-stats { background: #111417; padding: 20px; border-radius: 12px; margin: 20px 0; text-align: left; border: 1px solid #2f3136; }
+.stat-label { font-size: 0.7rem; color: #a3a6aa; text-transform: uppercase; font-weight: bold; }
 .stat-value { font-size: 1.2rem; font-weight: bold; color: #ffa502; margin-top: 5px; }
-
-.modal-tiers h3 { font-size: 0.8rem; color: #a3a6aa; text-align: left; margin-bottom: 10px; }
-.tier-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-.mini-badge { background: #2f3136; padding: 5px; border-radius: 5px; font-size: 0.6rem; font-weight: bold; border: 1px solid #57606f; }
+.modal-tiers h3 { font-size: 0.8rem; color: #a3a6aa; text-align: left; margin-bottom: 10px; text-transform: uppercase; }
+.tier-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.mini-badge { background: #2f3136; padding: 6px; border-radius: 6px; font-size: 0.65rem; font-weight: bold; border: 1px solid #444; }
 .ht1 { border-color: #ffa502; color: #ffa502; }
-.lt3 { border-color: #cd7f32; color: #cd7f32; }
