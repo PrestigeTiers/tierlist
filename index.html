@@ -8,7 +8,7 @@
 </head>
 <body>
 
-    <div class="navbar-container">
+    <div class="nav-wrapper">
         <div class="navbar">
             <div class="nav-item active" onclick="showPage('overall')">🏆<br>Overall</div>
             <div class="nav-item" onclick="showPage('vanilla')">💠<br>Vanilla</div>
@@ -23,78 +23,76 @@
     </div>
 
     <div id="overall" class="page active">
-        <div class="main-content">
-            <div class="leaderboard-table">
-                <div class="player-card" onclick="openProfile('Marlowww', '1', '450', 'NA', 'Combat Grandmaster')">
-                    <div class="rank-side">1.</div>
-                    <div class="player-main">
-                        <img src="https://mc-heads.net/avatar/Marlowww/50" class="head">
-                        <div class="name-info">
+        <div class="container">
+            <div class="leaderboard">
+                <div class="player-row" onclick="openProfile('Marlowww', '1', '450', 'NA', 'Combat Grandmaster')">
+                    <div class="rank-badge gold">1.</div>
+                    <div class="player-core">
+                        <img src="https://mc-heads.net/avatar/Marlowww/48" class="player-head">
+                        <div class="player-name-section">
                             <span class="ign">Marlowww</span>
-                            <span class="sub-title">🔶 Combat Grandmaster <span class="pts">(450 points)</span></span>
+                            <span class="rank-title">🔶 Combat Grandmaster <span class="pts">(450 points)</span></span>
                         </div>
                     </div>
-                    <div class="region-box na">NA</div>
-                    <div class="tiers-row">
-                        <div class="t-icon">⚔️<div class="t-label ht1">HT1</div></div>
-                        <div class="t-icon">🧪<div class="t-label ht1">HT1</div></div>
-                        <div class="t-icon">🔨<div class="t-label lt1">LT1</div></div>
-                        <div class="t-icon">❤️<div class="t-label ht1">HT1</div></div>
+                    <div class="region-tag na">NA</div>
+                    <div class="tier-list-icons">
+                        <div class="tier-bubble"><span class="icon">⚔️</span><span class="t-val ht1">HT1</span></div>
+                        <div class="tier-bubble"><span class="icon">🧪</span><span class="t-val ht1">HT1</span></div>
+                        <div class="tier-bubble"><span class="icon">🔨</span><span class="t-val lt1">LT1</span></div>
+                        <div class="tier-bubble"><span class="icon">❤️</span><span class="t-val ht1">HT1</span></div>
                     </div>
                 </div>
-                </div>
+            </div>
         </div>
     </div>
 
-    <div id="vanilla" class="page"><div class="tier-container" id="vanilla-tiers"></div></div>
-    <div id="uhc" class="page"><div class="tier-container" id="uhc-tiers"></div></div>
-    <div id="pot" class="page"><div class="tier-container" id="pot-tiers"></div></div>
-    <div id="nethop" class="page"><div class="tier-container" id="nethop-tiers"></div></div>
-    <div id="smp" class="page"><div class="tier-container" id="smp-tiers"></div></div>
-    <div id="sword" class="page"><div class="tier-container" id="sword-tiers"></div></div>
-    <div id="axe" class="page"><div class="tier-container" id="axe-tiers"></div></div>
-    <div id="mace" class="page"><div class="tier-container" id="mace-tiers"></div></div>
+    <div id="vanilla" class="page"><div class="tier-grid" id="vanilla-tiers"></div></div>
+    <div id="uhc" class="page"><div class="tier-grid" id="uhc-tiers"></div></div>
+    <div id="pot" class="page"><div class="tier-grid" id="pot-tiers"></div></div>
+    <div id="nethop" class="page"><div class="tier-grid" id="nethop-tiers"></div></div>
+    <div id="smp" class="page"><div class="tier-grid" id="smp-tiers"></div></div>
+    <div id="sword" class="page"><div class="tier-grid" id="sword-tiers"></div></div>
+    <div id="axe" class="page"><div class="tier-grid" id="axe-tiers"></div></div>
+    <div id="mace" class="page"><div class="tier-grid" id="mace-tiers"></div></div>
 
-    <div id="profileModal" class="modal" onclick="closeModalOutside(event)">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal()">&times;</span>
-            <img id="modalHead" src="" class="modal-avatar">
-            <h2 id="modalName">Name</h2>
-            <div id="modalTitle" class="modal-tag">Title</div>
-            <div class="modal-stats">
+    <div id="modal" class="modal-overlay" onclick="closeModal(event)">
+        <div class="profile-card">
+            <span class="close-btn">&times;</span>
+            <img id="mHead" src="" class="m-avatar">
+            <h2 id="mName">Name</h2>
+            <div id="mTitle" class="m-badge">Title</div>
+            <div class="m-stats">
                 <span class="label">POSITION</span>
-                <div class="val"><span id="modalRank">0</span>. 🏆 OVERALL (<span id="modalPoints">0</span> pts)</div>
+                <div class="val"><span id="mRank">0</span>. 🏆 OVERALL (<span id="mPts">0</span> pts)</div>
             </div>
         </div>
     </div>
 
     <script>
-        // Setup tiers for all pages
-        const modes = ['vanilla', 'uhc', 'pot', 'nethop', 'smp', 'sword', 'axe', 'mace'];
-        modes.forEach(mode => {
-            const container = document.getElementById(`${mode}-tiers`);
+        const pages = ['vanilla', 'uhc', 'pot', 'nethop', 'smp', 'sword', 'axe', 'mace'];
+        pages.forEach(p => {
+            const el = document.getElementById(`${p}-tiers`);
             for(let i=1; i<=5; i++) {
-                container.innerHTML += `<div class="tier-col"><div class="tier-head t${i}">Tier ${i}</div><div class="p-list" id="${mode}-t${i}"></div></div>`;
+                el.innerHTML += `<div class="tier-col"><div class="tier-header t${i}">Tier ${i}</div><div class="tier-players" id="${p}-t${i}"></div></div>`;
             }
         });
 
-        function showPage(pageId) {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            document.getElementById(pageId).classList.add('active');
+        function showPage(id) {
+            document.querySelectorAll('.page, .nav-item').forEach(x => x.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
             event.currentTarget.classList.add('active');
         }
 
-        function openProfile(name, rank, points, region, title) {
-            document.getElementById('modalName').innerText = name;
-            document.getElementById('modalRank').innerText = rank;
-            document.getElementById('modalPoints').innerText = points;
-            document.getElementById('modalTitle').innerText = title;
-            document.getElementById('modalHead').src = `https://mc-heads.net/avatar/${name}/100`;
-            document.getElementById('profileModal').style.display = "flex";
+        function openProfile(n, r, p, reg, t) {
+            document.getElementById('mName').innerText = n;
+            document.getElementById('mRank').innerText = r;
+            document.getElementById('mPts').innerText = p;
+            document.getElementById('mTitle').innerText = t;
+            document.getElementById('mHead').src = `https://mc-heads.net/avatar/${n}/120`;
+            document.getElementById('modal').style.display = "flex";
         }
-        function closeModal() { document.getElementById('profileModal').style.display = "none"; }
-        function closeModalOutside(e) { if(e.target.id === "profileModal") closeModal(); }
+
+        function closeModal(e) { if(e.target.id === 'modal' || e.target.className === 'close-btn') document.getElementById('modal').style.display = "none"; }
     </script>
 </body>
 </html>
