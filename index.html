@@ -13,7 +13,7 @@
         
         .sub-pill { display: flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 8px; background: transparent; transition: 0.2s; border: 1px solid transparent; color: #a1a1aa; font-weight: 500; font-size: 0.95rem; }
         .sub-pill.active { background: #27272a; border-color: #3f3f46; color: #ffffff; }
-        .sub-pill img { width: 20px; height: 20px; image-rendering: pixelated; }
+        .sub-pill img { width: 22px; height: 22px; image-rendering: pixelated; }
 
         .tier-column { background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 16px; height: 75vh; display: flex; flex-direction: column; }
         .tier-header { padding: 16px; border-bottom: 1px solid rgba(255,255,255,0.05); text-align: center; font-weight: 900; text-transform: uppercase; letter-spacing: 0.05em; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; gap: 8px; }
@@ -30,31 +30,22 @@
         .profile-card { background: #0d0d11; border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; width: 450px; padding: 32px; position: relative; }
         .profile-avatar { width: 100px; height: 100px; border-radius: 50%; border: 4px solid #facc15; margin: 0 auto 16px; display: block; }
         
-        .search-container { position: relative; width: 250px; }
-        .search-input { width: 100%; background: #16161a; border: 1px solid #27272a; border-radius: 10px; padding: 8px 12px 8px 36px; font-size: 0.9rem; outline: none; transition: 0.2s; }
-        .search-input:focus { border-color: #3f3f46; background: #1c1c21; }
+        .search-input { width: 250px; background: #16161a; border: 1px solid #27272a; border-radius: 10px; padding: 8px 12px; font-size: 0.9rem; outline: none; }
 
         .mode-icon-circle { width: 42px; height: 42px; border-radius: 50%; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; padding: 4px; }
-        .mode-icon-circle img { width: 22px; height: 22px; image-rendering: pixelated; }
+        .mode-icon-circle img { width: 24px; height: 24px; image-rendering: pixelated; }
     </style>
 </head>
 <body class="p-8">
 
     <header class="flex items-center justify-between mb-8 max-w-7xl mx-auto">
-        <div class="flex items-center gap-10">
-            <h1 class="text-3xl font-black tracking-tight">Knight Tiers</h1>
-        </div>
-        
+        <h1 class="text-3xl font-black tracking-tight">Knight Tiers</h1>
         <div class="flex gap-3">
             <button onclick="switchMain('global')" id="btn-global" class="pill-btn active">Global</button>
             <button onclick="switchMain('main')" id="btn-main" class="pill-btn">Main Modes</button>
             <button onclick="switchMain('sub')" id="btn-sub" class="pill-btn">Sub Modes</button>
         </div>
-
-        <div class="search-container">
-            <svg class="absolute left-3 top-2.5 w-4 h-4 text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-            <input type="text" id="searchBar" class="search-input" placeholder="Search players..." onkeyup="handleSearch(event)">
-        </div>
+        <input type="text" id="searchBar" class="search-input" placeholder="Search players..." onkeyup="handleSearch(event)">
     </header>
 
     <div class="max-w-7xl mx-auto">
@@ -66,47 +57,46 @@
     <div id="profileModal" class="modal-overlay" onclick="closeProfile()">
         <div class="profile-card" onclick="event.stopPropagation()">
             <button onclick="closeProfile()" class="absolute top-4 right-4 text-zinc-500 hover:text-white text-2xl">&times;</button>
-            <img id="p-avatar" src="" class="profile-avatar shadow-[0_0_30px_rgba(250,204,21,0.2)]">
+            <img id="p-avatar" src="" class="profile-avatar shadow-[0_0_20px_rgba(250,204,21,0.3)]">
             <h2 id="p-name" class="text-center text-3xl font-black mb-1 bg-gradient-to-r from-pink-400 to-blue-400 bg-clip-text text-transparent"></h2>
             <div class="flex justify-center gap-2 mb-8">
-                <span class="bg-yellow-500/10 text-yellow-500 text-[10px] font-black px-3 py-1 rounded-md border border-yellow-500/20 uppercase">Combat Ace</span>
                 <span id="p-region" class="bg-green-500/10 text-green-500 text-[10px] font-black px-3 py-1 rounded-md border border-green-500/20 uppercase"></span>
             </div>
             <div class="mb-6">
-                <p class="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-3">Position</p>
+                <p class="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-3">Overall Standing</p>
                 <div class="glass-card p-4 flex items-center justify-between">
                     <div class="flex items-center gap-4">
-                        <div id="p-rank-num" class="w-10 h-10 bg-yellow-500 rounded-xl flex items-center justify-center font-black text-black"></div>
-                        <div class="flex items-center gap-2">
-                            <img src="https://static.wikia.nocookie.net/minecraft_gamepedia/images/b/bc/Cup_JE1_BE1.png" class="w-4 h-4">
-                            <span class="font-bold">Overall</span>
-                        </div>
+                        <img id="modal-trophy" src="" class="w-8 h-8">
+                        <span class="font-bold">Rating Points</span>
                     </div>
                     <span id="p-total" class="text-zinc-500 text-sm font-bold"></span>
                 </div>
             </div>
             <div>
-                <p class="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-3">Tiers</p>
-                <div id="p-tiers-grid" class="glass-card p-4 grid grid-cols-5 gap-3 max-h-48 overflow-y-auto pr-2 no-scrollbar"></div>
+                <p class="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-3">Active Tiers</p>
+                <div id="p-tiers-grid" class="glass-card p-4 grid grid-cols-5 gap-3 max-h-48 overflow-y-auto no-scrollbar pr-2"></div>
             </div>
         </div>
     </div>
 
     <script>
+        // Use jsDelivr and public GitHub assets to bypass GitHub Pages hotlink protection
         const ASSETS = {
-            'Overall': 'https://static.wikia.nocookie.net/minecraft_gamepedia/images/b/bc/Cup_JE1_BE1.png',
-            'Sword': 'https://static.wikia.nocookie.net/minecraft_gamepedia/images/6/6a/Diamond_Sword_JE3_BE3.png',
-            'Axe': 'https://static.wikia.nocookie.net/minecraft_gamepedia/images/0/09/Diamond_Axe_JE3_BE3.png',
-            'Vanilla': 'https://static.wikia.nocookie.net/minecraft_gamepedia/images/2/23/End_Crystal_JE2_BE2.png',
-            'Pot': 'https://static.wikia.nocookie.net/minecraft_gamepedia/images/f/f1/Splash_Potion_of_Healing_JE2_BE2.png',
-            'NethOP': 'https://static.wikia.nocookie.net/minecraft_gamepedia/images/a/a2/Netherite_Helmet_JE2_BE2.png',
-            'UHC': 'https://static.wikia.nocookie.net/minecraft_gamepedia/images/f/f6/Lava_Bucket_JE2_BE2.png',
-            'SMP': 'https://static.wikia.nocookie.net/minecraft_gamepedia/images/f/f0/Ender_Pearl_JE3_BE2.png',
-            'Mace': 'https://static.wikia.nocookie.net/minecraft_gamepedia/images/a/a2/Mace_JE1_BE1.png',
-            'Minecart': 'https://static.wikia.nocookie.net/minecraft_gamepedia/images/0/05/TNT_Minecart_JE2_BE2.png',
-            'DSMP': 'https://static.wikia.nocookie.net/minecraft_gamepedia/images/a/a5/Chorus_Fruit_JE2_BE2.png',
-            'Spear Mace': 'https://static.wikia.nocookie.net/minecraft_gamepedia/images/e/e0/Breeze_Rod_JE1_BE1.png',
-            'Region': 'https://static.wikia.nocookie.net/minecraft_gamepedia/images/d/d3/Globe_Banner_Pattern_JE1_BE1.png'
+            'Overall': 'https://cdn.jsdelivr.net/gh/misode/mcmeta@assets/assets/minecraft/textures/gui/sprites/hud/heart/container.png', 
+            'Trophy': 'https://raw.githubusercontent.com/piston-data/resourcepack/master/assets/minecraft/textures/item/gold_ingot.png', // Temporary until trophy is cached
+            'Trophy_Final': 'https://cdn.jsdelivr.net/gh/misode/mcmeta@assets/assets/minecraft/textures/item/trial_key.png',
+            'Sword': 'https://cdn.jsdelivr.net/gh/misode/mcmeta@assets/assets/minecraft/textures/item/diamond_sword.png',
+            'Axe': 'https://cdn.jsdelivr.net/gh/misode/mcmeta@assets/assets/minecraft/textures/item/diamond_axe.png',
+            'Vanilla': 'https://cdn.jsdelivr.net/gh/misode/mcmeta@assets/assets/minecraft/textures/item/end_crystal.png',
+            'Pot': 'https://cdn.jsdelivr.net/gh/misode/mcmeta@assets/assets/minecraft/textures/item/potion.png',
+            'NethOP': 'https://cdn.jsdelivr.net/gh/misode/mcmeta@assets/assets/minecraft/textures/item/netherite_helmet.png',
+            'UHC': 'https://cdn.jsdelivr.net/gh/misode/mcmeta@assets/assets/minecraft/textures/item/lava_bucket.png',
+            'SMP': 'https://cdn.jsdelivr.net/gh/misode/mcmeta@assets/assets/minecraft/textures/item/ender_pearl.png',
+            'Mace': 'https://cdn.jsdelivr.net/gh/misode/mcmeta@assets/assets/minecraft/textures/item/mace.png',
+            'Minecart': 'https://cdn.jsdelivr.net/gh/misode/mcmeta@assets/assets/minecraft/textures/item/tnt_minecart.png',
+            'DSMP': 'https://cdn.jsdelivr.net/gh/misode/mcmeta@assets/assets/minecraft/textures/item/chorus_fruit.png',
+            'Spear Mace': 'https://cdn.jsdelivr.net/gh/misode/mcmeta@assets/assets/minecraft/textures/item/breeze_rod.png',
+            'Region': 'https://cdn.jsdelivr.net/gh/misode/mcmeta@assets/assets/minecraft/textures/item/elytra.png'
         };
 
         const TIERS_CONFIG = { 'HT1': 60, 'LT1': 45, 'HT2': 30, 'LT2': 20, 'HT3': 10, 'LT3': 6, 'HT4': 4, 'LT4': 3, 'HT5': 2, 'LT5': 1 };
@@ -131,14 +121,11 @@
         function openProfile(pName) {
             const p = PLAYERS.find(x => x.name.toLowerCase() === pName.toLowerCase());
             if(!p) return;
-            const sorted = [...PLAYERS].sort((a,b) => calculateRating(b) - calculateRating(a));
-            const rankNum = sorted.findIndex(x => x.name === p.name) + 1;
-
             document.getElementById('p-avatar').src = p.skin;
             document.getElementById('p-name').innerText = p.name;
             document.getElementById('p-region').innerText = p.region;
-            document.getElementById('p-rank-num').innerText = rankNum;
-            document.getElementById('p-total').innerText = `(${calculateRating(p)} points)`;
+            document.getElementById('modal-trophy').src = ASSETS['Trophy_Final'];
+            document.getElementById('p-total').innerText = calculateRating(p) + " points";
             document.getElementById('p-tiers-grid').innerHTML = Object.entries(p.ranks).map(([mode, tier]) => `
                 <div class="mode-icon-circle">
                     <img src="${ASSETS[mode]}" alt="">
@@ -151,9 +138,8 @@
         function closeProfile() { document.getElementById('profileModal').classList.remove('active'); }
 
         function handleSearch(e) {
-            const query = e.target.value.toLowerCase();
-            if(e.key === 'Enter' && query.length > 0) {
-                const found = PLAYERS.find(p => p.name.toLowerCase().includes(query));
+            if(e.key === 'Enter') {
+                const found = PLAYERS.find(p => p.name.toLowerCase().includes(e.target.value.toLowerCase()));
                 if(found) openProfile(found.name);
             }
         }
@@ -167,7 +153,7 @@
         function renderSubNav() {
             document.getElementById('sub-nav-container').innerHTML = NAV_MAP[activeMain].map(mode => `
                 <button onclick="switchSub('${mode}')" class="sub-pill ${activeSub === mode ? 'active' : ''}">
-                    <img src="${['EU', 'NA', 'AS'].includes(mode) ? ASSETS['Region'] : ASSETS[mode]}" alt="">
+                    <img src="${['EU', 'NA', 'AS'].includes(mode) ? ASSETS['Region'] : (mode === 'Overall' ? ASSETS['Trophy_Final'] : ASSETS[mode])}" alt="">
                     ${mode === 'Overall' ? 'Points' : mode}
                 </button>
             `).join('');
@@ -177,29 +163,28 @@
 
         function renderContent() {
             const container = document.getElementById('content-display');
-            const filteredPlayers = [...PLAYERS].sort((a,b) => calculateRating(b) - calculateRating(a));
+            const sorted = [...PLAYERS].sort((a,b) => calculateRating(b) - calculateRating(a));
 
             if (activeSub === 'Overall' || activeMain === 'global') {
                 container.innerHTML = `
-                    <div class="flex px-8 py-3 text-[10px] font-bold text-zinc-600 uppercase tracking-[0.2em] mb-4">
-                        <div class="w-20">Rank</div><div class="flex-1">Player</div><div class="w-32">Region</div><div class="w-72">Tiers</div><div class="w-32 text-right">Rating</div>
+                    <div class="flex px-8 py-3 text-[10px] font-bold text-zinc-600 uppercase mb-4">
+                        <div class="w-20">Rank</div><div class="flex-1">Player</div><div class="w-32">Region</div><div class="w-72">Mode Ranks</div><div class="w-32 text-right">Rating</div>
                     </div>
-                    ${filteredPlayers.map((p, i) => `
+                    ${sorted.map((p, i) => `
                         <div class="glass-card p-5 mb-4 flex items-center hover:bg-white/[0.04] transition group" onclick="openProfile('${p.name}')">
                             <div class="w-20 font-black text-2xl ${i < 3 ? 'text-yellow-500' : 'text-zinc-600'}">${i+1}</div>
                             <div class="flex-1 flex items-center gap-5">
                                 <img src="${p.skin}" class="w-12 h-12 rounded-lg">
-                                <div><div class="font-bold text-lg">${p.name}</div><div class="text-xs text-zinc-500">Combat Ace</div></div>
+                                <span class="font-bold text-lg">${p.name}</span>
                             </div>
-                            <div class="w-32"><span class="bg-zinc-800 text-zinc-300 text-[11px] px-3 py-1 rounded-md font-bold border border-zinc-700">${p.region}</span></div>
-                            <div class="w-72 flex gap-1.5 flex-wrap">
-                                ${Object.entries(p.ranks).slice(0, 5).map(([mode, tier]) => `
-                                    <div class="flex flex-col items-center gap-1">
-                                        <img src="${ASSETS[mode]}" class="w-5 h-5">
+                            <div class="w-32"><span class="bg-zinc-800 text-zinc-300 text-[11px] px-3 py-1 rounded-md font-bold">${p.region}</span></div>
+                            <div class="w-72 flex gap-2">
+                                ${Object.entries(p.ranks).slice(0, 4).map(([mode, tier]) => `
+                                    <div class="flex flex-col items-center">
+                                        <img src="${ASSETS[mode]}" class="w-5 h-5 mb-1">
                                         <div class="tier-badge">${tier}</div>
                                     </div>
                                 `).join('')}
-                                ${Object.keys(p.ranks).length > 5 ? `<div class="self-center bg-purple-900/20 text-purple-400 text-[10px] font-bold w-8 h-8 flex items-center justify-center rounded-full border border-purple-500/20 ml-2">+${Object.keys(p.ranks).length - 5}</div>` : ''}
                             </div>
                             <div class="w-32 text-right rating-num">${calculateRating(p)}</div>
                         </div>
@@ -215,7 +200,7 @@
                                     <div class="player-square" onclick="openProfile('${p.name}')">
                                         <img src="${p.skin}" class="w-8 h-8 rounded shadow-lg">
                                         <div class="flex flex-col">
-                                            <span class="font-bold text-sm tracking-tight">${p.name}</span>
+                                            <span class="font-bold text-sm">${p.name}</span>
                                             <span class="text-[9px] text-zinc-500 font-black uppercase">${p.ranks[activeSub]}</span>
                                         </div>
                                     </div>
