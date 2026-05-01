@@ -6,19 +6,29 @@
     <title>Knight Tiers | Minecraft Rankings</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background-color: #0d0d0f; color: #ffffff; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; overflow-x: hidden; }
+        body { background-color: #0d0d0f; color: #ffffff; font-family: 'Inter', sans-serif; overflow-x: hidden; }
         .glass-card { background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 12px; }
         .pill-btn { padding: 10px 24px; border-radius: 12px; transition: 0.2s; background: transparent; border: 1px solid rgba(255,255,255,0.1); color: #71717a; font-weight: 600; }
         .pill-btn.active { background: #1a1a1e; border-color: #3f3f46; color: #ffffff; }
-        .sub-pill { display: flex; items-center: center; gap: 8px; padding: 8px 16px; border-radius: 8px; background: transparent; transition: 0.2s; border: 1px solid transparent; color: #a1a1aa; font-weight: 500; font-size: 0.95rem; }
+        
+        .sub-pill { display: flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 8px; background: transparent; transition: 0.2s; border: 1px solid transparent; color: #a1a1aa; font-weight: 500; font-size: 0.95rem; }
         .sub-pill.active { background: #27272a; border-color: #3f3f46; color: #ffffff; }
-        .sub-pill img { width: 18px; height: 18px; object-fit: contain; }
-        .tier-badge { background: #16161a; padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 800; color: #a1a1aa; border: 1px solid #27272a; text-transform: uppercase; }
+        .sub-pill img { width: 20px; height: 20px; image-rendering: pixelated; }
+
+        .tier-column { background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 16px; min-height: 600px; display: flex; flex-direction: column; }
+        .tier-header { padding: 16px; border-bottom: 1px solid rgba(255,255,255,0.05); text-align: center; font-weight: 900; text-transform: uppercase; letter-spacing: 0.05em; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        
+        .player-square { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; padding: 10px; display: flex; align-items: center; gap: 12px; transition: 0.2s; }
+        .player-square:hover { background: rgba(255,255,255,0.06); transform: translateY(-2px); }
+
+        .tier-badge { background: #16161a; padding: 2px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: 800; color: #a1a1aa; border: 1px solid #27272a; }
         .rating-num { color: #a78bfa; font-weight: 800; font-size: 1.6rem; }
-        .info-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 100; backdrop-filter: blur(8px); align-items: center; justify-content: center; }
+        
+        .info-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 100; backdrop-filter: blur(10px); align-items: center; justify-content: center; }
         .info-modal.active { display: flex; }
         .point-card { background: #111115; border: 1px solid #1f1f23; border-radius: 14px; padding: 24px; width: 190px; text-align: center; }
         .purple-bar { height: 5px; background: #8b5cf6; border-radius: 10px; margin: 12px auto; box-shadow: 0 0 10px rgba(139, 92, 246, 0.3); }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
 <body class="p-8">
@@ -38,26 +48,22 @@
     </header>
 
     <div class="max-w-7xl mx-auto">
-        <div id="sub-nav-container" class="glass-card p-2 flex gap-2 mb-8 overflow-x-auto no-scrollbar">
-            </div>
+        <div id="sub-nav-container" class="glass-card p-2 flex gap-2 mb-8 overflow-x-auto no-scrollbar"></div>
     </div>
 
-    <main class="max-w-7xl mx-auto" id="content-display">
-        </main>
+    <main class="max-w-7xl mx-auto" id="content-display"></main>
 
     <div id="infoModal" class="info-modal" onclick="toggleInfo(false)">
         <div class="max-w-6xl w-full p-10 glass-card bg-[#0d0d0f]" onclick="event.stopPropagation()">
             <h2 class="text-4xl font-bold mb-3">How the Point System Works</h2>
-            <p class="text-zinc-400 mb-10 text-lg max-w-3xl">Knight Tiers tracks player rankings across various game modes. Each tier assignment earns points based on the difficulty and prestige of achieving that rank.</p>
-            
-            <div id="point-cards-grid" class="flex flex-wrap gap-5 justify-start">
-                </div>
+            <p class="text-zinc-400 mb-10 text-lg max-w-3xl">Knight Tiers tracks player rankings across various game modes. Each tier assignment earns points based on the rank achieved.</p>
+            <div id="point-cards-grid" class="flex flex-wrap gap-5 justify-start"></div>
         </div>
     </div>
 
     <script>
-        const ICONS = {
-            'Overall': 'https://minecraft.wiki/images/Cup_JE1_BE1.png',
+        const ASSETS = {
+            'Trophy': 'https://minecraft.wiki/images/Cup_JE1_BE1.png',
             'Sword': 'https://minecraft.wiki/images/Diamond_Sword_JE3_BE3.png',
             'Axe': 'https://minecraft.wiki/images/Diamond_Axe_JE3_BE3.png',
             'Vanilla': 'https://minecraft.wiki/images/End_Crystal_JE2_BE2.png',
@@ -67,19 +73,25 @@
             'SMP': 'https://minecraft.wiki/images/Ender_Pearl_JE3_BE2.png',
             'Mace': 'https://minecraft.wiki/images/Mace_JE1_BE1.png',
             'MineCart': 'https://minecraft.wiki/images/TNT_Minecart_JE2_BE2.png',
-            'DSMP': 'https://minecraft.wiki/images/Dragon_Egg_JE3_BE2.png',
-            'Spear Mace': 'https://minecraft.wiki/images/Trident_JE2_BE1.png',
-            'EU': 'https://minecraft.wiki/images/Globe_Banner_Pattern_JE1_BE1.png',
-            'NA': 'https://minecraft.wiki/images/Globe_Banner_Pattern_JE1_BE1.png',
-            'AS': 'https://minecraft.wiki/images/Globe_Banner_Pattern_JE1_BE1.png'
+            'DSMP': 'https://minecraft.wiki/images/Chorus_Fruit_JE2_BE2.png',
+            'Spear Mace': 'https://minecraft.wiki/images/Breeze_Rod_JE1_BE1.png',
+            'Region': 'https://minecraft.wiki/images/Globe_Banner_Pattern_JE1_BE1.png'
         };
 
         const TIERS_CONFIG = {
-            'HT1': {pts: 60, w: '100%'}, 'LT1': {pts: 45, w: '85%'},
-            'HT2': {pts: 30, w: '70%'}, 'LT2': {pts: 20, w: '55%'},
-            'HT3': {pts: 10, w: '40%'}, 'LT3': {pts: 6, w: '30%'},
-            'HT4': {pts: 4, w: '20%'},  'LT4': {pts: 3, w: '15%'},
-            'HT5': {pts: 2, w: '10%'},  'LT5': {pts: 1, w: '5%'}
+            'HT1': 60, 'LT1': 45, 'HT2': 30, 'LT2': 20, 'HT3': 10,
+            'LT3': 6,  'HT4': 4,  'LT4': 3,  'HT5': 2,  'LT5': 1
+        };
+
+        const TEST_PLAYER = {
+            name: "Knight_Spooky",
+            region: "NA",
+            skin: "https://mc-heads.net/avatar/oss_spooky/64",
+            ranks: {
+                'Sword': 'HT1', 'Axe': 'LT1', 'Vanilla': 'HT2', 'Pot': 'LT2',
+                'NethOP': 'HT3', 'UHC': 'LT3', 'SMP': 'HT4', 'Mace': 'LT4',
+                'MineCart': 'HT5', 'DSMP': 'LT5', 'Spear Mace': 'HT2'
+            }
         };
 
         const NAV_MAP = {
@@ -93,86 +105,75 @@
 
         function toggleInfo(val) { document.getElementById('infoModal').classList.toggle('active', val); }
 
-        function renderPoints() {
-            document.getElementById('point-cards-grid').innerHTML = Object.entries(TIERS_CONFIG).map(([t, d]) => `
-                <div class="point-card">
-                    <div class="text-zinc-500 font-bold text-xs mb-1">${t}</div>
-                    <div class="text-3xl font-black mb-2">${d.pts} pts</div>
-                    <div class="purple-bar" style="width: ${d.w}"></div>
-                    <div class="text-[9px] uppercase font-black text-zinc-600 tracking-widest">Leaderboard Rank</div>
-                </div>
-            `).join('');
+        function calculateRating(modeSet) {
+            let total = 0;
+            const modes = modeSet === 'main' ? NAV_MAP.main : modeSet === 'sub' ? NAV_MAP.sub : [...NAV_MAP.main, ...NAV_MAP.sub];
+            modes.forEach(m => { if(TEST_PLAYER.ranks[m]) total += TIERS_CONFIG[TEST_PLAYER.ranks[m]]; });
+            return total;
         }
 
         function switchMain(key) {
-            activeMain = key;
-            activeSub = 'Overall';
+            activeMain = key; activeSub = 'Overall';
             ['global', 'main', 'sub'].forEach(k => document.getElementById(`btn-${k}`).classList.toggle('active', k === key));
-            renderSubNav();
-            renderContent();
+            renderSubNav(); renderContent();
         }
 
         function renderSubNav() {
             document.getElementById('sub-nav-container').innerHTML = NAV_MAP[activeMain].map(mode => `
                 <button onclick="switchSub('${mode}')" class="sub-pill ${activeSub === mode ? 'active' : ''}">
-                    <img src="${ICONS[mode] || ICONS['Overall']}" alt="">
+                    <img src="${ASSETS[mode] || ASSETS['Trophy']}" alt="">
                     ${mode}
                 </button>
             `).join('');
         }
 
-        function switchSub(mode) {
-            activeSub = mode;
-            renderSubNav();
-            renderContent();
-        }
+        function switchSub(mode) { activeSub = mode; renderSubNav(); renderContent(); }
 
         function renderContent() {
             const container = document.getElementById('content-display');
             if (activeSub === 'Overall' || activeMain === 'global') {
+                const rating = activeMain === 'global' ? calculateRating('all') : activeMain === 'main' ? calculateRating('main') : calculateRating('sub');
                 container.innerHTML = `
                     <div class="flex px-8 py-3 text-[10px] font-bold text-zinc-600 uppercase tracking-[0.2em] mb-4">
-                        <div class="w-20">Rank</div>
-                        <div class="flex-1">Player</div>
-                        <div class="w-32">Region</div>
-                        <div class="w-72">Tiers</div>
-                        <div class="w-32 text-right">Rating</div>
+                        <div class="w-20">Rank</div><div class="flex-1">Player</div><div class="w-32">Region</div><div class="w-72">Tiers</div><div class="w-32 text-right">Rating</div>
                     </div>
-                    ${Array.from({length: 6}).map((_, i) => `
-                        <div class="glass-card p-5 mb-4 flex items-center hover:bg-white/[0.04] transition group">
-                            <div class="w-20 font-black text-2xl text-zinc-700 group-hover:text-zinc-400 transition">${i+1}</div>
-                            <div class="flex-1 flex items-center gap-5">
-                                <img src="https://visage.surgeplay.com/head/64/abbade22" class="w-12 h-12 rounded-lg">
-                                <div>
-                                    <div class="font-bold text-lg">KnightPlayer_${i}</div>
-                                    <div class="text-xs text-zinc-500 font-medium italic">Combat Ace</div>
-                                </div>
-                            </div>
-                            <div class="w-32"><span class="bg-red-900/20 text-red-400 text-[11px] px-3 py-1 rounded-md font-bold border border-red-900/30">EU</span></div>
-                            <div class="w-72 flex gap-1.5">
-                                <div class="flex flex-col items-center gap-1">
-                                    <img src="${ICONS['Sword']}" class="w-5 h-5">
-                                    <div class="tier-badge">HT1</div>
-                                </div>
-                                <div class="flex flex-col items-center gap-1">
-                                    <img src="${ICONS['Axe']}" class="w-5 h-5">
-                                    <div class="tier-badge">LT2</div>
-                                </div>
-                                <div class="self-center bg-purple-900/20 text-purple-400 text-[10px] font-bold w-8 h-8 flex items-center justify-center rounded-full border border-purple-500/20 ml-2">+12</div>
-                            </div>
-                            <div class="w-32 text-right rating-num">${200 - (i*15)}</div>
+                    <div class="glass-card p-5 mb-4 flex items-center hover:bg-white/[0.04] transition group">
+                        <div class="w-20 font-black text-2xl text-yellow-500">1</div>
+                        <div class="flex-1 flex items-center gap-5">
+                            <img src="${TEST_PLAYER.skin}" class="w-12 h-12 rounded-lg">
+                            <div><div class="font-bold text-lg">${TEST_PLAYER.name}</div><div class="text-xs text-zinc-500">Combat Ace</div></div>
                         </div>
-                    `).join('')}
+                        <div class="w-32"><span class="bg-zinc-800 text-zinc-300 text-[11px] px-3 py-1 rounded-md font-bold border border-zinc-700">${TEST_PLAYER.region}</span></div>
+                        <div class="w-72 flex gap-1.5 flex-wrap">
+                            ${Object.entries(TEST_PLAYER.ranks).slice(0, 4).map(([mode, tier]) => `
+                                <div class="flex flex-col items-center gap-1">
+                                    <img src="${ASSETS[mode] || ASSETS['Trophy']}" class="w-4 h-4">
+                                    <div class="tier-badge">${tier}</div>
+                                </div>
+                            `).join('')}
+                            <div class="self-center bg-purple-900/20 text-purple-400 text-[10px] font-bold w-8 h-8 flex items-center justify-center rounded-full border border-purple-500/20 ml-2">+${Object.keys(TEST_PLAYER.ranks).length - 4}</div>
+                        </div>
+                        <div class="w-32 text-right rating-num">${rating}</div>
+                    </div>
                 `;
             } else {
                 container.innerHTML = `
-                    <div class="grid grid-cols-5 gap-5">
+                    <div class="grid grid-cols-5 gap-6">
                         ${[1,2,3,4,5].map(t => `
-                            <div class="flex flex-col gap-4">
-                                <div class="glass-card p-4 text-center font-black text-zinc-400 uppercase tracking-widest border-t-4 ${t===1 ? 'border-yellow-500' : 'border-zinc-800'}">Tier ${t}</div>
-                                <div class="glass-card p-4 flex items-center gap-4 hover:bg-white/5 transition">
-                                    <img src="https://visage.surgeplay.com/head/64/12345" class="w-8 h-8 rounded">
-                                    <span class="font-bold text-sm">PlayerOne</span>
+                            <div class="tier-column">
+                                <div class="tier-header ${t === 1 ? 'text-yellow-500' : t === 2 ? 'text-zinc-400' : 'text-orange-700'}">
+                                    <img src="${ASSETS['Trophy']}" class="w-4 h-4"> Tier ${t}
+                                </div>
+                                <div class="p-4 flex flex-col gap-3">
+                                    ${TEST_PLAYER.ranks[activeSub] === `HT${t}` || TEST_PLAYER.ranks[activeSub] === `LT${t}` ? `
+                                        <div class="player-square">
+                                            <img src="${TEST_PLAYER.skin}" class="w-8 h-8 rounded shadow-lg">
+                                            <div class="flex flex-col">
+                                                <span class="font-bold text-sm tracking-tight">${TEST_PLAYER.name}</span>
+                                                <span class="text-[9px] text-zinc-500 font-black uppercase tracking-tighter">${TEST_PLAYER.ranks[activeSub]}</span>
+                                            </div>
+                                        </div>
+                                    ` : ''}
                                 </div>
                             </div>
                         `).join('')}
@@ -181,8 +182,15 @@
             }
         }
 
-        // INIT
-        renderPoints();
+        document.getElementById('point-cards-grid').innerHTML = Object.entries(TIERS_CONFIG).map(([t, p]) => `
+            <div class="point-card">
+                <div class="text-zinc-500 font-bold text-xs mb-1">${t}</div>
+                <div class="text-3xl font-black mb-2">${p} pts</div>
+                <div class="purple-bar" style="width: ${p}%"></div>
+                <div class="text-[9px] uppercase font-black text-zinc-600 tracking-widest">Leaderboard Rank</div>
+            </div>
+        `).join('');
+
         switchMain('global');
     </script>
 </body>
