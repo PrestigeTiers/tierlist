@@ -13,7 +13,7 @@
         
         .sub-pill { display: flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 8px; background: transparent; transition: 0.2s; border: 1px solid transparent; color: #a1a1aa; font-weight: 500; font-size: 0.95rem; }
         .sub-pill.active { background: #27272a; border-color: #3f3f46; color: #ffffff; }
-        .sub-pill img { width: 22px; height: 22px; image-rendering: pixelated; }
+        .sub-pill img { width: 22px; height: 22px; object-fit: contain; }
 
         .tier-column { background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 16px; height: 75vh; display: flex; flex-direction: column; }
         .tier-header { padding: 16px; border-bottom: 1px solid rgba(255,255,255,0.05); text-align: center; font-weight: 900; text-transform: uppercase; letter-spacing: 0.05em; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; gap: 8px; }
@@ -63,11 +63,11 @@
                 <span id="p-region" class="bg-green-500/10 text-green-500 text-[10px] font-black px-3 py-1 rounded-md border border-green-500/20 uppercase"></span>
             </div>
             <div class="mb-6">
-                <p class="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-3">Overall Standing</p>
+                <p class="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-3">Overall Ranking</p>
                 <div class="glass-card p-4 flex items-center justify-between">
                     <div class="flex items-center gap-4">
-                        <img id="modal-trophy" src="" class="w-8 h-8">
-                        <span class="font-bold">Rating Points</span>
+                        <img id="modal-trophy" src="https://www.pngarts.com/files/10/Golden-Trophy-PNG-Photo.png" class="w-8 h-8 object-contain">
+                        <span class="font-bold">Total Points</span>
                     </div>
                     <span id="p-total" class="text-zinc-500 text-sm font-bold"></span>
                 </div>
@@ -80,11 +80,8 @@
     </div>
 
     <script>
-        // Use jsDelivr and public GitHub assets to bypass GitHub Pages hotlink protection
         const ASSETS = {
-            'Overall': 'https://cdn.jsdelivr.net/gh/misode/mcmeta@assets/assets/minecraft/textures/gui/sprites/hud/heart/container.png', 
-            'Trophy': 'https://raw.githubusercontent.com/piston-data/resourcepack/master/assets/minecraft/textures/item/gold_ingot.png', // Temporary until trophy is cached
-            'Trophy_Final': 'https://cdn.jsdelivr.net/gh/misode/mcmeta@assets/assets/minecraft/textures/item/trial_key.png',
+            'Overall': 'https://www.pngarts.com/files/10/Golden-Trophy-PNG-Photo.png', 
             'Sword': 'https://cdn.jsdelivr.net/gh/misode/mcmeta@assets/assets/minecraft/textures/item/diamond_sword.png',
             'Axe': 'https://cdn.jsdelivr.net/gh/misode/mcmeta@assets/assets/minecraft/textures/item/diamond_axe.png',
             'Vanilla': 'https://cdn.jsdelivr.net/gh/misode/mcmeta@assets/assets/minecraft/textures/item/end_crystal.png',
@@ -124,7 +121,6 @@
             document.getElementById('p-avatar').src = p.skin;
             document.getElementById('p-name').innerText = p.name;
             document.getElementById('p-region').innerText = p.region;
-            document.getElementById('modal-trophy').src = ASSETS['Trophy_Final'];
             document.getElementById('p-total').innerText = calculateRating(p) + " points";
             document.getElementById('p-tiers-grid').innerHTML = Object.entries(p.ranks).map(([mode, tier]) => `
                 <div class="mode-icon-circle">
@@ -153,8 +149,8 @@
         function renderSubNav() {
             document.getElementById('sub-nav-container').innerHTML = NAV_MAP[activeMain].map(mode => `
                 <button onclick="switchSub('${mode}')" class="sub-pill ${activeSub === mode ? 'active' : ''}">
-                    <img src="${['EU', 'NA', 'AS'].includes(mode) ? ASSETS['Region'] : (mode === 'Overall' ? ASSETS['Trophy_Final'] : ASSETS[mode])}" alt="">
-                    ${mode === 'Overall' ? 'Points' : mode}
+                    <img src="${['EU', 'NA', 'AS'].includes(mode) ? ASSETS['Region'] : ASSETS[mode]}" alt="">
+                    ${mode}
                 </button>
             `).join('');
         }
@@ -168,10 +164,10 @@
             if (activeSub === 'Overall' || activeMain === 'global') {
                 container.innerHTML = `
                     <div class="flex px-8 py-3 text-[10px] font-bold text-zinc-600 uppercase mb-4">
-                        <div class="w-20">Rank</div><div class="flex-1">Player</div><div class="w-32">Region</div><div class="w-72">Mode Ranks</div><div class="w-32 text-right">Rating</div>
+                        <div class="w-20">Rank</div><div class="flex-1">Player</div><div class="w-32">Region</div><div class="w-72">Mode Ranks</div><div class="w-32 text-right">Points</div>
                     </div>
                     ${sorted.map((p, i) => `
-                        <div class="glass-card p-5 mb-4 flex items-center hover:bg-white/[0.04] transition group" onclick="openProfile('${p.name}')">
+                        <div class="glass-card p-5 mb-4 flex items-center hover:bg-white/[0.04] transition" onclick="openProfile('${p.name}')">
                             <div class="w-20 font-black text-2xl ${i < 3 ? 'text-yellow-500' : 'text-zinc-600'}">${i+1}</div>
                             <div class="flex-1 flex items-center gap-5">
                                 <img src="${p.skin}" class="w-12 h-12 rounded-lg">
