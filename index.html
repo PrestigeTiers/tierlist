@@ -35,7 +35,7 @@
         .search-input:focus { border-color: #3f3f46; background: #1c1c21; }
 
         .mode-icon-circle { width: 42px; height: 42px; border-radius: 50%; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; padding: 4px; }
-        .mode-icon-circle img { width: 18px; height: 18px; image-rendering: pixelated; }
+        .mode-icon-circle img { width: 22px; height: 22px; image-rendering: pixelated; }
     </style>
 </head>
 <body class="p-8">
@@ -43,7 +43,6 @@
     <header class="flex items-center justify-between mb-8 max-w-7xl mx-auto">
         <div class="flex items-center gap-10">
             <h1 class="text-3xl font-black tracking-tight">Knight Tiers</h1>
-            <button onclick="toggleInfo(true)" class="text-xs font-bold uppercase tracking-[0.2em] text-zinc-500 hover:text-white transition">Information</button>
         </div>
         
         <div class="flex gap-3">
@@ -67,10 +66,8 @@
     <div id="profileModal" class="modal-overlay" onclick="closeProfile()">
         <div class="profile-card" onclick="event.stopPropagation()">
             <button onclick="closeProfile()" class="absolute top-4 right-4 text-zinc-500 hover:text-white text-2xl">&times;</button>
-            
-            <img id="p-avatar" src="" class="profile-avatar shadow-[0_0_30px_rgba(250,204,21,0.2)]">
+            <img id="p-avatar" src="" class="profile-avatar">
             <h2 id="p-name" class="text-center text-3xl font-black mb-1 bg-gradient-to-r from-pink-400 to-blue-400 bg-clip-text text-transparent"></h2>
-            
             <div class="flex justify-center gap-2 mb-8">
                 <span class="bg-yellow-500/10 text-yellow-500 text-[10px] font-black px-3 py-1 rounded-md border border-yellow-500/20 uppercase">Combat Ace</span>
                 <span id="p-region" class="bg-green-500/10 text-green-500 text-[10px] font-black px-3 py-1 rounded-md border border-green-500/20 uppercase"></span>
@@ -80,12 +77,10 @@
                 <p class="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-3">Position</p>
                 <div class="glass-card p-4 flex items-center justify-between">
                     <div class="flex items-center gap-4">
-                        <div class="w-10 h-10 bg-yellow-500 rounded-xl flex items-center justify-center font-black text-black">1</div>
-                        <div>
-                            <div class="flex items-center gap-2">
-                                <img src="https://minecraft.wiki/images/Cup_JE1_BE1.png" class="w-4 h-4">
-                                <span class="font-bold">Overall</span>
-                            </div>
+                        <div id="p-rank-num" class="w-10 h-10 bg-yellow-500 rounded-xl flex items-center justify-center font-black text-black"></div>
+                        <div class="flex items-center gap-2">
+                            <img src="https://minecraft.wiki/images/Cup_JE1_BE1.png" class="w-4 h-4">
+                            <span class="font-bold">Overall</span>
                         </div>
                     </div>
                     <span id="p-total" class="text-zinc-500 text-sm font-bold"></span>
@@ -94,8 +89,7 @@
 
             <div>
                 <p class="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-3">Tiers</p>
-                <div id="p-tiers-grid" class="glass-card p-4 grid grid-cols-5 gap-3 max-h-48 overflow-y-auto pr-2 no-scrollbar">
-                    </div>
+                <div id="p-tiers-grid" class="glass-card p-4 grid grid-cols-5 gap-3 max-h-48 overflow-y-auto pr-2 no-scrollbar"></div>
             </div>
         </div>
     </div>
@@ -111,44 +105,40 @@
             'UHC': 'https://minecraft.wiki/images/Lava_Bucket_JE2_BE2.png',
             'SMP': 'https://minecraft.wiki/images/Ender_Pearl_JE3_BE2.png',
             'Mace': 'https://minecraft.wiki/images/Mace_JE1_BE1.png',
-            'MineCart': 'https://minecraft.wiki/images/TNT_Minecart_JE2_BE2.png',
-            'DSMP': 'https://minecraft.wiki/images/Chorus_Fruit_JE2_BE2.png',
-            'Spear Mace': 'https://minecraft.wiki/images/Breeze_Rod_JE1_BE1.png'
+            'Minecart': 'https://minecraft.wiki/images/TNT_Minecart_JE2_BE2.png',
+            'Region': 'https://minecraft.wiki/images/Globe_Banner_Pattern_JE1_BE1.png'
         };
 
         const TIERS_CONFIG = { 'HT1': 60, 'LT1': 45, 'HT2': 30, 'LT2': 20, 'HT3': 10, 'LT3': 6, 'HT4': 4, 'LT4': 3, 'HT5': 2, 'LT5': 1 };
 
         const PLAYERS = [
-            {
-                name: "oss_spooky",
-                region: "EU",
-                skin: "https://mc-heads.net/avatar/oss_spooky/64",
-                ranks: { 'Sword': 'HT1', 'Axe': 'LT1', 'Vanilla': 'HT2', 'Pot': 'LT2', 'NethOP': 'HT3', 'UHC': 'LT3', 'SMP': 'HT4', 'Mace': 'LT4', 'MineCart': 'HT5', 'DSMP': 'LT5', 'Spear Mace': 'HT2' }
-            }
+            { name: "ossspooky", region: "EU", skin: "https://mc-heads.net/avatar/ossspooky/64", ranks: { 'Sword': 'HT1', 'Axe': 'LT1', 'Vanilla': 'HT2', 'Pot': 'LT2', 'NethOP': 'HT3', 'UHC': 'LT3', 'SMP': 'HT4', 'Mace': 'LT4', 'Minecart': 'HT5' }},
+            { name: "KamQd", region: "NA", skin: "https://mc-heads.net/avatar/KamQd/64", ranks: { 'Sword': 'LT1', 'Mace': 'LT2', 'SMP': 'HT3', 'Pot': 'LT3', 'UHC': 'LT3' }}
         ];
 
         const NAV_MAP = {
             global: ['Overall', 'EU', 'NA', 'AS'],
             main: ['Overall', 'Sword', 'Axe', 'Vanilla', 'Pot', 'NethOP', 'UHC', 'SMP', 'Mace'],
-            sub: ['Overall', 'MineCart', 'DSMP', 'Spear Mace']
+            sub: ['Overall', 'Minecart']
         };
 
         let activeMain = 'global', activeSub = 'Overall';
 
-        function calculateRating(player, modeSet) {
-            let total = 0;
-            const modes = modeSet === 'main' ? NAV_MAP.main : modeSet === 'sub' ? NAV_MAP.sub : Object.keys(player.ranks);
-            modes.forEach(m => { if(player.ranks[m]) total += TIERS_CONFIG[player.ranks[m]]; });
-            return total;
+        function calculateRating(player) {
+            return Object.values(player.ranks).reduce((acc, tier) => acc + (TIERS_CONFIG[tier] || 0), 0);
         }
 
         function openProfile(pName) {
-            const p = PLAYERS.find(x => x.name === pName);
+            const p = PLAYERS.find(x => x.name.toLowerCase() === pName.toLowerCase());
             if(!p) return;
+            const sorted = [...PLAYERS].sort((a,b) => calculateRating(b) - calculateRating(a));
+            const rankNum = sorted.findIndex(x => x.name === p.name) + 1;
+
             document.getElementById('p-avatar').src = p.skin;
             document.getElementById('p-name').innerText = p.name;
             document.getElementById('p-region').innerText = p.region;
-            document.getElementById('p-total').innerText = `(${calculateRating(p, 'all')} points)`;
+            document.getElementById('p-rank-num').innerText = rankNum;
+            document.getElementById('p-total').innerText = `(${calculateRating(p)} points)`;
             
             document.getElementById('p-tiers-grid').innerHTML = Object.entries(p.ranks).map(([mode, tier]) => `
                 <div class="mode-icon-circle">
@@ -164,9 +154,9 @@
 
         function handleSearch(e) {
             const query = e.target.value.toLowerCase();
-            if(query.length > 2) {
+            if(e.key === 'Enter' && query.length > 0) {
                 const found = PLAYERS.find(p => p.name.toLowerCase().includes(query));
-                if(found && e.key === 'Enter') openProfile(found.name);
+                if(found) openProfile(found.name);
             }
         }
 
@@ -179,8 +169,8 @@
         function renderSubNav() {
             document.getElementById('sub-nav-container').innerHTML = NAV_MAP[activeMain].map(mode => `
                 <button onclick="switchSub('${mode}')" class="sub-pill ${activeSub === mode ? 'active' : ''}">
-                    <img src="${ASSETS[mode] || ASSETS['Overall']}" alt="">
-                    ${mode}
+                    <img src="${['EU', 'NA', 'AS'].includes(mode) ? ASSETS['Region'] : ASSETS[mode]}" alt="">
+                    ${mode === 'Overall' ? 'Points' : mode}
                 </button>
             `).join('');
         }
@@ -189,29 +179,30 @@
 
         function renderContent() {
             const container = document.getElementById('content-display');
+            const filteredPlayers = [...PLAYERS].sort((a,b) => calculateRating(b) - calculateRating(a));
+
             if (activeSub === 'Overall' || activeMain === 'global') {
                 container.innerHTML = `
                     <div class="flex px-8 py-3 text-[10px] font-bold text-zinc-600 uppercase tracking-[0.2em] mb-4">
                         <div class="w-20">Rank</div><div class="flex-1">Player</div><div class="w-32">Region</div><div class="w-72">Tiers</div><div class="w-32 text-right">Rating</div>
                     </div>
-                    ${PLAYERS.map((p, i) => `
+                    ${filteredPlayers.map((p, i) => `
                         <div class="glass-card p-5 mb-4 flex items-center hover:bg-white/[0.04] transition group" onclick="openProfile('${p.name}')">
-                            <div class="w-20 font-black text-2xl text-yellow-500">${i+1}</div>
+                            <div class="w-20 font-black text-2xl ${i < 3 ? 'text-yellow-500' : 'text-zinc-600'}">${i+1}</div>
                             <div class="flex-1 flex items-center gap-5">
                                 <img src="${p.skin}" class="w-12 h-12 rounded-lg">
                                 <div><div class="font-bold text-lg">${p.name}</div><div class="text-xs text-zinc-500">Combat Ace</div></div>
                             </div>
                             <div class="w-32"><span class="bg-zinc-800 text-zinc-300 text-[11px] px-3 py-1 rounded-md font-bold border border-zinc-700">${p.region}</span></div>
-                            <div class="w-72 flex gap-1.5 flex-wrap">
-                                ${Object.entries(p.ranks).slice(0, 4).map(([mode, tier]) => `
+                            <div class="w-72 flex gap-1.5">
+                                ${Object.entries(p.ranks).slice(0, 5).map(([mode, tier]) => `
                                     <div class="flex flex-col items-center gap-1">
-                                        <img src="${ASSETS[mode]}" class="w-4 h-4">
+                                        <img src="${ASSETS[mode]}" class="w-5 h-5">
                                         <div class="tier-badge">${tier}</div>
                                     </div>
                                 `).join('')}
-                                <div class="self-center bg-purple-900/20 text-purple-400 text-[10px] font-bold w-8 h-8 flex items-center justify-center rounded-full border border-purple-500/20 ml-2">+${Object.keys(p.ranks).length - 4}</div>
                             </div>
-                            <div class="w-32 text-right rating-num">${calculateRating(p, activeMain === 'global' ? 'all' : activeMain)}</div>
+                            <div class="w-32 text-right rating-num">${calculateRating(p)}</div>
                         </div>
                     `).join('')}
                 `;
@@ -219,9 +210,7 @@
                 container.innerHTML = `<div class="grid grid-cols-5 gap-6">
                     ${[1,2,3,4,5].map(t => `
                         <div class="tier-column">
-                            <div class="tier-header ${t === 1 ? 'text-yellow-500' : 'text-zinc-500'}">
-                                <img src="${ASSETS['Overall']}" class="w-4 h-4"> Tier ${t}
-                            </div>
+                            <div class="tier-header ${t === 1 ? 'text-yellow-500' : 'text-zinc-500'}">Tier ${t}</div>
                             <div class="p-4 flex flex-col gap-3">
                                 ${PLAYERS.filter(p => p.ranks[activeSub] === `HT${t}` || p.ranks[activeSub] === `LT${t}`).map(p => `
                                     <div class="player-square" onclick="openProfile('${p.name}')">
