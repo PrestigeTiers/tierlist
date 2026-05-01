@@ -6,16 +6,15 @@
     <title>Knight Tiers | Minecraft Rankings</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* The Background Magic */
+        /* Background fix for GitHub Pages */
         .bg-wrapper {
             position: fixed;
             inset: 0;
             z-index: -1;
-            /* CHANGE 'background.jpg' to your actual filename if it's different! */
-            background: url('background.jpg') no-repeat center center;
+            background: url('./background.jpg') no-repeat center center;
             background-size: cover;
-            filter: blur(8px) brightness(0.4); /* Blurs and darkens for readability */
-            transform: scale(1.1); /* Prevents white edges from the blur */
+            filter: blur(8px) brightness(0.35);
+            transform: scale(1.1);
         }
 
         body { background-color: #0d0d0f; color: #ffffff; font-family: 'Inter', sans-serif; overflow: hidden; height: 100vh; position: relative; }
@@ -28,7 +27,7 @@
         .sub-pill.active { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); color: #ffffff; }
         .sub-pill img { width: 22px; height: 22px; object-fit: contain; }
 
-        .tier-column { background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 16px; height: 75vh; display: flex; flex-direction: column; backdrop-filter: blur(10px); }
+        .tier-column { background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; height: 75vh; display: flex; flex-direction: column; backdrop-filter: blur(10px); }
         .tier-header { padding: 16px; border-bottom: 1px solid rgba(255,255,255,0.05); text-align: center; font-weight: 900; text-transform: uppercase; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; gap: 8px; }
         
         .player-square { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; padding: 10px; display: flex; align-items: center; gap: 12px; transition: 0.2s; cursor: pointer; }
@@ -37,10 +36,11 @@
         .tier-badge { background: #16161a; padding: 2px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: 800; color: #a1a1aa; border: 1px solid #27272a; }
         .rating-num { color: #facc15; font-weight: 800; font-size: 1.6rem; }
         
-        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 100; backdrop-filter: blur(15px); align-items: center; justify-content: center; }
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 100; backdrop-filter: blur(15px); align-items: center; justify-content: center; }
         .modal-overlay.active { display: flex; }
         
-        .search-input { width: 250px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 8px 12px; font-size: 0.9rem; outline: none; backdrop-filter: blur(5px); }
+        .search-input { width: 250px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 8px 12px; font-size: 0.9rem; outline: none; backdrop-filter: blur(5px); }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
 <body class="p-8">
@@ -172,6 +172,7 @@
 
         function openProfile(name) {
             const p = PLAYERS.find(x => x.name === name);
+            if(!p) return;
             document.getElementById('p-avatar').src = p.skin;
             document.getElementById('p-name').innerText = p.name;
             document.getElementById('p-total').innerText = calculateRating(p);
@@ -183,6 +184,7 @@
             document.getElementById('profileModal').classList.add('active');
         }
         function closeProfile() { document.getElementById('profileModal').classList.remove('active'); }
+        function handleSearch(e) { if(e.key === 'Enter') { const f = PLAYERS.find(p => p.name.toLowerCase().includes(e.target.value.toLowerCase())); if(f) openProfile(f.name); } }
 
         switchMain('global');
     </script>
