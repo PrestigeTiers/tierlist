@@ -23,8 +23,9 @@
         .pill-btn { padding: 10px 24px; border-radius: 12px; transition: 0.2s; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.1); color: #71717a; font-weight: 600; }
         .pill-btn.active { background: #1a1a1e; border-color: #facc15; color: #ffffff; }
         
-        .sub-pill { display: flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 8px; background: transparent; transition: 0.2s; border: 1px solid transparent; color: #a1a1aa; font-weight: 500; font-size: 0.95rem; }
+        .sub-pill { display: flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 8px; background: transparent; transition: 0.2s; border: 1px solid transparent; color: #a1a1aa; font-weight: 700; font-size: 0.95rem; }
         .sub-pill.active { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); color: #ffffff; }
+        .sub-pill svg { width: 18px; height: 18px; fill: currentColor; }
         .sub-pill img { width: 22px; height: 22px; object-fit: contain; }
 
         .tier-column { background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; height: 75vh; display: flex; flex-direction: column; backdrop-filter: blur(10px); }
@@ -42,7 +43,6 @@
         .search-input { width: 200px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 8px 12px; font-size: 0.9rem; outline: none; backdrop-filter: blur(5px); }
         .no-scrollbar::-webkit-scrollbar { display: none; }
 
-        /* Points Card Styling from Screenshot */
         .points-card { background: #111116; border: 1px solid #1c1c24; border-radius: 12px; padding: 20px; position: relative; overflow: hidden; }
         .points-card h4 { color: #8e8e93; font-size: 0.75rem; font-weight: 800; margin-bottom: 8px; }
         .points-card .pts-val { color: #a855f7; font-size: 1.75rem; font-weight: 900; margin-bottom: 12px; }
@@ -79,9 +79,7 @@
                 <h2 class="text-3xl font-black mb-2">How the Point System Works</h2>
                 <p class="text-zinc-400 text-sm">BananaTiers tracks player rankings across different game modes. Each tier assignment earns points based on the difficulty and prestige of achieving that rank.</p>
             </div>
-            
-            <div class="grid grid-cols-5 gap-4" id="info-grid-container">
-                </div>
+            <div class="grid grid-cols-5 gap-4" id="info-grid-container"></div>
         </div>
     </div>
 
@@ -91,7 +89,7 @@
             <h2 id="p-name" class="text-center text-3xl font-black mb-6"></h2>
             <div class="glass-card p-4 flex justify-between items-center mb-6">
                 <div class="flex items-center gap-3">
-                    <img src="https://raw.githubusercontent.com/Fortnite-Resources/Project-Assets/main/trophy_gold.png" class="w-6 h-6">
+                    <div id="p-trophy-icon" class="w-6 h-6 text-yellow-500"></div>
                     <span class="font-bold">Total Points</span>
                 </div>
                 <span id="p-total" class="rating-num"></span>
@@ -101,8 +99,13 @@
     </div>
 
     <script>
+        // SVG Icons
+        const ICONS = {
+            trophy: `<svg viewBox="0 0 24 24"><path d="M18 2H6c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94A5.01 5.01 0 0 0 11 13.9V17H8v2h8v-2h-3v-3.1a5.01 5.01 0 0 0 2.61-3.96C18.08 9.63 20 7.55 20 5V4c0-1.1-.9-2-2-2zm-10 5.09A3.001 3.001 0 0 1 6 4h2v3.09zM18 4v1c0 .98-.71 1.79-1.64 1.97A2.996 2.996 0 0 1 16 4h2z"/></svg>`,
+            globe: `<svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>`
+        };
+
         const ASSETS = {
-            'Overall': 'https://raw.githubusercontent.com/Fortnite-Resources/Project-Assets/main/trophy_gold.png', 
             'Sword': 'https://cdn.jsdelivr.net/gh/misode/mcmeta@assets/assets/minecraft/textures/item/diamond_sword.png',
             'Axe': 'https://cdn.jsdelivr.net/gh/misode/mcmeta@assets/assets/minecraft/textures/item/diamond_axe.png',
             'Vanilla': 'https://cdn.jsdelivr.net/gh/misode/mcmeta@assets/assets/minecraft/textures/item/end_crystal.png',
@@ -113,11 +116,11 @@
             'Mace': 'https://cdn.jsdelivr.net/gh/misode/mcmeta@assets/assets/minecraft/textures/item/mace.png',
             'Minecart': 'https://cdn.jsdelivr.net/gh/misode/mcmeta@assets/assets/minecraft/textures/item/tnt_minecart.png',
             'DSMP': 'https://cdn.jsdelivr.net/gh/misode/mcmeta@assets/assets/minecraft/textures/item/chorus_fruit.png',
-            'Spear Mace': 'https://cdn.jsdelivr.net/gh/misode/mcmeta@assets/assets/minecraft/textures/item/breeze_rod.png',
-            'Region': 'https://cdn.jsdelivr.net/gh/misode/mcmeta@assets/assets/minecraft/textures/item/elytra.png'
+            'Spear Mace': 'https://cdn.jsdelivr.net/gh/misode/mcmeta@assets/assets/minecraft/textures/item/breeze_rod.png'
         };
 
         const TIERS_CONFIG = { 'HT1': 60, 'LT1': 45, 'HT2': 30, 'LT2': 20, 'HT3': 10, 'LT3': 6, 'HT4': 4, 'LT4': 3, 'HT5': 2, 'LT5': 1 };
+        const REGIONS = ['EU', 'NA', 'ME', 'AS', 'SA', 'AU', 'AF'];
 
         const PLAYERS = [
             { name: "ossspooky", region: "EU", skin: "https://mc-heads.net/avatar/ossspooky/64", ranks: { 'Sword': 'HT1', 'Axe': 'LT1', 'Vanilla': 'HT2' }},
@@ -130,7 +133,8 @@
         function calculateRating(p) { return Object.values(p.ranks).reduce((acc, t) => acc + (TIERS_CONFIG[t] || 0), 0); }
 
         function switchMain(key) {
-            activeMain = key; activeSub = 'Overall';
+            activeMain = key; 
+            activeSub = (key === 'global' ? 'Overall' : (key === 'main' ? 'Sword' : 'Minecart'));
             document.querySelectorAll('.pill-btn').forEach(b => b.classList.remove('active'));
             document.getElementById(`btn-${key}`).classList.add('active');
             renderSubNav(); renderContent();
@@ -138,16 +142,28 @@
 
         function renderSubNav() {
             const modes = {
-                global: ['Overall', 'EU', 'NA', 'AS'],
-                main: ['Overall', 'Sword', 'Axe', 'Vanilla', 'Pot', 'NethOP', 'UHC', 'SMP', 'Mace'],
-                sub: ['Overall', 'Minecart', 'DSMP', 'Spear Mace']
+                global: ['Overall', ...REGIONS],
+                main: ['Sword', 'Axe', 'Vanilla', 'Pot', 'NethOP', 'UHC', 'SMP', 'Mace'],
+                sub: ['Minecart', 'DSMP', 'Spear Mace']
             };
-            document.getElementById('sub-nav-container').innerHTML = modes[activeMain].map(m => `
-                <button onclick="switchSub('${m}')" class="sub-pill ${activeSub === m ? 'active' : ''}">
-                    <img src="${['EU', 'NA', 'AS'].includes(m) ? ASSETS['Region'] : ASSETS[m]}">
-                    ${m}
-                </button>
-            `).join('');
+            
+            document.getElementById('sub-nav-container').innerHTML = modes[activeMain].map(m => {
+                let iconHtml = '';
+                if (m === 'Overall') {
+                    iconHtml = ICONS.trophy;
+                } else if (REGIONS.includes(m)) {
+                    iconHtml = ICONS.globe;
+                } else {
+                    iconHtml = `<img src="${ASSETS[m]}">`;
+                }
+
+                return `
+                    <button onclick="switchSub('${m}')" class="sub-pill ${activeSub === m ? 'active' : ''}">
+                        ${iconHtml}
+                        ${m}
+                    </button>
+                `;
+            }).join('');
         }
 
         function switchSub(m) { activeSub = m; renderSubNav(); renderContent(); }
@@ -155,9 +171,9 @@
         function renderContent() {
             const container = document.getElementById('content-display');
             let list = [...PLAYERS].sort((a,b) => calculateRating(b) - calculateRating(a));
-            if (['EU', 'NA', 'AS'].includes(activeSub)) list = list.filter(p => p.region === activeSub);
+            if (REGIONS.includes(activeSub)) list = list.filter(p => p.region === activeSub);
 
-            if (activeSub === 'Overall' || ['EU', 'NA', 'AS'].includes(activeSub)) {
+            if (activeSub === 'Overall' || REGIONS.includes(activeSub)) {
                 container.innerHTML = list.map((p, i) => `
                     <div class="glass-card p-5 mb-4 flex items-center hover:bg-white/[0.08] transition" onclick="openProfile('${p.name}')">
                         <div class="w-20 font-black text-2xl ${i < 3 ? 'text-yellow-500' : 'text-zinc-600'}">${i+1}</div>
@@ -198,6 +214,7 @@
             document.getElementById('p-avatar').src = p.skin;
             document.getElementById('p-name').innerText = p.name;
             document.getElementById('p-total').innerText = calculateRating(p);
+            document.getElementById('p-trophy-icon').innerHTML = ICONS.trophy;
             document.getElementById('p-tiers-grid').innerHTML = Object.entries(p.ranks).map(([m, t]) => `
                 <div class="flex flex-col items-center p-2 glass-card rounded-xl">
                     <img src="${ASSETS[m]}" class="w-6 h-6 mb-1">
@@ -207,10 +224,8 @@
         }
         function closeProfile() { document.getElementById('profileModal').classList.remove('active'); }
 
-        /* Information Modal Functions */
         function openInfo() {
             const grid = document.getElementById('info-grid-container');
-            // We'll generate cards for HT1-LT5 based on TIERS_CONFIG
             grid.innerHTML = Object.entries(TIERS_CONFIG).map(([tier, pts]) => `
                 <div class="points-card">
                     <h4>${tier}</h4>
