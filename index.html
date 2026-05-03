@@ -6,15 +6,16 @@
     <title>Banana Tiers | Minecraft Rankings</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Background fix for GitHub Pages */
+        /* The new background settings for your uploaded image */
         .bg-wrapper {
             position: fixed;
             inset: 0;
             z-index: -1;
             background: url('./background.jpg') no-repeat center center;
             background-size: cover;
-            filter: blur(8px) brightness(0.35);
-            transform: scale(1.1);
+            /* Added a slightly stronger darkness (0.3) so the white text is easy to read */
+            filter: blur(4px) brightness(0.3); 
+            transform: scale(1.05);
         }
 
         body { background-color: #0d0d0f; color: #ffffff; font-family: 'Inter', sans-serif; overflow: hidden; height: 100vh; position: relative; }
@@ -43,10 +44,10 @@
         .search-input { width: 200px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 8px 12px; font-size: 0.9rem; outline: none; backdrop-filter: blur(5px); }
         .no-scrollbar::-webkit-scrollbar { display: none; }
 
-        .points-card { background: #111116; border: 1px solid #1c1c24; border-radius: 12px; padding: 20px; position: relative; overflow: hidden; }
-        .points-card h4 { color: #8e8e93; font-size: 0.75rem; font-weight: 800; margin-bottom: 8px; }
+        .points-card { background: #111116; border: 1px solid #1c1c24; border-radius: 12px; padding: 20px; position: relative; overflow: hidden; text-align: left; }
+        .points-card h4 { color: #ffffff; font-size: 0.75rem; font-weight: 800; margin-bottom: 8px; }
         .points-card .pts-val { color: #a855f7; font-size: 1.75rem; font-weight: 900; margin-bottom: 12px; }
-        .points-card .bar { height: 4px; background: linear-gradient(90deg, #a855f7 0%, transparent 100%); border-radius: 2px; margin-bottom: 12px; }
+        .points-card .bar { height: 6px; background: #a855f7; border-radius: 3px; margin-bottom: 12px; }
         .points-card .label { color: #636366; font-size: 0.7rem; font-weight: 600; }
     </style>
 </head>
@@ -74,10 +75,10 @@
     <main class="max-w-7xl mx-auto h-[75vh] overflow-y-auto pr-2 no-scrollbar relative z-10" id="content-display"></main>
 
     <div id="infoModal" class="modal-overlay" onclick="closeInfo()">
-        <div class="bg-[#0d0d11] p-10 rounded-3xl border border-white/10 w-[900px] max-w-[95vw]" onclick="event.stopPropagation()">
+        <div class="bg-[#0d0d11] p-10 rounded-3xl border border-white/10 w-[950px] max-w-[95vw]" onclick="event.stopPropagation()">
             <div class="mb-8">
                 <h2 class="text-3xl font-black mb-2">How the Point System Works</h2>
-                <p class="text-zinc-400 text-sm">BananaTiers tracks player rankings across different game modes. Each tier assignment earns points based on the difficulty and prestige of achieving that rank.</p>
+                <p class="text-zinc-400 text-sm">Banana Tiers tracks player rankings across 28 different game modes. Each tier assignment earns points based on the difficulty and prestige of achieving that rank.</p>
             </div>
             <div class="grid grid-cols-5 gap-4" id="info-grid-container"></div>
         </div>
@@ -99,7 +100,6 @@
     </div>
 
     <script>
-        // SVG Icons
         const ICONS = {
             trophy: `<svg viewBox="0 0 24 24"><path d="M18 2H6c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94A5.01 5.01 0 0 0 11 13.9V17H8v2h8v-2h-3v-3.1a5.01 5.01 0 0 0 2.61-3.96C18.08 9.63 20 7.55 20 5V4c0-1.1-.9-2-2-2zm-10 5.09A3.001 3.001 0 0 1 6 4h2v3.09zM18 4v1c0 .98-.71 1.79-1.64 1.97A2.996 2.996 0 0 1 16 4h2z"/></svg>`,
             globe: `<svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>`
@@ -146,23 +146,9 @@
                 main: ['Sword', 'Axe', 'Vanilla', 'Pot', 'NethOP', 'UHC', 'SMP', 'Mace'],
                 sub: ['Minecart', 'DSMP', 'Spear Mace']
             };
-            
             document.getElementById('sub-nav-container').innerHTML = modes[activeMain].map(m => {
-                let iconHtml = '';
-                if (m === 'Overall') {
-                    iconHtml = ICONS.trophy;
-                } else if (REGIONS.includes(m)) {
-                    iconHtml = ICONS.globe;
-                } else {
-                    iconHtml = `<img src="${ASSETS[m]}">`;
-                }
-
-                return `
-                    <button onclick="switchSub('${m}')" class="sub-pill ${activeSub === m ? 'active' : ''}">
-                        ${iconHtml}
-                        ${m}
-                    </button>
-                `;
+                let iconHtml = (m === 'Overall') ? ICONS.trophy : (REGIONS.includes(m) ? ICONS.globe : `<img src="${ASSETS[m]}">`);
+                return `<button onclick="switchSub('${m}')" class="sub-pill ${activeSub === m ? 'active' : ''}">${iconHtml}${m}</button>`;
             }).join('');
         }
 
@@ -230,7 +216,7 @@
                 <div class="points-card">
                     <h4>${tier}</h4>
                     <div class="pts-val">${pts} pts</div>
-                    <div class="bar" style="width: ${Math.max(10, (pts/60)*100)}%"></div>
+                    <div class="bar" style="width: ${Math.max(5, (pts/60)*100)}%"></div>
                     <div class="label">Leaderboard rank</div>
                 </div>
             `).join('');
