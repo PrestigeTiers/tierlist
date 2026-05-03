@@ -5,6 +5,43 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Banana Tiers | Minecraft Rankings</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        // YOUR FIREBASE CONFIG
+        const firebaseConfig = {
+            apiKey: "AIzaSyDsi2sk-hGyhkI1rqVpmSbozKVPDaoVyf8",
+            authDomain: "banana-tiers.firebaseapp.com",
+            databaseURL: "https://banana-tiers-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "banana-tiers",
+            storageBucket: "banana-tiers.firebasestorage.app",
+            messagingSenderId: "180092644757",
+            appId: "1:180092644757:web:2092687c03e602cf16da9c",
+            measurementId: "G-HYECP0CP35"
+        };
+
+        // INITIALIZE FIREBASE
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // STEP 2: LIVE LISTENER FOR DATA
+        const userRef = ref(db, 'user_data');
+        onValue(userRef, (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                // Convert Firebase object into the array our website needs
+                window.PLAYERS = Object.keys(data).map(key => ({
+                    name: key,
+                    region: data[key].region || "NA",
+                    skin: `https://mc-heads.net/avatar/${key}/64`,
+                    ranks: data[key].ranks || {}
+                }));
+                renderContent(); // Refresh the table automatically!
+            }
+        });
+    </script>
+
     <style>
         .bg-wrapper {
             position: fixed;
@@ -18,30 +55,20 @@
 
         body { background-color: #0d0d0f; color: #ffffff; font-family: 'Inter', sans-serif; overflow: hidden; height: 100vh; position: relative; }
         .glass-card { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; backdrop-filter: blur(4px); }
-        
         .pill-btn { padding: 10px 24px; border-radius: 12px; transition: 0.2s; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.1); color: #71717a; font-weight: 600; }
         .pill-btn.active { background: #1a1a1e; border-color: #facc15; color: #ffffff; }
-        
         .sub-pill { display: flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 8px; background: transparent; transition: 0.2s; border: 1px solid transparent; color: #a1a1aa; font-weight: 700; font-size: 0.95rem; white-space: nowrap; }
         .sub-pill.active { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); color: #ffffff; }
-        .sub-pill svg { width: 18px; height: 18px; fill: currentColor; }
-        .sub-pill img { width: 22px; height: 22px; object-fit: contain; }
-
         .tier-column { background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; height: 75vh; display: flex; flex-direction: column; backdrop-filter: blur(10px); }
         .tier-header { padding: 16px; border-bottom: 1px solid rgba(255,255,255,0.05); text-align: center; font-weight: 900; text-transform: uppercase; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        
         .player-square { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; padding: 10px; display: flex; align-items: center; gap: 12px; transition: 0.2s; cursor: pointer; }
         .player-square:hover { background: rgba(255,255,255,0.1); transform: translateY(-2px); }
-
         .tier-badge { background: #16161a; padding: 2px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: 800; color: #a1a1aa; border: 1px solid #27272a; }
         .rating-num { color: #facc15; font-weight: 800; font-size: 1.6rem; }
-        
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 100; backdrop-filter: blur(15px); align-items: center; justify-content: center; }
         .modal-overlay.active { display: flex; }
-        
         .search-input { width: 200px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 8px 12px; font-size: 0.9rem; outline: none; backdrop-filter: blur(5px); }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-
         .points-card { background: #111116; border: 1px solid #1c1c24; border-radius: 12px; padding: 20px; position: relative; overflow: hidden; text-align: left; }
         .points-card h4 { color: #ffffff; font-size: 0.75rem; font-weight: 800; margin-bottom: 8px; }
         .points-card .pts-val { color: #a855f7; font-size: 1.75rem; font-weight: 900; margin-bottom: 12px; }
@@ -70,14 +97,13 @@
         <div id="sub-nav-container" class="glass-card p-2 flex gap-2 mb-8 overflow-x-auto no-scrollbar"></div>
     </div>
 
-    <main class="max-w-7xl mx-auto h-[75vh] overflow-y-auto pr-2 no-scrollbar relative z-10" id="content-display"></main>
+    <main class="max-w-7xl mx-auto h-[75vh] overflow-y-auto pr-2 no-scrollbar relative z-10" id="content-display">
+        <div class="text-center p-20 text-zinc-500 font-bold">Connecting to Database...</div>
+    </main>
 
     <div id="infoModal" class="modal-overlay" onclick="closeInfo()">
         <div class="bg-[#0d0d11] p-10 rounded-3xl border border-white/10 w-[950px] max-w-[95vw]" onclick="event.stopPropagation()">
-            <div class="mb-8">
-                <h2 class="text-3xl font-black mb-2">How the Point System Works</h2>
-                <p class="text-zinc-400 text-sm">Banana Tiers tracks player rankings across different game modes. Each tier assignment earns points based on the difficulty and prestige of achieving that rank.</p>
-            </div>
+            <h2 class="text-3xl font-black mb-2">Point System</h2>
             <div class="grid grid-cols-5 gap-4" id="info-grid-container"></div>
         </div>
     </div>
@@ -87,10 +113,7 @@
             <img id="p-avatar" src="" class="w-24 h-24 rounded-full mx-auto mb-4 border-4 border-yellow-500 shadow-2xl">
             <h2 id="p-name" class="text-center text-3xl font-black mb-6"></h2>
             <div class="glass-card p-4 flex justify-between items-center mb-6">
-                <div class="flex items-center gap-3">
-                    <div id="p-trophy-icon" class="w-6 h-6 text-yellow-500"></div>
-                    <span class="font-bold">Total Points</span>
-                </div>
+                <span class="font-bold">Total Points</span>
                 <span id="p-total" class="rating-num"></span>
             </div>
             <div id="p-tiers-grid" class="grid grid-cols-5 gap-3"></div>
@@ -98,6 +121,8 @@
     </div>
 
     <script>
+        // GLOBAL DATA
+        window.PLAYERS = []; 
         const ICONS = {
             trophy: `<svg viewBox="0 0 24 24"><path d="M18 2H6c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94A5.01 5.01 0 0 0 11 13.9V17H8v2h8v-2h-3v-3.1a5.01 5.01 0 0 0 2.61-3.96C18.08 9.63 20 7.55 20 5V4c0-1.1-.9-2-2-2zm-10 5.09A3.001 3.001 0 0 1 6 4h2v3.09zM18 4v1c0 .98-.71 1.79-1.64 1.97A2.996 2.996 0 0 1 16 4h2z"/></svg>`,
             globe: `<svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>`
@@ -122,12 +147,6 @@
         const TIERS_CONFIG = { 'HT1': 60, 'LT1': 45, 'HT2': 30, 'LT2': 20, 'HT3': 10, 'LT3': 6, 'HT4': 4, 'LT4': 3, 'HT5': 2, 'LT5': 1 };
         const REGIONS = ['EU', 'NA', 'AS'];
 
-        const PLAYERS = [
-            { name: "ossspooky", region: "EU", skin: "https://mc-heads.net/avatar/ossspooky/64", ranks: { 'Sword': 'HT1', 'Axe': 'LT1', 'Vanilla': 'HT2' }},
-            { name: "KamQd", region: "NA", skin: "https://mc-heads.net/avatar/KamQd/64", ranks: { 'Sword': 'LT1', 'Mace': 'LT2' }},
-            { name: "Asher", region: "AS", skin: "https://mc-heads.net/avatar/MHF_Steve/64", ranks: { 'Sword': 'HT2', 'Pot': 'LT2' }}
-        ];
-
         let activeMain = 'global', activeSub = 'Overall';
 
         function calculateRating(p) { return Object.values(p.ranks).reduce((acc, t) => acc + (TIERS_CONFIG[t] || 0), 0); }
@@ -147,7 +166,7 @@
                 sub: ['Overall', 'Minecart', 'DSMP', 'Spear Mace', 'Speed', 'Og Vanilla']
             };
             document.getElementById('sub-nav-container').innerHTML = modes[activeMain].map(m => {
-                let iconHtml = (m === 'Overall') ? ICONS.trophy : (REGIONS.includes(m) ? ICONS.globe : `<img src="${ASSETS[m]}">`);
+                let iconHtml = (m === 'Overall') ? ICONS.trophy : (REGIONS.includes(m) ? ICONS.globe : `<img src="${ASSETS[m]}" style="width:20px">`);
                 return `<button onclick="switchSub('${m}')" class="sub-pill ${activeSub === m ? 'active' : ''}">${iconHtml}${m}</button>`;
             }).join('');
         }
@@ -156,7 +175,9 @@
 
         function renderContent() {
             const container = document.getElementById('content-display');
-            let list = [...PLAYERS].sort((a,b) => calculateRating(b) - calculateRating(a));
+            if(window.PLAYERS.length === 0) return;
+
+            let list = [...window.PLAYERS].sort((a,b) => calculateRating(b) - calculateRating(a));
             if (REGIONS.includes(activeSub)) list = list.filter(p => p.region === activeSub);
 
             if (activeSub === 'Overall' || REGIONS.includes(activeSub)) {
@@ -179,7 +200,7 @@
                     <div class="tier-column">
                         <div class="tier-header ${t === 1 ? 'text-yellow-500' : 'text-zinc-500'}">Tier ${t}</div>
                         <div class="p-4 flex flex-col gap-3">
-                            ${PLAYERS.filter(p => p.ranks[activeSub] === `HT${t}` || p.ranks[activeSub] === `LT${t}`).map(p => `
+                            ${window.PLAYERS.filter(p => p.ranks[activeSub] === `HT${t}` || p.ranks[activeSub] === `LT${t}`).map(p => `
                                 <div class="player-square" onclick="openProfile('${p.name}')">
                                     <img src="${p.skin}" class="w-8 h-8 rounded border border-white/10">
                                     <div class="flex flex-col">
@@ -195,12 +216,11 @@
         }
 
         function openProfile(name) {
-            const p = PLAYERS.find(x => x.name === name);
+            const p = window.PLAYERS.find(x => x.name === name);
             if(!p) return;
             document.getElementById('p-avatar').src = p.skin;
             document.getElementById('p-name').innerText = p.name;
             document.getElementById('p-total').innerText = calculateRating(p);
-            document.getElementById('p-trophy-icon').innerHTML = ICONS.trophy;
             document.getElementById('p-tiers-grid').innerHTML = Object.entries(p.ranks).map(([m, t]) => `
                 <div class="flex flex-col items-center p-2 glass-card rounded-xl">
                     <img src="${ASSETS[m]}" class="w-6 h-6 mb-1">
@@ -217,16 +237,15 @@
                     <h4>${tier}</h4>
                     <div class="pts-val">${pts} pts</div>
                     <div class="bar" style="width: ${Math.max(5, (pts/60)*100)}%"></div>
-                    <div class="label">Leaderboard rank</div>
                 </div>
             `).join('');
             document.getElementById('infoModal').classList.add('active');
         }
         function closeInfo() { document.getElementById('infoModal').classList.remove('active'); }
 
-        function handleSearch(e) { if(e.key === 'Enter') { const f = PLAYERS.find(p => p.name.toLowerCase().includes(e.target.value.toLowerCase())); if(f) openProfile(f.name); } }
+        function handleSearch(e) { if(e.key === 'Enter') { const f = window.PLAYERS.find(p => p.name.toLowerCase().includes(e.target.value.toLowerCase())); if(f) openProfile(f.name); } }
 
-        switchMain('global');
+        renderSubNav();
     </script>
 </body>
 </html>
