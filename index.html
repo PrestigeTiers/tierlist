@@ -27,7 +27,7 @@
 
         const TIERS_CONFIG = { 'HT1': 60, 'LT1': 45, 'HT2': 30, 'LT2': 20, 'HT3': 10, 'LT3': 6, 'HT4': 4, 'LT4': 3, 'HT5': 2, 'LT5': 1 };
 
-        // STEP 2: LIVE LISTENER FOR DATA (STRICT FILTERING)
+        // STEP 2: LIVE LISTENER FOR DATA (CASE-INSENSITIVE)
         const userRef = ref(db, 'tier_list');
         onValue(userRef, (snapshot) => {
             const data = snapshot.val();
@@ -38,35 +38,42 @@
                     const item = data[key];
                     if (!item) return;
                     
-                    // 1. Extract username safely (Reject long numeric Discord IDs or missing names)
+                    // 1. Extract username safely
                     const username = item.username || item.ign;
                     if (!username || /^\d+$/.test(username) || username.toLowerCase() === 'unknown') return; 
 
-                    // 2. Extract ranks object and clean it up
-                    const ranks = item.ranks || {};
-                    
-                    // 3. Calculate points. If they have 0 points, they are unranked/unverified -> REJECT THEM
+                    // 2. Extract ranks and normalize keys to lowercase for foolproof matching
+                    const rawRanks = item.ranks || {};
+                    const cleanRanks = {};
                     let totalPoints = 0;
-                    Object.values(ranks).forEach(tier => {
-                        if (tier && TIERS_CONFIG[tier.toUpperCase()]) {
-                            totalPoints += TIERS_CONFIG[tier.toUpperCase()];
+
+                    Object.keys(rawRanks).forEach(modeKey => {
+                        const tierValue = rawRanks[modeKey];
+                        if (tierValue) {
+                            const upperTier = tierValue.toUpperCase().trim();
+                            if (TIERS_CONFIG[upperTier]) {
+                                // Save with a standard lowercase key format internally
+                                cleanRanks[modeKey.toLowerCase().trim()] = upperTier;
+                                totalPoints += TIERS_CONFIG[upperTier];
+                            }
                         }
                     });
 
-                    if (totalPoints === 0) return; // Discard completely if no assigned tiers match points
+                    // 3. Discard completely if they have no valid matching tiers
+                    if (totalPoints === 0) return; 
 
                     // 4. Standardize region values safely
-                    let finalRegion = (item.region || "NA").toUpperCase();
+                    let finalRegion = (item.region || "NA").toUpperCase().trim();
                     if (finalRegion === "UNKNOWN" || finalRegion === "") {
                         finalRegion = "NA";
                     }
 
-                    // 5. If they passed all strict checks, add them
+                    // 5. Add valid player
                     playerArray.push({
                         name: username,
                         region: finalRegion,
                         skin: `https://mc-heads.net/avatar/${username}/64`,
-                        ranks: ranks,
+                        ranks: cleanRanks, // keys are now lowercase (e.g. 'sword', 'axe')
                         points: totalPoints
                     });
                 });
@@ -206,6 +213,7 @@
             }).join('');
         }
 
+        // Standardize lookups by using lowerCase strings internally
         function switchSub(m) { activeSub = m; renderSubNav(); renderContent(); }
 
         function renderContent() {
@@ -227,21 +235,23 @@
                             <span class="font-bold text-lg">${p.name}</span>
                         </div>
                         <div class="w-32"><span class="bg-white/5 px-3 py-1 rounded-md text-xs font-bold border border-white/10">${p.region}</span></div>
-                        <div class="w-72 flex gap-2">
-                            ${Object.entries(p.ranks)
-                                .filter(([_, tier]) => tier && TIERS_CONFIG[tier.toUpperCase()])
-                                .slice(0, 4)
-                                .map(([m, t]) => `<div class="flex flex-col items-center"><img src="${ASSETS[m]}" class="w-5 h-5 mb-1"><div class="tier-badge">${t.toUpperCase()}</div></div>`).join('')}
+                        <div class="w-72 flex gap-4">
+                            ${Object.keys(ASSETS).slice(0,4).map(m => {
+                                const t = p.ranks[m.toLowerCase()];
+                                if(!t) return '';
+                                return `<div class="flex flex-col items-center"><img src="${ASSETS[m]}" class="w-5 h-5 mb-1"><div class="tier-badge">${t}</div></div>`;
+                            }).join('')}
                         </div>
                         <div class="w-32 text-right rating-num">${p.points}</div>
                     </div>
                 `).join('');
             } else {
-                // CATEGORY MODE (TIERS 1 - 5 COLUMNS)
+                // CATEGORY COLUMNS VIEW (TIERS 1 - 5)
+                const currentModeLower = activeSub.toLowerCase();
                 container.innerHTML = `<div class="grid grid-cols-5 gap-6">${[1,2,3,4,5].map(t => {
                     const filteredPlayers = window.PLAYERS.filter(p => {
-                        const playerTier = p.ranks[activeSub];
-                        return playerTier && (playerTier.toUpperCase() === `HT${t}` || playerTier.toUpperCase() === `LT${t}`);
+                        const playerTier = p.ranks[currentModeLower];
+                        return playerTier && (playerTier === `HT${t}` || playerTier === `LT${t}`);
                     });
 
                     return `
@@ -253,7 +263,7 @@
                                     <img src="${p.skin}" class="w-8 h-8 rounded border border-white/10">
                                     <div class="flex flex-col">
                                         <span class="font-bold text-sm">${p.name}</span>
-                                        <span class="text-[9px] text-zinc-500 font-black uppercase">${p.ranks[activeSub].toUpperCase()}</span>
+                                        <span class="text-[9px] text-zinc-500 font-black uppercase">${p.ranks[currentModeLower]}</span>
                                     </div>
                                 </div>
                             `).join('')}
@@ -263,7 +273,6 @@
             }
         }
 
-        // Expose functions globally for layout onclick bindings
         window.switchMain = switchMain;
         window.switchSub = switchSub;
 
@@ -273,13 +282,15 @@
             document.getElementById('p-avatar').src = p.skin;
             document.getElementById('p-name').innerText = p.name;
             document.getElementById('p-total').innerText = p.points;
-            document.getElementById('p-tiers-grid').innerHTML = Object.entries(p.ranks)
-                .filter(([_, tier]) => tier && TIERS_CONFIG[tier.toUpperCase()])
-                .map(([m, t]) => `
+            document.getElementById('p-tiers-grid').innerHTML = Object.keys(ASSETS).map(m => {
+                const t = p.ranks[m.toLowerCase()];
+                if(!t) return '';
+                return `
                 <div class="flex flex-col items-center p-2 glass-card rounded-xl">
                     <img src="${ASSETS[m]}" class="w-6 h-6 mb-1">
-                    <span class="text-[10px] font-bold text-zinc-400">${t.toUpperCase()}</span>
-                </div>`).join('');
+                    <span class="text-[10px] font-bold text-zinc-400">${t}</span>
+                </div>`;
+            }).join('');
             document.getElementById('profileModal').classList.add('active');
         }
         window.closeProfile = function() { document.getElementById('profileModal').classList.remove('active'); }
