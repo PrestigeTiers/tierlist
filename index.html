@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Banana Tiers | Minecraft Rankings</title>
+    <title>Prestige Tiers | Minecraft Rankings</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -27,7 +27,7 @@
 
         const TIERS_CONFIG = { 'HT1': 60, 'LT1': 45, 'HT2': 30, 'LT2': 20, 'HT3': 10, 'LT3': 6, 'HT4': 4, 'LT4': 3, 'HT5': 2, 'LT5': 1 };
 
-        // STEP 2: LIVE LISTENER (UPDATED FOR 'TIERS' DATABASE NODE)
+        // LIVE LISTENER
         const userRef = ref(db, 'tier_list');
         onValue(userRef, (snapshot) => {
             const data = snapshot.val();
@@ -38,11 +38,9 @@
                     const item = data[key];
                     if (!item) return;
                     
-                    // 1. Extract username safely
                     const username = item.ign || item.username;
                     if (!username || /^\d+$/.test(username) || username.toLowerCase() === 'unknown') return; 
 
-                    // 2. Extract tiers object (Swapped from ranks -> tiers)
                     const rawTiers = item.tiers || {};
                     const cleanTiers = {};
                     let totalPoints = 0;
@@ -58,16 +56,13 @@
                         }
                     });
 
-                    // 3. Skip players with no assigned tiers/points
                     if (totalPoints === 0) return; 
 
-                    // 4. Standardize region values
                     let finalRegion = (item.region || "NA").toUpperCase().trim();
                     if (finalRegion === "UNKNOWN" || finalRegion === "") {
                         finalRegion = "NA";
                     }
 
-                    // 5. Add valid player to list
                     playerArray.push({
                         name: username,
                         region: finalRegion,
@@ -123,7 +118,7 @@
     <div class="bg-wrapper"></div>
 
     <header class="flex items-center justify-between mb-8 max-w-7xl mx-auto relative z-10">
-        <h1 class="text-4xl font-black tracking-tighter italic text-yellow-400">BANANA TIERS</h1>
+        <h1 class="text-4xl font-black tracking-tighter italic text-yellow-400">PRESTIGE TIERS</h1>
         <div class="flex gap-3">
             <button onclick="switchMain('global')" id="btn-global" class="pill-btn active">Global</button>
             <button onclick="switchMain('main')" id="btn-main" class="pill-btn">Main Modes</button>
@@ -145,15 +140,20 @@
 
     <div id="infoModal" class="modal-overlay" onclick="closeInfo()">
         <div class="bg-[#0d0d11] p-10 rounded-3xl border border-white/10 w-[950px] max-w-[95vw]" onclick="event.stopPropagation()">
-            <h2 class="text-3xl font-black mb-2">Point System</h2>
-            <div class="grid grid-cols-5 gap-4" id="info-grid-container"></div>
+            <div class="flex gap-4 border-b border-white/10 mb-6 pb-2">
+                <button onclick="switchInfoTab('points')" id="tab-points" class="text-xl font-black pb-2 border-b-2 border-yellow-400 text-white">Point System</button>
+                <button onclick="switchInfoTab('titles')" id="tab-titles" class="text-xl font-black pb-2 border-b-2 border-transparent text-zinc-500 hover:text-white">Titles</button>
+            </div>
+            <div id="info-tab-points" class="grid grid-cols-5 gap-4"></div>
+            <div id="info-tab-titles" class="grid grid-cols-2 gap-4 hidden"></div>
         </div>
     </div>
 
     <div id="profileModal" class="modal-overlay" onclick="closeProfile()">
         <div class="profile-card bg-[#0d0d11] p-8 rounded-3xl border border-white/10 w-[450px]" onclick="event.stopPropagation()">
-            <img id="p-avatar" src="" class="w-24 h-24 rounded-full mx-auto mb-4 border-4 border-yellow-500 shadow-2xl">
-            <h2 id="p-name" class="text-center text-3xl font-black mb-6"></h2>
+            <img id="p-avatar" src="" class="w-24 h-24 rounded-full mx-auto mb-2 border-4 border-yellow-500 shadow-2xl">
+            <h2 id="p-name" class="text-center text-3xl font-black tracking-tight"></h2>
+            <div id="p-title" class="text-center text-xs font-bold uppercase tracking-widest text-yellow-500/80 mb-6"></div>
             <div class="glass-card p-4 flex justify-between items-center mb-6">
                 <span class="font-bold">Total Points</span>
                 <span id="p-total" class="rating-num"></span>
@@ -163,7 +163,6 @@
     </div>
 
     <script>
-        // GLOBAL DATA
         window.PLAYERS = []; 
         const ICONS = {
             trophy: `<svg viewBox="0 0 24 24"><path d="M18 2H6c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94A5.01 5.01 0 0 0 11 13.9V17H8v2h8v-2h-3v-3.1a5.01 5.01 0 0 0 2.61-3.96C18.08 9.63 20 7.55 20 5V4c0-1.1-.9-2-2-2zm-10 5.09A3.001 3.001 0 0 1 6 4h2v3.09zM18 4v1c0 .98-.71 1.79-1.64 1.97A2.996 2.996 0 0 1 16 4h2z"/></svg>`,
@@ -191,9 +190,19 @@
 
         let activeMain = 'global', activeSub = 'Overall';
 
+        // Helper function to calculate custom Titles based on total milestones
+        function getPlayerTitle(pts) {
+            if (pts >= 400) return "Combat Grandmaster";
+            if (pts >= 250) return "Combat Master";
+            if (pts >= 100) return "Combat Ace";
+            if (pts >= 50) return "Combat Specialist";
+            if (pts >= 20) return "Combat Cadet";
+            if (pts >= 10) return "Combat Novice";
+            return "Rookie";
+        }
+
         function switchMain(key) {
-            activeMain = key; 
-            activeSub = 'Overall';
+            activeMain = key; activeSub = 'Overall';
             document.querySelectorAll('.pill-btn').forEach(b => b.classList.remove('active'));
             document.getElementById(`btn-${key}`).classList.add('active');
             renderSubNav(); renderContent();
@@ -225,30 +234,34 @@
 
             if (activeSub === 'Overall' || REGIONS.includes(activeSub)) {
                 container.innerHTML = list.map((p, i) => `
-                    <div class="glass-card p-5 mb-4 flex items-center hover:bg-white/[0.08] transition" onclick="openProfile('${p.name}')">
+                    <div class="glass-card p-5 mb-4 flex items-center hover:bg-white/[0.08] transition cursor-pointer" onclick="openProfile('${p.name}')">
                         <div class="w-20 font-black text-2xl ${i < 3 ? 'text-yellow-500' : 'text-zinc-600'}">${i+1}</div>
                         <div class="flex-1 flex items-center gap-5">
                             <img src="${p.skin}" class="w-12 h-12 rounded-lg border border-white/10">
-                            <span class="font-bold text-lg">${p.name}</span>
+                            <div class="flex flex-col">
+                                <span class="font-bold text-lg leading-tight">${p.name}</span>
+                                <span class="text-[11px] font-semibold text-zinc-400/80 mt-0.5 tracking-wide">${getPlayerTitle(p.points)}</span>
+                            </div>
                         </div>
-                        <div class="w-32"><span class="bg-white/5 px-3 py-1 rounded-md text-xs font-bold border border-white/10">${p.region}</span></div>
-                        <div class="w-72 flex gap-4">
-                            ${Object.keys(ASSETS).slice(0,4).map(m => {
+                        <div class="w-24"><span class="bg-white/5 px-3 py-1 rounded-md text-xs font-bold border border-white/10">${p.region}</span></div>
+                        <div class="w-80 flex flex-wrap gap-3 items-center">
+                            ${Object.keys(ASSETS).map(m => {
                                 const t = p.ranks[m.toLowerCase()];
                                 if(!t) return '';
-                                return `<div class="flex flex-col items-center"><img src="${ASSETS[m]}" class="w-5 h-5 mb-1"><div class="tier-badge">${t}</div></div>`;
+                                return `<div class="flex items-center bg-white/[0.02] border border-white/[0.05] rounded-md px-1.5 py-0.5 gap-1"><img src="${ASSETS[m]}" class="w-4 h-4"><div class="text-[9px] font-bold text-zinc-300">${t}</div></div>`;
                             }).join('')}
                         </div>
                         <div class="w-32 text-right rating-num">${p.points}</div>
                     </div>
                 `).join('');
             } else {
+                // CATEGORY MODE (HT1-HT5 displayed higher than LT1-LT5)
                 const currentModeLower = activeSub.toLowerCase();
                 container.innerHTML = `<div class="grid grid-cols-5 gap-6">${[1,2,3,4,5].map(t => {
-                    const filteredPlayers = window.PLAYERS.filter(p => {
-                        const playerTier = p.ranks[currentModeLower];
-                        return playerTier && (playerTier === `HT${t}` || playerTier === `LT${t}`);
-                    });
+                    // Pull high tiers first, then low tiers to display above them
+                    const htPlayers = window.PLAYERS.filter(p => p.ranks[currentModeLower] === `HT${t}`);
+                    const ltPlayers = window.PLAYERS.filter(p => p.ranks[currentModeLower] === `LT${t}`);
+                    const filteredPlayers = [...htPlayers, ...ltPlayers];
 
                     return `
                     <div class="tier-column">
@@ -259,7 +272,7 @@
                                     <img src="${p.skin}" class="w-8 h-8 rounded border border-white/10">
                                     <div class="flex flex-col">
                                         <span class="font-bold text-sm">${p.name}</span>
-                                        <span class="text-[9px] text-zinc-500 font-black uppercase">${p.ranks[currentModeLower]}</span>
+                                        <span class="text-[9px] ${p.ranks[currentModeLower].startsWith('HT') ? 'text-yellow-500/90' : 'text-zinc-500'} font-black uppercase">${p.ranks[currentModeLower]}</span>
                                     </div>
                                 </div>
                             `).join('')}
@@ -277,6 +290,7 @@
             if(!p) return;
             document.getElementById('p-avatar').src = p.skin;
             document.getElementById('p-name').innerText = p.name;
+            document.getElementById('p-title').innerText = getPlayerTitle(p.points);
             document.getElementById('p-total').innerText = p.points;
             document.getElementById('p-tiers-grid').innerHTML = Object.keys(ASSETS).map(m => {
                 const t = p.ranks[m.toLowerCase()];
@@ -291,18 +305,52 @@
         }
         window.closeProfile = function() { document.getElementById('profileModal').classList.remove('active'); }
 
+        // INFORMATION MODAL SYSTEM
         window.openInfo = function() {
-            const grid = document.getElementById('info-grid-container');
-            grid.innerHTML = Object.entries(TIERS_CONFIG).map(([tier, pts]) => `
+            // Render Points Tab
+            document.getElementById('info-tab-points').innerHTML = Object.entries(TIERS_CONFIG).map(([tier, pts]) => `
                 <div class="points-card">
                     <h4>${tier}</h4>
                     <div class="pts-val">${pts} pts</div>
                     <div class="bar" style="width: ${Math.max(5, (pts/60)*100)}%"></div>
                 </div>
             `).join('');
+
+            // Render Titles Tab
+            const titlesData = [
+                { name: "Combat Grandmaster", desc: "Obtained 400+ total points." },
+                { name: "Combat Master", desc: "Obtained 250+ total points." },
+                { name: "Combat Ace", desc: "Obtained 100+ total points." },
+                { name: "Combat Specialist", desc: "Obtained 50+ total points." },
+                { name: "Combat Cadet", desc: "Obtained 20+ total points." },
+                { name: "Combat Novice", desc: "Obtained 10+ total points." },
+                { name: "Rookie", desc: "Less than 10 points." }
+            ];
+            document.getElementById('info-tab-titles').innerHTML = titlesData.map(t => `
+                <div class="points-card">
+                    <h4 class="text-yellow-400 !text-sm">${t.name}</h4>
+                    <div class="text-xs font-medium text-zinc-400 mt-1">${t.desc}</div>
+                </div>
+            `).join('');
+
+            switchInfoTab('points');
             document.getElementById('infoModal').classList.add('active');
         }
         window.closeInfo = function() { document.getElementById('infoModal').classList.remove('active'); }
+
+        window.switchInfoTab = function(tab) {
+            if(tab === 'points') {
+                document.getElementById('info-tab-points').classList.remove('hidden');
+                document.getElementById('info-tab-titles').classList.add('hidden');
+                document.getElementById('tab-points').className = "text-xl font-black pb-2 border-b-2 border-yellow-400 text-white";
+                document.getElementById('tab-titles').className = "text-xl font-black pb-2 border-b-2 border-transparent text-zinc-500 hover:text-white";
+            } else {
+                document.getElementById('info-tab-points').classList.add('hidden');
+                document.getElementById('info-tab-titles').classList.remove('hidden');
+                document.getElementById('tab-points').className = "text-xl font-black pb-2 border-b-2 border-transparent text-zinc-500 hover:text-white";
+                document.getElementById('tab-titles').className = "text-xl font-black pb-2 border-b-2 border-yellow-400 text-white";
+            }
+        }
 
         window.handleSearch = function(e) { if(e.key === 'Enter') { const f = window.PLAYERS.find(p => p.name.toLowerCase().includes(e.target.value.toLowerCase())); if(f) openProfile(f.name); } }
 
