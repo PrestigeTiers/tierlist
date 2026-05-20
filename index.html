@@ -50,7 +50,9 @@
                         if (tierValue) {
                             const upperTier = tierValue.toString().toUpperCase().trim();
                             if (TIERS_CONFIG[upperTier]) {
-                                cleanTiers[modeKey.toLowerCase().trim()] = upperTier;
+                                // Strip out spaces from database keys to match bot formatting (e.g., "og vanilla" -> "ogvanilla")
+                                const formattedKey = modeKey.toLowerCase().replace(/\s+/g, '').trim();
+                                cleanTiers[formattedKey] = upperTier;
                                 totalPoints += TIERS_CONFIG[upperTier];
                             }
                         }
@@ -197,6 +199,7 @@
             globe: `<svg viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 text-cyan-400"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>`
         };
 
+        // Website UI labels mapped to lowercase, space-free database keys
         const ASSETS = {
             'Sword': 'https://cdn.jsdelivr.net/gh/misode/mcmeta@assets/assets/minecraft/textures/item/diamond_sword.png',
             'Axe': 'https://cdn.jsdelivr.net/gh/misode/mcmeta@assets/assets/minecraft/textures/item/diamond_axe.png',
@@ -273,7 +276,8 @@
                         <div class="w-24"><span class="bg-white/5 px-3 py-1 rounded-md text-xs font-bold border border-white/10 text-zinc-300">${p.region}</span></div>
                         <div class="w-80 flex flex-wrap gap-2 items-center">
                             ${Object.keys(ASSETS).map(m => {
-                                const t = p.ranks[m.toLowerCase()];
+                                const dbKeyClean = m.toLowerCase().replace(/\s+/g, '');
+                                const t = p.ranks[dbKeyClean];
                                 if(!t) return '';
                                 return `<div class="flex items-center bg-white/[0.02] border border-white/[0.05] rounded-md px-1.5 py-0.5 gap-1"><img src="${ASSETS[m]}" class="w-4 h-4"><div class="text-[9px] font-bold text-zinc-300">${t}</div></div>`;
                             }).join('')}
@@ -282,10 +286,10 @@
                     </div>
                 `).join('');
             } else {
-                const currentModeLower = activeSub.toLowerCase();
+                const currentModeLowerClean = activeSub.toLowerCase().replace(/\s+/g, '');
                 container.innerHTML = `<div class="grid grid-cols-5 gap-6">${[1,2,3,4,5].map(t => {
-                    const htPlayers = window.PLAYERS.filter(p => p.ranks[currentModeLower] === `HT${t}`);
-                    const ltPlayers = window.PLAYERS.filter(p => p.ranks[currentModeLower] === `LT${t}`);
+                    const htPlayers = window.PLAYERS.filter(p => p.ranks[currentModeLowerClean] === `HT${t}`);
+                    const ltPlayers = window.PLAYERS.filter(p => p.ranks[currentModeLowerClean] === `LT${t}`);
                     const filteredPlayers = [...htPlayers, ...ltPlayers];
 
                     return `
@@ -297,7 +301,7 @@
                                     <img src="${p.skin}" class="w-8 h-8 rounded border border-white/10">
                                     <div class="flex flex-col">
                                         <span class="font-bold text-sm text-white">${p.name}</span>
-                                        <span class="text-[9px] ${p.ranks[currentModeLower].startsWith('HT') ? 'text-cyan-400' : 'text-zinc-500'} font-black uppercase tracking-wider">${p.ranks[currentModeLower]}</span>
+                                        <span class="text-[9px] ${p.ranks[currentModeLowerClean].startsWith('HT') ? 'text-cyan-400' : 'text-zinc-500'} font-black uppercase tracking-wider">${p.ranks[currentModeLowerClean]}</span>
                                     </div>
                                 </div>
                             `).join('')}
@@ -318,7 +322,8 @@
             document.getElementById('p-title').innerText = getPlayerTitle(p.points);
             document.getElementById('p-total').innerText = p.points;
             document.getElementById('p-tiers-grid').innerHTML = Object.keys(ASSETS).map(m => {
-                const t = p.ranks[m.toLowerCase()];
+                const dbKeyClean = m.toLowerCase().replace(/\s+/g, '');
+                const t = p.ranks[dbKeyClean];
                 if(!t) return '';
                 return `
                 <div class="flex flex-col items-center p-2 glass-card rounded-xl">
