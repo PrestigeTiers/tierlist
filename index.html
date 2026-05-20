@@ -25,27 +25,40 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // STEP 2: LIVE LISTENER FOR DATA (WITH LAYOUT SMART DETECTION)
+        // STEP 2: LIVE LISTENER FOR DATA (FIXED FOR DISCORD ID STRUCTURE)
         const userRef = ref(db, 'tier_list');
         onValue(userRef, (snapshot) => {
             const data = snapshot.val();
             if (data) {
-                window.PLAYERS = Object.keys(data).map(key => {
+                const playerArray = [];
+
+                Object.keys(data).forEach(key => {
                     const item = data[key];
                     
-                    // Checks if username is inside an object, otherwise uses the main key
-                    let username = item.username || key; 
-                    
-                    return {
+                    // 1. Get the actual Minecraft IGN (skip if they don't have one)
+                    const username = item.username || item.ign;
+                    if (!username) return; 
+
+                    // 2. Get their ranks object
+                    const ranks = item.ranks || {};
+
+                    // 3. Skip players who haven't been given any tiers yet (0 points)
+                    const hasTiers = Object.values(ranks).some(tier => tier && tier.trim() !== "");
+                    if (!hasTiers) return;
+
+                    // 4. Add the clean data to our list
+                    playerArray.push({
                         name: username,
                         region: item.region || "NA",
                         skin: `https://mc-heads.net/avatar/${username}/64`,
-                        ranks: item.ranks || {}
-                    };
+                        ranks: ranks
+                    });
                 });
+
+                window.PLAYERS = playerArray;
                 renderContent(); // Refresh the table automatically!
             } else {
-                document.getElementById('content-display').innerHTML = '<div class="text-center p-20 text-zinc-500 font-bold">No tier list data found in Firebase.</div>';
+                document.getElementById('content-display').innerHTML = '<div class="text-center p-20 text-zinc-500 font-bold">No data found in database.</div>';
             }
         });
     </script>
@@ -183,7 +196,10 @@
 
         function renderContent() {
             const container = document.getElementById('content-display');
-            if(!window.PLAYERS || window.PLAYERS.length === 0) return;
+            if(!window.PLAYERS || window.PLAYERS.length === 0) {
+                container.innerHTML = '<div class="text-center p-20 text-zinc-500 font-bold">No verified players with tiers to display.</div>';
+                return;
+            }
 
             let list = [...window.PLAYERS].sort((a,b) => calculateRating(b) - calculateRating(a));
             if (REGIONS.includes(activeSub)) list = list.filter(p => p.region === activeSub);
