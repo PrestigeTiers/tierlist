@@ -25,19 +25,21 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // STEP 2: LIVE LISTENER FOR DATA
-        const userRef = ref(db, 'user_data');
+        // STEP 2: LIVE LISTENER FOR DATA (CHANGED PATH TO 'tier_list')
+        const userRef = ref(db, 'tier_list');
         onValue(userRef, (snapshot) => {
             const data = snapshot.val();
             if (data) {
                 // Convert Firebase object into the array our website needs
-                window.PLAYERS = Object.keys(data).map(key => ({
-                    name: key,
-                    region: data[key].region || "NA",
-                    skin: `https://mc-heads.net/avatar/${key}/64`,
-                    ranks: data[key].ranks || {}
+                window.PLAYERS = Object.keys(data).map(username => ({
+                    name: username,
+                    region: data[username].region || "NA",
+                    skin: `https://mc-heads.net/avatar/${username}/64`,
+                    ranks: data[username].ranks || {}
                 }));
                 renderContent(); // Refresh the table automatically!
+            } else {
+                document.getElementById('content-display').innerHTML = '<div class="text-center p-20 text-zinc-500 font-bold">No tier list data found in Firebase.</div>';
             }
         });
     </script>
@@ -175,7 +177,7 @@
 
         function renderContent() {
             const container = document.getElementById('content-display');
-            if(window.PLAYERS.length === 0) return;
+            if(!window.PLAYERS || window.PLAYERS.length === 0) return;
 
             let list = [...window.PLAYERS].sort((a,b) => calculateRating(b) - calculateRating(a));
             if (REGIONS.includes(activeSub)) list = list.filter(p => p.region === activeSub);
@@ -215,7 +217,11 @@
             }
         }
 
-        function openProfile(name) {
+        // Expose functions globally for layout onclick bindings
+        window.switchMain = switchMain;
+        window.switchSub = switchSub;
+
+        window.openProfile = function(name) {
             const p = window.PLAYERS.find(x => x.name === name);
             if(!p) return;
             document.getElementById('p-avatar').src = p.skin;
@@ -228,9 +234,9 @@
                 </div>`).join('');
             document.getElementById('profileModal').classList.add('active');
         }
-        function closeProfile() { document.getElementById('profileModal').classList.remove('active'); }
+        window.closeProfile = function() { document.getElementById('profileModal').classList.remove('active'); }
 
-        function openInfo() {
+        window.openInfo = function() {
             const grid = document.getElementById('info-grid-container');
             grid.innerHTML = Object.entries(TIERS_CONFIG).map(([tier, pts]) => `
                 <div class="points-card">
@@ -241,9 +247,9 @@
             `).join('');
             document.getElementById('infoModal').classList.add('active');
         }
-        function closeInfo() { document.getElementById('infoModal').classList.remove('active'); }
+        window.closeInfo = function() { document.getElementById('infoModal').classList.remove('active'); }
 
-        function handleSearch(e) { if(e.key === 'Enter') { const f = window.PLAYERS.find(p => p.name.toLowerCase().includes(e.target.value.toLowerCase())); if(f) openProfile(f.name); } }
+        window.handleSearch = function(e) { if(e.key === 'Enter') { const f = window.PLAYERS.find(p => p.name.toLowerCase().includes(e.target.value.toLowerCase())); if(f) openProfile(f.name); } }
 
         renderSubNav();
     </script>
