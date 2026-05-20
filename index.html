@@ -21,13 +21,12 @@
             measurementId: "G-HYECP0CP35"
         };
 
-        // INITIALIZE FIREBASE
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
         const TIERS_CONFIG = { 'HT1': 60, 'LT1': 45, 'HT2': 30, 'LT2': 20, 'HT3': 10, 'LT3': 6, 'HT4': 4, 'LT4': 3, 'HT5': 2, 'LT5': 1 };
 
-        // STEP 2: LIVE LISTENER FOR DATA (CASE-INSENSITIVE)
+        // STEP 2: TOTAL DATA DUMP LISTENER (NO RESTRICTIONS)
         const userRef = ref(db, 'tier_list');
         onValue(userRef, (snapshot) => {
             const data = snapshot.val();
@@ -38,42 +37,32 @@
                     const item = data[key];
                     if (!item) return;
                     
-                    // 1. Extract username safely
-                    const username = item.username || item.ign;
-                    if (!username || /^\d+$/.test(username) || username.toLowerCase() === 'unknown') return; 
+                    // Grab username or fallback to the folder key itself
+                    const username = item.username || item.ign || key; 
+                    if (username.toLowerCase() === 'unknown') return;
 
-                    // 2. Extract ranks and normalize keys to lowercase for foolproof matching
+                    // Read whatever ranks exist, make them case-insensitive safe
                     const rawRanks = item.ranks || {};
                     const cleanRanks = {};
                     let totalPoints = 0;
 
+                    // Match categories regardless of bot casing
                     Object.keys(rawRanks).forEach(modeKey => {
-                        const tierValue = rawRanks[modeKey];
-                        if (tierValue) {
-                            const upperTier = tierValue.toUpperCase().trim();
-                            if (TIERS_CONFIG[upperTier]) {
-                                // Save with a standard lowercase key format internally
-                                cleanRanks[modeKey.toLowerCase().trim()] = upperTier;
-                                totalPoints += TIERS_CONFIG[upperTier];
+                        const val = rawRanks[modeKey];
+                        if (val) {
+                            const upperVal = val.toString().toUpperCase().trim();
+                            cleanRanks[modeKey.toLowerCase().trim()] = upperVal;
+                            if (TIERS_CONFIG[upperVal]) {
+                                totalPoints += TIERS_CONFIG[upperVal];
                             }
                         }
                     });
 
-                    // 3. Discard completely if they have no valid matching tiers
-                    if (totalPoints === 0) return; 
-
-                    // 4. Standardize region values safely
-                    let finalRegion = (item.region || "NA").toUpperCase().trim();
-                    if (finalRegion === "UNKNOWN" || finalRegion === "") {
-                        finalRegion = "NA";
-                    }
-
-                    // 5. Add valid player
                     playerArray.push({
                         name: username,
-                        region: finalRegion,
+                        region: (item.region || "NA").toUpperCase(),
                         skin: `https://mc-heads.net/avatar/${username}/64`,
-                        ranks: cleanRanks, // keys are now lowercase (e.g. 'sword', 'axe')
+                        ranks: cleanRanks,
                         points: totalPoints
                     });
                 });
@@ -81,22 +70,13 @@
                 window.PLAYERS = playerArray;
                 renderContent(); 
             } else {
-                document.getElementById('content-display').innerHTML = '<div class="text-center p-20 text-zinc-500 font-bold">No verified tier data found.</div>';
+                document.getElementById('content-display').innerHTML = '<div class="text-center p-20 text-zinc-500 font-bold">No data found in Firebase node.</div>';
             }
         });
     </script>
 
     <style>
-        .bg-wrapper {
-            position: fixed;
-            inset: 0;
-            z-index: -1;
-            background: url('./background.jpg') no-repeat center center;
-            background-size: cover;
-            filter: blur(4px) brightness(0.3); 
-            transform: scale(1.05);
-        }
-
+        .bg-wrapper { position: fixed; inset: 0; z-index: -1; background: url('./background.jpg') no-repeat center center; background-size: cover; filter: blur(4px) brightness(0.3); transform: scale(1.05); }
         body { background-color: #0d0d0f; color: #ffffff; font-family: 'Inter', sans-serif; overflow: hidden; height: 100vh; position: relative; }
         .glass-card { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; backdrop-filter: blur(4px); }
         .pill-btn { padding: 10px 24px; border-radius: 12px; transition: 0.2s; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.1); color: #71717a; font-weight: 600; }
@@ -117,7 +97,6 @@
         .points-card h4 { color: #ffffff; font-size: 0.75rem; font-weight: 800; margin-bottom: 8px; }
         .points-card .pts-val { color: #a855f7; font-size: 1.75rem; font-weight: 900; margin-bottom: 12px; }
         .points-card .bar { height: 6px; background: #a855f7; border-radius: 3px; margin-bottom: 12px; }
-        .points-card .label { color: #636366; font-size: 0.7rem; font-weight: 600; }
     </style>
 </head>
 <body class="p-8">
@@ -165,7 +144,6 @@
     </div>
 
     <script>
-        // GLOBAL DATA
         window.PLAYERS = []; 
         const ICONS = {
             trophy: `<svg viewBox="0 0 24 24"><path d="M18 2H6c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94A5.01 5.01 0 0 0 11 13.9V17H8v2h8v-2h-3v-3.1a5.01 5.01 0 0 0 2.61-3.96C18.08 9.63 20 7.55 20 5V4c0-1.1-.9-2-2-2zm-10 5.09A3.001 3.001 0 0 1 6 4h2v3.09zM18 4v1c0 .98-.71 1.79-1.64 1.97A2.996 2.996 0 0 1 16 4h2z"/></svg>`,
@@ -188,14 +166,11 @@
             'Og Vanilla': 'https://cdn.jsdelivr.net/gh/misode/mcmeta@assets/assets/minecraft/textures/item/golden_apple.png'
         };
 
-        const TIERS_CONFIG = { 'HT1': 60, 'LT1': 45, 'HT2': 30, 'LT2': 20, 'HT3': 10, 'LT3': 6, 'HT4': 4, 'LT4': 3, 'HT5': 2, 'LT5': 1 };
         const REGIONS = ['EU', 'NA', 'AS'];
-
         let activeMain = 'global', activeSub = 'Overall';
 
         function switchMain(key) {
-            activeMain = key; 
-            activeSub = 'Overall';
+            activeMain = key; activeSub = 'Overall';
             document.querySelectorAll('.pill-btn').forEach(b => b.classList.remove('active'));
             document.getElementById(`btn-${key}`).classList.add('active');
             renderSubNav(); renderContent();
@@ -213,13 +188,12 @@
             }).join('');
         }
 
-        // Standardize lookups by using lowerCase strings internally
         function switchSub(m) { activeSub = m; renderSubNav(); renderContent(); }
 
         function renderContent() {
             const container = document.getElementById('content-display');
             if(!window.PLAYERS || window.PLAYERS.length === 0) {
-                container.innerHTML = '<div class="text-center p-20 text-zinc-500 font-bold">No verified players with tiers to display.</div>';
+                container.innerHTML = '<div class="text-center p-20 text-zinc-500 font-bold">No active database records found.</div>';
                 return;
             }
 
@@ -236,17 +210,12 @@
                         </div>
                         <div class="w-32"><span class="bg-white/5 px-3 py-1 rounded-md text-xs font-bold border border-white/10">${p.region}</span></div>
                         <div class="w-72 flex gap-4">
-                            ${Object.keys(ASSETS).slice(0,4).map(m => {
-                                const t = p.ranks[m.toLowerCase()];
-                                if(!t) return '';
-                                return `<div class="flex flex-col items-center"><img src="${ASSETS[m]}" class="w-5 h-5 mb-1"><div class="tier-badge">${t}</div></div>`;
-                            }).join('')}
+                            ${Object.keys(p.ranks).slice(0,4).map(rk => `<div class="flex flex-col items-center"><span class="text-[10px] text-zinc-400 font-bold uppercase">${rk}</span><div class="tier-badge">${p.ranks[rk]}</div></div>`).join('')}
                         </div>
                         <div class="w-32 text-right rating-num">${p.points}</div>
                     </div>
                 `).join('');
             } else {
-                // CATEGORY COLUMNS VIEW (TIERS 1 - 5)
                 const currentModeLower = activeSub.toLowerCase();
                 container.innerHTML = `<div class="grid grid-cols-5 gap-6">${[1,2,3,4,5].map(t => {
                     const filteredPlayers = window.PLAYERS.filter(p => {
@@ -273,8 +242,7 @@
             }
         }
 
-        window.switchMain = switchMain;
-        window.switchSub = switchSub;
+        window.switchMain = switchMain; window.switchSub = switchSub;
 
         window.openProfile = function(name) {
             const p = window.PLAYERS.find(x => x.name === name);
@@ -282,32 +250,23 @@
             document.getElementById('p-avatar').src = p.skin;
             document.getElementById('p-name').innerText = p.name;
             document.getElementById('p-total').innerText = p.points;
-            document.getElementById('p-tiers-grid').innerHTML = Object.keys(ASSETS).map(m => {
-                const t = p.ranks[m.toLowerCase()];
-                if(!t) return '';
-                return `
+            document.getElementById('p-tiers-grid').innerHTML = Object.keys(p.ranks).map(rk => `
                 <div class="flex flex-col items-center p-2 glass-card rounded-xl">
-                    <img src="${ASSETS[m]}" class="w-6 h-6 mb-1">
-                    <span class="text-[10px] font-bold text-zinc-400">${t}</span>
-                </div>`;
-            }).join('');
+                    <span class="text-[9px] text-zinc-500 font-bold uppercase">${rk}</span>
+                    <span class="text-[11px] font-black text-yellow-400 mt-1">${p.ranks[rk]}</span>
+                </div>`).join('');
             document.getElementById('profileModal').classList.add('active');
         }
         window.closeProfile = function() { document.getElementById('profileModal').classList.remove('active'); }
 
         window.openInfo = function() {
             const grid = document.getElementById('info-grid-container');
-            grid.innerHTML = Object.entries(TIERS_CONFIG).map(([tier, pts]) => `
-                <div class="points-card">
-                    <h4>${tier}</h4>
-                    <div class="pts-val">${pts} pts</div>
-                    <div class="bar" style="width: ${Math.max(5, (pts/60)*100)}%"></div>
-                </div>
+            grid.innerHTML = Object.entries({ 'HT1': 60, 'LT1': 45, 'HT2': 30, 'LT2': 20, 'HT3': 10, 'LT3': 6, 'HT4': 4, 'LT4': 3, 'HT5': 2, 'LT5': 1 }).map(([tier, pts]) => `
+                <div class="points-card"><h4>${tier}</h4><div class="pts-val">${pts} pts</div></div>
             `).join('');
             document.getElementById('infoModal').classList.add('active');
         }
         window.closeInfo = function() { document.getElementById('infoModal').classList.remove('active'); }
-
         window.handleSearch = function(e) { if(e.key === 'Enter') { const f = window.PLAYERS.find(p => p.name.toLowerCase().includes(e.target.value.toLowerCase())); if(f) openProfile(f.name); } }
 
         renderSubNav();
