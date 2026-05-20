@@ -25,18 +25,24 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // STEP 2: LIVE LISTENER FOR DATA (CHANGED PATH TO 'tier_list')
+        // STEP 2: LIVE LISTENER FOR DATA (WITH LAYOUT SMART DETECTION)
         const userRef = ref(db, 'tier_list');
         onValue(userRef, (snapshot) => {
             const data = snapshot.val();
             if (data) {
-                // Convert Firebase object into the array our website needs
-                window.PLAYERS = Object.keys(data).map(username => ({
-                    name: username,
-                    region: data[username].region || "NA",
-                    skin: `https://mc-heads.net/avatar/${username}/64`,
-                    ranks: data[username].ranks || {}
-                }));
+                window.PLAYERS = Object.keys(data).map(key => {
+                    const item = data[key];
+                    
+                    // Checks if username is inside an object, otherwise uses the main key
+                    let username = item.username || key; 
+                    
+                    return {
+                        name: username,
+                        region: item.region || "NA",
+                        skin: `https://mc-heads.net/avatar/${username}/64`,
+                        ranks: item.ranks || {}
+                    };
+                });
                 renderContent(); // Refresh the table automatically!
             } else {
                 document.getElementById('content-display').innerHTML = '<div class="text-center p-20 text-zinc-500 font-bold">No tier list data found in Firebase.</div>';
