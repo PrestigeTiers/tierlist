@@ -81,44 +81,71 @@
     </script>
 
     <style>
+        /* Blurry Minecraft Mountain Background Image */
         .bg-wrapper {
             position: fixed;
             inset: 0;
-            z-index: -1;
-            background: url('./background.jpg') no-repeat center center;
+            z-index: -2;
+            background: url('https://images.unsplash.com/photo-1627856013091-fed6e4e30025?q=80&w=2000') no-repeat center center;
             background-size: cover;
-            filter: blur(4px) brightness(0.3); 
-            transform: scale(1.05);
+            transform: scale(1.02);
         }
 
-        body { background-color: #0d0d0f; color: #ffffff; font-family: 'Inter', sans-serif; overflow: hidden; height: 100vh; position: relative; }
-        .glass-card { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; backdrop-filter: blur(4px); }
-        .pill-btn { padding: 10px 24px; border-radius: 12px; transition: 0.2s; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.1); color: #71717a; font-weight: 600; }
-        .pill-btn.active { background: #1a1a1e; border-color: #facc15; color: #ffffff; }
-        .sub-pill { display: flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 8px; background: transparent; transition: 0.2s; border: 1px solid transparent; color: #a1a1aa; font-weight: 700; font-size: 0.95rem; white-space: nowrap; }
-        .sub-pill.active { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); color: #ffffff; }
-        .tier-column { background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; height: 75vh; display: flex; flex-direction: column; backdrop-filter: blur(10px); }
-        .tier-header { padding: 16px; border-bottom: 1px solid rgba(255,255,255,0.05); text-align: center; font-weight: 900; text-transform: uppercase; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .player-square { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; padding: 10px; display: flex; align-items: center; gap: 12px; transition: 0.2s; cursor: pointer; }
-        .player-square:hover { background: rgba(255,255,255,0.1); transform: translateY(-2px); }
-        .tier-badge { background: #16161a; padding: 2px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: 800; color: #a1a1aa; border: 1px solid #27272a; }
-        .rating-num { color: #facc15; font-weight: 800; font-size: 1.6rem; }
-        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 100; backdrop-filter: blur(15px); align-items: center; justify-content: center; }
+        /* Translucent black overlay over the whole site */
+        .bg-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            background: rgba(10, 11, 14, 0.82);
+            backdrop-filter: blur(12px);
+        }
+
+        body { color: #ffffff; font-family: 'Inter', sans-serif; overflow: hidden; height: 100vh; position: relative; }
+        
+        /* Premium Frosted Glass Cards */
+        .glass-card { background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 14px; backdrop-filter: blur(8px); }
+        
+        /* Pills & Buttons with Neon Blue Highlight System */
+        .pill-btn { padding: 10px 24px; border-radius: 12px; transition: all 0.25s ease; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); color: #a1a1aa; font-weight: 600; }
+        .pill-btn:hover { border-color: rgba(0, 242, 255, 0.4); color: #ffffff; }
+        .pill-btn.active { background: rgba(0, 242, 255, 0.06); border-color: #00f2ff; color: #00f2ff; box-shadow: 0 0 12px rgba(0, 242, 255, 0.15); }
+        
+        .sub-pill { display: flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 8px; background: transparent; transition: all 0.2s; border: 1px solid transparent; color: #a1a1aa; font-weight: 700; font-size: 0.95rem; white-space: nowrap; }
+        .sub-pill:hover { color: #ffffff; }
+        .sub-pill.active { background: rgba(255,255,255,0.04); border-color: rgba(0, 242, 255, 0.3); color: #00f2ff; }
+        
+        /* Column views */
+        .tier-column { background: rgba(5, 6, 8, 0.5); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 16px; height: 75vh; display: flex; flex-direction: column; }
+        .tier-header { padding: 16px; border-bottom: 1px solid rgba(255,255,255,0.04); text-align: center; font-weight: 900; text-transform: uppercase; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        
+        .player-square { background: rgba(255, 255, 255, 0.01); border: 1px solid rgba(255,255,255,0.04); border-radius: 10px; padding: 10px; display: flex; align-items: center; gap: 12px; transition: all 0.2s; cursor: pointer; }
+        .player-square:hover { background: rgba(255, 255, 255, 0.05); border-color: rgba(0, 242, 255, 0.3); transform: translateY(-2px); }
+        
+        .tier-badge { background: rgba(0, 0, 0, 0.4); padding: 2px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: 800; color: #a1a1aa; border: 1px solid rgba(255,255,255,0.08); }
+        .rating-num { color: #00f2ff; font-weight: 800; font-size: 1.6rem; text-shadow: 0 0 10px rgba(0, 242, 255, 0.2); }
+        
+        /* Modals */
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(4, 5, 7, 0.85); z-index: 100; backdrop-filter: blur(20px); align-items: center; justify-content: center; }
         .modal-overlay.active { display: flex; }
-        .search-input { width: 200px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 8px 12px; font-size: 0.9rem; outline: none; backdrop-filter: blur(5px); }
+        
+        /* Input Search Box */
+        .search-input { width: 200px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 8px 12px; font-size: 0.9rem; outline: none; transition: all 0.2s; }
+        .search-input:focus { border-color: #00f2ff; box-shadow: 0 0 8px rgba(0, 242, 255, 0.2); }
+        
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        .points-card { background: #111116; border: 1px solid #1c1c24; border-radius: 12px; padding: 20px; position: relative; overflow: hidden; text-align: left; }
+        .points-card { background: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 20px; position: relative; overflow: hidden; text-align: left; }
         .points-card h4 { color: #ffffff; font-size: 0.75rem; font-weight: 800; margin-bottom: 8px; }
-        .points-card .pts-val { color: #a855f7; font-size: 1.75rem; font-weight: 900; margin-bottom: 12px; }
-        .points-card .bar { height: 6px; background: #a855f7; border-radius: 3px; margin-bottom: 12px; }
+        .points-card .pts-val { color: #00f2ff; font-size: 1.75rem; font-weight: 900; margin-bottom: 12px; }
+        .points-card .bar { height: 6px; background: #00f2ff; border-radius: 3px; margin-bottom: 12px; box-shadow: 0 0 8px rgba(0, 242, 255, 0.4); }
     </style>
 </head>
 <body class="p-8">
 
     <div class="bg-wrapper"></div>
+    <div class="bg-overlay"></div>
 
     <header class="flex items-center justify-between mb-8 max-w-7xl mx-auto relative z-10">
-        <h1 class="text-4xl font-black tracking-tighter italic text-yellow-400">PRESTIGE TIERS</h1>
+        <h1 class="text-4xl font-black tracking-tighter italic text-cyan-400 drop-shadow-[0_0_15px_rgba(0,242,255,0.3)]">PRESTIGE TIERS</h1>
         <div class="flex gap-3">
             <button onclick="switchMain('global')" id="btn-global" class="pill-btn active">Global</button>
             <button onclick="switchMain('main')" id="btn-main" class="pill-btn">Main Modes</button>
@@ -126,7 +153,7 @@
         </div>
         <div class="flex items-center gap-3">
             <input type="text" id="searchBar" class="search-input" placeholder="Search players..." onkeyup="handleSearch(event)">
-            <button onclick="openInfo()" class="pill-btn bg-white/10 text-white border-white/20">Information</button>
+            <button onclick="openInfo()" class="pill-btn bg-white/5 text-white border-white/10 hover:border-cyan-400">Information</button>
         </div>
     </header>
 
@@ -139,9 +166,9 @@
     </main>
 
     <div id="infoModal" class="modal-overlay" onclick="closeInfo()">
-        <div class="bg-[#0d0d11] p-10 rounded-3xl border border-white/10 w-[950px] max-w-[95vw]" onclick="event.stopPropagation()">
+        <div class="bg-[#090a0d] p-10 rounded-3xl border border-white/10 w-[950px] max-w-[95vw]" onclick="event.stopPropagation()">
             <div class="flex gap-4 border-b border-white/10 mb-6 pb-2">
-                <button onclick="switchInfoTab('points')" id="tab-points" class="text-xl font-black pb-2 border-b-2 border-yellow-400 text-white">Point System</button>
+                <button onclick="switchInfoTab('points')" id="tab-points" class="text-xl font-black pb-2 border-b-2 border-cyan-400 text-cyan-400">Point System</button>
                 <button onclick="switchInfoTab('titles')" id="tab-titles" class="text-xl font-black pb-2 border-b-2 border-transparent text-zinc-500 hover:text-white">Titles</button>
             </div>
             <div id="info-tab-points" class="grid grid-cols-5 gap-4"></div>
@@ -150,12 +177,12 @@
     </div>
 
     <div id="profileModal" class="modal-overlay" onclick="closeProfile()">
-        <div class="profile-card bg-[#0d0d11] p-8 rounded-3xl border border-white/10 w-[450px]" onclick="event.stopPropagation()">
-            <img id="p-avatar" src="" class="w-24 h-24 rounded-full mx-auto mb-2 border-4 border-yellow-500 shadow-2xl">
+        <div class="profile-card bg-[#090a0d] p-8 rounded-3xl border border-white/10 w-[450px]" onclick="event.stopPropagation()">
+            <img id="p-avatar" src="" class="w-24 h-24 rounded-full mx-auto mb-2 border-4 border-cyan-400 shadow-[0_0_20px_rgba(0,242,255,0.2)]">
             <h2 id="p-name" class="text-center text-3xl font-black tracking-tight"></h2>
-            <div id="p-title" class="text-center text-xs font-bold uppercase tracking-widest text-yellow-500/80 mb-6"></div>
+            <div id="p-title" class="text-center text-xs font-bold uppercase tracking-widest text-cyan-400/80 mb-6"></div>
             <div class="glass-card p-4 flex justify-between items-center mb-6">
-                <span class="font-bold">Total Points</span>
+                <span class="font-bold text-zinc-300">Total Points</span>
                 <span id="p-total" class="rating-num"></span>
             </div>
             <div id="p-tiers-grid" class="grid grid-cols-5 gap-3"></div>
@@ -165,8 +192,8 @@
     <script>
         window.PLAYERS = []; 
         const ICONS = {
-            trophy: `<svg viewBox="0 0 24 24"><path d="M18 2H6c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94A5.01 5.01 0 0 0 11 13.9V17H8v2h8v-2h-3v-3.1a5.01 5.01 0 0 0 2.61-3.96C18.08 9.63 20 7.55 20 5V4c0-1.1-.9-2-2-2zm-10 5.09A3.001 3.001 0 0 1 6 4h2v3.09zM18 4v1c0 .98-.71 1.79-1.64 1.97A2.996 2.996 0 0 1 16 4h2z"/></svg>`,
-            globe: `<svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>`
+            trophy: `<svg viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 text-cyan-400"><path d="M18 2H6c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94A5.01 5.01 0 0 0 11 13.9V17H8v2h8v-2h-3v-3.1a5.01 5.01 0 0 0 2.61-3.96C18.08 9.63 20 7.55 20 5V4c0-1.1-.9-2-2-2zm-10 5.09A3.001 3.001 0 0 1 6 4h2v3.09zM18 4v1c0 .98-.71 1.79-1.64 1.97A2.996 2.996 0 0 1 16 4h2z"/></svg>`,
+            globe: `<svg viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 text-cyan-400"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>`
         };
 
         const ASSETS = {
@@ -190,7 +217,6 @@
 
         let activeMain = 'global', activeSub = 'Overall';
 
-        // Helper function to calculate custom Titles based on total milestones
         function getPlayerTitle(pts) {
             if (pts >= 400) return "Combat Grandmaster";
             if (pts >= 250) return "Combat Master";
@@ -234,17 +260,17 @@
 
             if (activeSub === 'Overall' || REGIONS.includes(activeSub)) {
                 container.innerHTML = list.map((p, i) => `
-                    <div class="glass-card p-5 mb-4 flex items-center hover:bg-white/[0.08] transition cursor-pointer" onclick="openProfile('${p.name}')">
-                        <div class="w-20 font-black text-2xl ${i < 3 ? 'text-yellow-500' : 'text-zinc-600'}">${i+1}</div>
+                    <div class="glass-card p-5 mb-4 flex items-center hover:bg-white/[0.04] hover:border-cyan-500/30 transition cursor-pointer" onclick="openProfile('${p.name}')">
+                        <div class="w-20 font-black text-2xl ${i < 3 ? 'text-cyan-400 drop-shadow-[0_0_8px_rgba(0,242,255,0.4)]' : 'text-zinc-600'}">${i+1}</div>
                         <div class="flex-1 flex items-center gap-5">
                             <img src="${p.skin}" class="w-12 h-12 rounded-lg border border-white/10">
                             <div class="flex flex-col">
-                                <span class="font-bold text-lg leading-tight">${p.name}</span>
+                                <span class="font-bold text-lg leading-tight text-white">${p.name}</span>
                                 <span class="text-[11px] font-semibold text-zinc-400/80 mt-0.5 tracking-wide">${getPlayerTitle(p.points)}</span>
                             </div>
                         </div>
-                        <div class="w-24"><span class="bg-white/5 px-3 py-1 rounded-md text-xs font-bold border border-white/10">${p.region}</span></div>
-                        <div class="w-80 flex flex-wrap gap-3 items-center">
+                        <div class="w-24"><span class="bg-white/5 px-3 py-1 rounded-md text-xs font-bold border border-white/10 text-zinc-300">${p.region}</span></div>
+                        <div class="w-80 flex flex-wrap gap-2 items-center">
                             ${Object.keys(ASSETS).map(m => {
                                 const t = p.ranks[m.toLowerCase()];
                                 if(!t) return '';
@@ -255,24 +281,22 @@
                     </div>
                 `).join('');
             } else {
-                // CATEGORY MODE (HT1-HT5 displayed higher than LT1-LT5)
                 const currentModeLower = activeSub.toLowerCase();
                 container.innerHTML = `<div class="grid grid-cols-5 gap-6">${[1,2,3,4,5].map(t => {
-                    // Pull high tiers first, then low tiers to display above them
                     const htPlayers = window.PLAYERS.filter(p => p.ranks[currentModeLower] === `HT${t}`);
                     const ltPlayers = window.PLAYERS.filter(p => p.ranks[currentModeLower] === `LT${t}`);
                     const filteredPlayers = [...htPlayers, ...ltPlayers];
 
                     return `
                     <div class="tier-column">
-                        <div class="tier-header ${t === 1 ? 'text-yellow-500' : 'text-zinc-500'}">Tier ${t}</div>
+                        <div class="tier-header ${t === 1 ? 'text-cyan-400 drop-shadow-[0_0_6px_rgba(0,242,255,0.3)]' : 'text-zinc-500'}">Tier ${t}</div>
                         <div class="p-4 flex flex-col gap-3 overflow-y-auto no-scrollbar">
                             ${filteredPlayers.length === 0 ? '<div class="text-xs text-center text-zinc-600 p-4 font-semibold">Empty</div>' : filteredPlayers.map(p => `
                                 <div class="player-square" onclick="openProfile('${p.name}')">
                                     <img src="${p.skin}" class="w-8 h-8 rounded border border-white/10">
                                     <div class="flex flex-col">
-                                        <span class="font-bold text-sm">${p.name}</span>
-                                        <span class="text-[9px] ${p.ranks[currentModeLower].startsWith('HT') ? 'text-yellow-500/90' : 'text-zinc-500'} font-black uppercase">${p.ranks[currentModeLower]}</span>
+                                        <span class="font-bold text-sm text-white">${p.name}</span>
+                                        <span class="text-[9px] ${p.ranks[currentModeLower].startsWith('HT') ? 'text-cyan-400' : 'text-zinc-500'} font-black uppercase tracking-wider">${p.ranks[currentModeLower]}</span>
                                     </div>
                                 </div>
                             `).join('')}
@@ -305,9 +329,7 @@
         }
         window.closeProfile = function() { document.getElementById('profileModal').classList.remove('active'); }
 
-        // INFORMATION MODAL SYSTEM
         window.openInfo = function() {
-            // Render Points Tab
             document.getElementById('info-tab-points').innerHTML = Object.entries(TIERS_CONFIG).map(([tier, pts]) => `
                 <div class="points-card">
                     <h4>${tier}</h4>
@@ -316,7 +338,6 @@
                 </div>
             `).join('');
 
-            // Render Titles Tab
             const titlesData = [
                 { name: "Combat Grandmaster", desc: "Obtained 400+ total points." },
                 { name: "Combat Master", desc: "Obtained 250+ total points." },
@@ -328,7 +349,7 @@
             ];
             document.getElementById('info-tab-titles').innerHTML = titlesData.map(t => `
                 <div class="points-card">
-                    <h4 class="text-yellow-400 !text-sm">${t.name}</h4>
+                    <h4 class="text-cyan-400 !text-sm drop-shadow-[0_0_6px_rgba(0,242,255,0.2)]">${t.name}</h4>
                     <div class="text-xs font-medium text-zinc-400 mt-1">${t.desc}</div>
                 </div>
             `).join('');
@@ -342,13 +363,13 @@
             if(tab === 'points') {
                 document.getElementById('info-tab-points').classList.remove('hidden');
                 document.getElementById('info-tab-titles').classList.add('hidden');
-                document.getElementById('tab-points').className = "text-xl font-black pb-2 border-b-2 border-yellow-400 text-white";
+                document.getElementById('tab-points').className = "text-xl font-black pb-2 border-b-2 border-cyan-400 text-cyan-400";
                 document.getElementById('tab-titles').className = "text-xl font-black pb-2 border-b-2 border-transparent text-zinc-500 hover:text-white";
             } else {
                 document.getElementById('info-tab-points').classList.add('hidden');
                 document.getElementById('info-tab-titles').classList.remove('hidden');
                 document.getElementById('tab-points').className = "text-xl font-black pb-2 border-b-2 border-transparent text-zinc-500 hover:text-white";
-                document.getElementById('tab-titles').className = "text-xl font-black pb-2 border-b-2 border-yellow-400 text-white";
+                document.getElementById('tab-titles').className = "text-xl font-black pb-2 border-b-2 border-cyan-400 text-cyan-400";
             }
         }
 
