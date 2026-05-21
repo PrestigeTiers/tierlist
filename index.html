@@ -122,6 +122,9 @@
         /* Premium Frosted Glass Cards */
         .glass-card { background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 14px; backdrop-filter: blur(8px); }
         
+        /* Neon Highlight System Profile Boxes Outline */
+        .profile-glass-box { background: rgba(0, 242, 255, 0.01); border: 1px solid rgba(0, 242, 255, 0.35); border-radius: 14px; backdrop-filter: blur(8px); box-shadow: 0 0 10px rgba(0, 242, 255, 0.05); }
+
         /* Pills & Buttons with Neon Blue Highlight System */
         .pill-btn { padding: 10px 24px; border-radius: 12px; transition: all 0.25s ease; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); color: #a1a1aa; font-weight: 600; }
         .pill-btn:hover { border-color: rgba(0, 242, 255, 0.4); color: #ffffff; }
@@ -135,13 +138,18 @@
         .tier-column { background: rgba(5, 6, 8, 0.5); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 16px; height: 75vh; display: flex; flex-direction: column; }
         .tier-header { padding: 16px; border-bottom: 1px solid rgba(255,255,255,0.04); text-align: center; font-weight: 900; text-transform: uppercase; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; gap: 8px; }
         
+        /* Gamemodes Column Text Colors Hooks */
+        .text-gold { color: #d4af37 !important; text-shadow: 0 0 10px rgba(212, 175, 55, 0.3); }
+        .text-silver { color: #c0c0c0 !important; text-shadow: 0 0 10px rgba(192, 192, 192, 0.3); }
+        .text-bronze { color: #cd7f32 !important; text-shadow: 0 0 10px rgba(205, 127, 50, 0.3); }
+
         .player-square { background: rgba(255, 255, 255, 0.01); border: 1px solid rgba(255, 255, 255, 0.04); border-radius: 10px; padding: 10px; display: flex; align-items: center; gap: 12px; transition: all 0.2s; cursor: pointer; }
         .player-square:hover { background: rgba(255, 255, 255, 0.05); border-color: rgba(0, 242, 255, 0.3); transform: translateY(-2px); }
         
         .tier-badge { background: rgba(0, 0, 0, 0.4); padding: 2px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: 800; color: #a1a1aa; border: 1px solid rgba(255,255,255,0.08); }
         .rating-num { color: #00f2ff; font-weight: 800; font-size: 1.6rem; text-shadow: 0 0 10px rgba(0, 242, 255, 0.2); }
         
-        /* Podium Backgrounds Updated: Now fading from Left to Right */
+        /* Podium Backgrounds fading from Left to Right */
         .podium-1st { background: linear-gradient(to right, rgba(212, 175, 55, 0.12) 0%, rgba(212, 175, 55, 0.04) 40%, rgba(255, 255, 255, 0.02) 100%) !important; border-left: 2px solid rgba(212, 175, 55, 0.4) !important; }
         .podium-2nd { background: linear-gradient(to right, rgba(192, 192, 192, 0.12) 0%, rgba(192, 192, 192, 0.04) 40%, rgba(255, 255, 255, 0.02) 100%) !important; border-left: 2px solid rgba(192, 192, 192, 0.4) !important; }
         .podium-3rd { background: linear-gradient(to right, rgba(205, 127, 50, 0.12) 0%, rgba(205, 127, 50, 0.04) 40%, rgba(255, 255, 255, 0.02) 100%) !important; border-left: 2px solid rgba(205, 127, 50, 0.4) !important; }
@@ -210,11 +218,11 @@
             <div id="p-title" class="text-center text-xs font-bold uppercase tracking-widest text-zinc-400 mb-6"></div>
             
             <div class="grid grid-cols-2 gap-4 mb-6">
-                <div class="glass-card p-4 flex flex-col justify-center items-center text-center">
+                <div class="profile-glass-box p-4 flex flex-col justify-center items-center text-center">
                     <span class="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-1">Rank Placement</span>
                     <span id="p-rank-pos" class="rating-num"></span>
                 </div>
-                <div class="glass-card p-4 flex flex-col justify-center items-center text-center">
+                <div class="profile-glass-box p-4 flex flex-col justify-center items-center text-center">
                     <span class="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-1">Total Points</span>
                     <span id="p-total" class="rating-num"></span>
                 </div>
@@ -323,13 +331,15 @@
                     }
 
                     let podiumClass = '';
-                    if (i === 0) podiumClass = 'podium-1st';
-                    if (i === 1) podiumClass = 'podium-2nd';
-                    if (i === 2) podiumClass = 'podium-3rd';
+                    let rankNumberClass = 'text-zinc-600'; // Default gray position rank color
+                    
+                    if (i === 0) { podiumClass = 'podium-1st'; rankNumberClass = 'text-gold'; }
+                    if (i === 1) { podiumClass = 'podium-2nd'; rankNumberClass = 'text-silver'; }
+                    if (i === 2) { podiumClass = 'podium-3rd'; rankNumberClass = 'text-bronze'; }
 
                     return `
                     <div class="glass-card p-5 mb-4 flex items-center hover:bg-white/[0.04] hover:border-cyan-500/30 transition cursor-pointer ${podiumClass}" onclick="openProfile('${p.name}')">
-                        <div class="w-20 font-black text-2xl ${i < 3 ? 'text-cyan-400 drop-shadow-[0_0_8px_rgba(0,242,255,0.4)]' : 'text-zinc-600'}">${i+1}</div>
+                        <div class="w-20 font-black text-2xl ${rankNumberClass}">${i+1}</div>
                         <div class="flex-1 flex items-center gap-5">
                             <img src="${p.skin}" class="w-12 h-12 rounded-lg border border-white/10">
                             <div class="flex flex-col">
@@ -360,9 +370,15 @@
                     const ltPlayers = window.PLAYERS.filter(p => p.ranks[currentModeLowerClean] === `LT${t}`);
                     const filteredPlayers = [...htPlayers, ...ltPlayers];
 
+                    // Match Gamemodes Column Header Text colors with corresponding Podium colors
+                    let tierHeaderColorClass = 'text-zinc-500';
+                    if (t === 1) tierHeaderColorClass = 'text-gold';
+                    if (t === 2) tierHeaderColorClass = 'text-silver';
+                    if (t === 3) tierHeaderColorClass = 'text-bronze';
+
                     return `
                     <div class="tier-column">
-                        <div class="tier-header ${t === 1 ? 'text-cyan-400 drop-shadow-[0_0_6px_rgba(0,242,255,0.3)]' : 'text-zinc-500'}">Tier ${t}</div>
+                        <div class="tier-header ${tierHeaderColorClass}">Tier ${t}</div>
                         <div class="p-4 flex flex-col gap-3 overflow-y-auto no-scrollbar">
                             ${filteredPlayers.length === 0 ? '<div class="text-xs text-center text-zinc-600 p-4 font-semibold">Empty</div>' : filteredPlayers.map(p => `
                                 <div class="player-square" onclick="openProfile('${p.name}')">
@@ -392,17 +408,18 @@
             document.getElementById('p-name').innerText = p.name;
             document.getElementById('p-region').innerText = `Region: ${p.region}`;
             
-            // Clean dynamic numerical text updates for Split Card
             document.getElementById('p-rank-pos').innerText = `#${rankIndex + 1}`;
             document.getElementById('p-total').innerText = p.points;
 
             document.getElementById('p-title').innerText = getPlayerTitle(p.points);
+            
+            // Render micro game-mode icons box containers styled in matching Profile Neon Blue borders
             document.getElementById('p-tiers-grid').innerHTML = Object.keys(ASSETS).map(m => {
                 const dbKeyClean = m.toLowerCase().replace(/\s+/g, '');
                 const t = p.ranks[dbKeyClean];
                 if(!t) return '';
                 return `
-                <div class="flex flex-col items-center p-2 glass-card rounded-xl">
+                <div class="flex flex-col items-center p-2 profile-glass-box rounded-xl">
                     <img src="${ASSETS[m]}" class="w-6 h-6 mb-1">
                     <span class="text-[10px] font-bold text-zinc-400">${t}</span>
                 </div>`;
