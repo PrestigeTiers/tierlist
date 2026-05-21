@@ -141,10 +141,10 @@
         .tier-badge { background: rgba(0, 0, 0, 0.4); padding: 2px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: 800; color: #a1a1aa; border: 1px solid rgba(255,255,255,0.08); }
         .rating-num { color: #00f2ff; font-weight: 800; font-size: 1.6rem; text-shadow: 0 0 10px rgba(0, 242, 255, 0.2); }
         
-        /* Podium Card Background Sliders with Fade Out effect (Right to Left) */
-        .podium-1st { background: linear-gradient(to left, rgba(212, 175, 55, 0.12) 0%, rgba(212, 175, 55, 0.04) 40%, rgba(255, 255, 255, 0.02) 100%) !important; border-right: 2px solid rgba(212, 175, 55, 0.4) !important; }
-        .podium-2nd { background: linear-gradient(to left, rgba(192, 192, 192, 0.12) 0%, rgba(192, 192, 192, 0.04) 40%, rgba(255, 255, 255, 0.02) 100%) !important; border-right: 2px solid rgba(192, 192, 192, 0.4) !important; }
-        .podium-3rd { background: linear-gradient(to left, rgba(205, 127, 50, 0.12) 0%, rgba(205, 127, 50, 0.04) 40%, rgba(255, 255, 255, 0.02) 100%) !important; border-right: 2px solid rgba(205, 127, 50, 0.4) !important; }
+        /* Podium Backgrounds Updated: Now fading from Left to Right */
+        .podium-1st { background: linear-gradient(to right, rgba(212, 175, 55, 0.12) 0%, rgba(212, 175, 55, 0.04) 40%, rgba(255, 255, 255, 0.02) 100%) !important; border-left: 2px solid rgba(212, 175, 55, 0.4) !important; }
+        .podium-2nd { background: linear-gradient(to right, rgba(192, 192, 192, 0.12) 0%, rgba(192, 192, 192, 0.04) 40%, rgba(255, 255, 255, 0.02) 100%) !important; border-left: 2px solid rgba(192, 192, 192, 0.4) !important; }
+        .podium-3rd { background: linear-gradient(to right, rgba(205, 127, 50, 0.12) 0%, rgba(205, 127, 50, 0.04) 40%, rgba(255, 255, 255, 0.02) 100%) !important; border-left: 2px solid rgba(205, 127, 50, 0.4) !important; }
 
         /* Modals */
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(4, 5, 7, 0.85); z-index: 100; backdrop-filter: blur(20px); align-items: center; justify-content: center; }
@@ -203,16 +203,23 @@
             <img id="p-avatar" src="" class="w-24 h-24 rounded-full mx-auto mb-2 border-4 border-cyan-400 shadow-[0_0_20px_rgba(0,242,255,0.2)]">
             <h2 id="p-name" class="text-center text-3xl font-black tracking-tight"></h2>
             
-            <div class="text-center mt-1 mb-2 flex items-center justify-center gap-2">
+            <div class="text-center mt-1 mb-2">
                 <span id="p-region" class="bg-cyan-500/10 px-3 py-0.5 rounded-md text-[11px] font-bold border border-cyan-500/30 text-cyan-400 uppercase tracking-widest"></span>
-                <span id="p-rank-pos" class="bg-zinc-500/10 px-3 py-0.5 rounded-md text-[11px] font-bold border border-white/10 text-white uppercase tracking-widest"></span>
             </div>
 
             <div id="p-title" class="text-center text-xs font-bold uppercase tracking-widest text-zinc-400 mb-6"></div>
-            <div class="glass-card p-4 flex justify-between items-center mb-6">
-                <span class="font-bold text-zinc-300">Total Points</span>
-                <span id="p-total" class="rating-num"></span>
+            
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <div class="glass-card p-4 flex flex-col justify-center items-center text-center">
+                    <span class="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-1">Rank Placement</span>
+                    <span id="p-rank-pos" class="rating-num"></span>
+                </div>
+                <div class="glass-card p-4 flex flex-col justify-center items-center text-center">
+                    <span class="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-1">Total Points</span>
+                    <span id="p-total" class="rating-num"></span>
+                </div>
             </div>
+
             <div id="p-tiers-grid" class="grid grid-cols-5 gap-3"></div>
         </div>
     </div>
@@ -285,7 +292,6 @@
 
             let list = [...window.PLAYERS];
             
-            // Handle active context for Overall metrics
             if (activeSub === 'Overall') {
                 if (activeMain === 'main') {
                     list = list.filter(p => p.mainPoints > 0).sort((a,b) => b.mainPoints - a.mainPoints);
@@ -299,7 +305,6 @@
             }
 
             if (activeSub === 'Overall' || REGIONS.includes(activeSub)) {
-                // Table Label Headings Rows Inserted Here
                 let tableHtml = `
                     <div class="flex items-center px-5 mb-2 text-xs font-bold tracking-widest uppercase text-zinc-500/80">
                         <div class="w-20">#</div>
@@ -317,7 +322,6 @@
                         if (activeMain === 'sub') displayPoints = p.subPoints;
                     }
 
-                    // Assign podium color styling hooks dynamically
                     let podiumClass = '';
                     if (i === 0) podiumClass = 'podium-1st';
                     if (i === 1) podiumClass = 'podium-2nd';
@@ -379,7 +383,6 @@
         window.switchSub = switchSub;
 
         window.openProfile = function(name) {
-            // Sort to calculate current precise rank position indexing values
             let orderedList = [...window.PLAYERS].sort((a,b) => b.points - a.points);
             const rankIndex = orderedList.findIndex(x => x.name === name);
             const p = orderedList[rankIndex];
@@ -389,11 +392,11 @@
             document.getElementById('p-name').innerText = p.name;
             document.getElementById('p-region').innerText = `Region: ${p.region}`;
             
-            // Insert Overall Rank calculations values inside Modal display
-            document.getElementById('p-rank-pos').innerText = `Rank: #${rankIndex + 1}`;
+            // Clean dynamic numerical text updates for Split Card
+            document.getElementById('p-rank-pos').innerText = `#${rankIndex + 1}`;
+            document.getElementById('p-total').innerText = p.points;
 
             document.getElementById('p-title').innerText = getPlayerTitle(p.points);
-            document.getElementById('p-total').innerText = p.points;
             document.getElementById('p-tiers-grid').innerHTML = Object.keys(ASSETS).map(m => {
                 const dbKeyClean = m.toLowerCase().replace(/\s+/g, '');
                 const t = p.ranks[dbKeyClean];
