@@ -122,7 +122,8 @@
         .glass-card { background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 14px; backdrop-filter: blur(8px); }
         .profile-glass-box { background: rgba(0, 242, 255, 0.01); border: 1px solid rgba(0, 242, 255, 0.35); border-radius: 14px; backdrop-filter: blur(8px); box-shadow: 0 0 10px rgba(0, 242, 255, 0.05); }
 
-        .pill-btn { padding: 8px 16px; @media (min-width: 768px) { padding: 10px 24px; } border-radius: 12px; transition: all 0.25s ease; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); color: #a1a1aa; font-weight: 600; font-size: 0.85rem; @media (min-width: 768px) { font-size: 1rem; } }
+        .pill-btn { padding: 8px 16px; border-radius: 12px; transition: all 0.25s ease; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); color: #a1a1aa; font-weight: 600; font-size: 0.85rem; }
+        @media (min-width: 768px) { .pill-btn { padding: 10px 24px; font-size: 1rem; } }
         .pill-btn:hover { border-color: rgba(0, 242, 255, 0.4); color: #ffffff; }
         .pill-btn.active { background: rgba(0, 242, 255, 0.06); border-color: #00f2ff; color: #00f2ff; box-shadow: 0 0 12px rgba(0, 242, 255, 0.15); }
         
@@ -130,7 +131,8 @@
         .sub-pill:hover { color: #ffffff; }
         .sub-pill.active { background: rgba(255,255,255,0.04); border-color: rgba(0, 242, 255, 0.3); color: #00f2ff; }
         
-        .tier-column { background: rgba(5, 6, 8, 0.5); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 16px; min-height: 250px; md:height: 75vh; display: flex; flex-direction: column; }
+        .tier-column { background: rgba(5, 6, 8, 0.5); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 16px; min-height: 250px; display: flex; flex-direction: column; }
+        @media (min-width: 768px) { .tier-column { height: 75vh; } }
         .tier-header { padding: 16px; border-bottom: 1px solid rgba(255,255,255,0.04); text-align: center; font-weight: 900; text-transform: uppercase; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; gap: 8px; }
         
         /* Neon/Glowing Custom Text Color Palette Classes */
@@ -141,7 +143,8 @@
         .player-square { background: rgba(255, 255, 255, 0.01); border: 1px solid rgba(255, 255, 255, 0.04); border-radius: 10px; padding: 10px; display: flex; align-items: center; gap: 12px; transition: all 0.2s; cursor: pointer; }
         .player-square:hover { background: rgba(255, 255, 255, 0.05); border-color: rgba(0, 242, 255, 0.3); transform: translateY(-2px); }
         
-        .rating-num { color: #00f2ff; font-weight: 800; font-size: 1.3rem; @media (min-width: 768px) { font-size: 1.6rem; } text-shadow: 0 0 10px rgba(0, 242, 255, 0.2); }
+        .rating-num { color: #00f2ff; font-weight: 800; font-size: 1.3rem; text-shadow: 0 0 10px rgba(0, 242, 255, 0.2); }
+        @media (min-width: 768px) { .rating-num { font-size: 1.6rem; } }
         
         .podium-1st { background: linear-gradient(to right, rgba(255, 223, 0, 0.1) 0%, rgba(255, 223, 0, 0.03) 40%, rgba(255, 255, 255, 0.02) 100%) !important; border-left: 2px solid rgba(255, 223, 0, 0.4) !important; }
         .podium-2nd { background: linear-gradient(to right, rgba(224, 224, 224, 0.1) 0%, rgba(224, 224, 224, 0.03) 40%, rgba(255, 255, 255, 0.02) 100%) !important; border-left: 2px solid rgba(224, 224, 224, 0.4) !important; }
@@ -150,13 +153,16 @@
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(4, 5, 7, 0.85); z-index: 100; backdrop-filter: blur(20px); align-items: center; justify-content: center; padding: 16px; }
         .modal-overlay.active { display: flex; }
         
-        .search-input { width: 100%; md:width: 200px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 8px 12px; font-size: 0.9rem; outline: none; transition: all 0.2s; }
+        .search-input { width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 8px 12px; font-size: 0.9rem; outline: none; transition: all 0.2s; }
+        @media (min-width: 768px) { .search-input { width: 200px; } }
         .search-input:focus { border-color: #00f2ff; box-shadow: 0 0 8px rgba(0, 242, 255, 0.2); }
         
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        .points-card { background: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 16px; md:padding: 20px; position: relative; overflow: hidden; text-align: left; }
+        .points-card { background: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 16px; position: relative; overflow: hidden; text-align: left; }
+        @media (min-width: 768px) { .points-card { padding: 20px; } }
         .points-card h4 { color: #ffffff; font-size: 0.75rem; font-weight: 800; margin-bottom: 8px; }
-        .points-card .pts-val { color: #00f2ff; font-size: 1.5rem; md:text-xl: 1.75rem; font-weight: 900; margin-bottom: 12px; }
+        .points-card .pts-val { color: #00f2ff; font-size: 1.5rem; font-weight: 900; margin-bottom: 12px; }
+        @media (min-width: 1024px) { .points-card .pts-val { font-size: 1.75rem; } }
         .points-card .bar { height: 6px; background: #00f2ff; border-radius: 3px; margin-bottom: 12px; box-shadow: 0 0 8px rgba(0, 242, 255, 0.4); }
     </style>
 </head>
@@ -317,7 +323,6 @@
             }
 
             if (activeSub === 'Overall' || REGIONS.includes(activeSub)) {
-                // Header row hides on mobile view for a much cleaner mobile display cards interface
                 let tableHtml = `
                     <div class="hidden lg:flex items-center px-5 mb-2 text-xs font-bold tracking-widest uppercase text-zinc-500/80">
                         <div class="w-20">#</div>
@@ -377,7 +382,6 @@
                 container.innerHTML = tableHtml;
             } else {
                 const currentModeLowerClean = activeSub.toLowerCase().replace(/\s+/g, '');
-                // Changes automatically from a wide row to an elegant stacked column on small monitors
                 container.innerHTML = `<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 lg:gap-6">${[1,2,3,4,5].map(t => {
                     const htPlayers = window.PLAYERS.filter(p => p.ranks[currentModeLowerClean] === `HT${t}`);
                     const ltPlayers = window.PLAYERS.filter(p => p.ranks[currentModeLowerClean] === `LT${t}`);
@@ -425,16 +429,22 @@
 
             document.getElementById('p-title').innerText = getPlayerTitle(p.points);
             
-            document.getElementById('p-tiers-grid').innerHTML = Object.keys(ASSETS).map(m => {
+            // Map modes into an array containing raw names, their tier strings, and point weights
+            const profilesTiersList = Object.keys(ASSETS).map(m => {
                 const dbKeyClean = m.toLowerCase().replace(/\s+/g, '');
                 const t = p.ranks[dbKeyClean];
-                if(!t) return '';
-                return `
+                return { modeName: m, tierStr: t, pts: t ? (TIERS_CONFIG[t] || 0) : 0 };
+            })
+            // Filter out empty tiers, then sort descending by point weight value
+            .filter(item => item.tierStr)
+            .sort((a, b) => b.pts - a.pts);
+
+            document.getElementById('p-tiers-grid').innerHTML = profilesTiersList.map(item => `
                 <div class="flex flex-col items-center p-2 profile-glass-box rounded-xl">
-                    <img src="${ASSETS[m]}" class="w-6 h-6 mb-1">
-                    <span class="text-[10px] font-bold text-zinc-400">${t}</span>
-                </div>`;
-            }).join('');
+                    <img src="${ASSETS[item.modeName]}" class="w-6 h-6 mb-1">
+                    <span class="text-[10px] font-bold text-zinc-400">${item.tierStr}</span>
+                </div>`).join('');
+                
             document.getElementById('profileModal').classList.add('active');
         }
         window.closeProfile = function() { document.getElementById('profileModal').classList.remove('active'); }
