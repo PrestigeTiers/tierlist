@@ -347,6 +347,15 @@
                     if (i === 1) { podiumClass = 'podium-2nd'; rankNumberClass = 'text-silver'; }
                     if (i === 2) { podiumClass = 'podium-3rd'; rankNumberClass = 'text-bronze'; }
 
+                    // Sort individual player tiers directly on the leaderboard rows mapping
+                    const sortedTiersForPlayer = Object.keys(ASSETS).map(m => {
+                        const dbKeyClean = m.toLowerCase().replace(/\s+/g, '');
+                        const t = p.ranks[dbKeyClean];
+                        return { assetName: m, tierStr: t, pts: t ? (TIERS_CONFIG[t] || 0) : 0 };
+                    })
+                    .filter(item => item.tierStr)
+                    .sort((a, b) => b.pts - a.pts);
+
                     return `
                     <div class="glass-card p-4 md:p-5 mb-4 flex flex-col gap-4 lg:flex-row lg:items-center hover:bg-white/[0.04] hover:border-cyan-500/30 transition cursor-pointer ${podiumClass}" onclick="openProfile('${p.name}')">
                         <div class="flex items-center justify-between lg:justify-start lg:w-20">
@@ -367,12 +376,12 @@
                         </div>
 
                         <div class="lg:w-80 flex flex-wrap gap-1.5 items-center">
-                            ${Object.keys(ASSETS).map(m => {
-                                const dbKeyClean = m.toLowerCase().replace(/\s+/g, '');
-                                const t = p.ranks[dbKeyClean];
-                                if(!t) return '';
-                                return `<div class="flex items-center bg-white/[0.02] border border-white/[0.05] rounded-md px-1.5 py-0.5 gap-1"><img src="${ASSETS[m]}" class="w-3.5 h-3.5"><div class="text-[9px] font-bold text-zinc-300">${t}</div></div>`;
-                            }).join('')}
+                            ${sortedTiersForPlayer.map(item => `
+                                <div class="flex items-center bg-white/[0.02] border border-white/[0.05] rounded-md px-1.5 py-0.5 gap-1">
+                                    <img src="${ASSETS[item.assetName]}" class="w-3.5 h-3.5">
+                                    <div class="text-[9px] font-bold text-zinc-300">${item.tierStr}</div>
+                                </div>
+                            `).join('')}
                         </div>
                         
                         <div class="hidden lg:block lg:w-32 text-right rating-num">${displayPoints}</div>
@@ -429,13 +438,11 @@
 
             document.getElementById('p-title').innerText = getPlayerTitle(p.points);
             
-            // Map modes into an array containing raw names, their tier strings, and point weights
             const profilesTiersList = Object.keys(ASSETS).map(m => {
                 const dbKeyClean = m.toLowerCase().replace(/\s+/g, '');
                 const t = p.ranks[dbKeyClean];
                 return { modeName: m, tierStr: t, pts: t ? (TIERS_CONFIG[t] || 0) : 0 };
             })
-            // Filter out empty tiers, then sort descending by point weight value
             .filter(item => item.tierStr)
             .sort((a, b) => b.pts - a.pts);
 
