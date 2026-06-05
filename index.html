@@ -72,7 +72,8 @@
 
                     if (totalPoints === 0) return; 
 
-                    let finalRegion = (item.region || "NA").toUpperCase().trim();
+                    // Strict Region Fix: Pull directly from item.region, fallback to item.user_region or default cleanly
+                    let finalRegion = (item.region || item.user_region || "NA").toUpperCase().trim();
                     if (finalRegion === "UNKNOWN" || finalRegion === "") {
                         finalRegion = "NA";
                     }
