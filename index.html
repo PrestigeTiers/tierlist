@@ -443,9 +443,9 @@
 
         window.openProfile = function(name) {
             let orderedList = [...window.PLAYERS].sort((a,b) => b.points - a.points);
-            const rankIndex = orderedList.findIndex(x => x.name === name);
+            const rankIndex = orderedList.findIndex(x => x.name.toLowerCase() === name.toLowerCase());
+            if(rankIndex === -1) return;
             const p = orderedList[rankIndex];
-            if(!p) return;
 
             document.getElementById('p-avatar').src = p.skin;
             document.getElementById('p-name').innerText = p.name;
@@ -519,16 +519,12 @@
         }
 
         window.handleSearch = function(event) {
-            const query = event.target.value.toLowerCase().trim();
-            const cards = document.querySelectorAll('#content-display > .glass-card');
-            cards.forEach(card => {
-                const name = card.querySelector('.font-bold').innerText.toLowerCase();
-                if(name.includes(query)) {
-                    card.style.display = 'flex';
-                } else {
-                    card.style.display = 'none';
+            if (event.key === 'Enter') {
+                const query = event.target.value.toLowerCase().trim();
+                if (query.length > 0) {
+                    window.openProfile(query);
                 }
-            });
+            }
         }
 
         renderSubNav();
