@@ -323,6 +323,9 @@
             }
 
             if (activeSub === 'Overall' || REGIONS.includes(activeSub)) {
+                // --- SLICE HERE TO ENFORCE TOP 100 LIMIT ---
+                list = list.slice(0, 100);
+
                 let tableHtml = `
                     <div class="hidden lg:flex items-center px-5 mb-2 text-xs font-bold tracking-widest uppercase text-zinc-500/80">
                         <div class="w-20">#</div>
@@ -347,7 +350,6 @@
                     if (i === 1) { podiumClass = 'podium-2nd'; rankNumberClass = 'text-silver'; }
                     if (i === 2) { podiumClass = 'podium-3rd'; rankNumberClass = 'text-bronze'; }
 
-                    // Sort individual player tiers directly on the leaderboard rows mapping
                     const sortedTiersForPlayer = Object.keys(ASSETS).map(m => {
                         const dbKeyClean = m.toLowerCase().replace(/\s+/g, '');
                         const t = p.ranks[dbKeyClean];
@@ -500,7 +502,18 @@
             }
         }
 
-        window.handleSearch = function(e) { if(e.key === 'Enter') { const f = window.PLAYERS.find(p => p.name.toLowerCase().includes(e.target.value.toLowerCase())); if(f) openProfile(f.name); } }
+        window.handleSearch = function(event) {
+            const query = event.target.value.toLowerCase().trim();
+            const cards = document.querySelectorAll('#content-display > .glass-card');
+            cards.forEach(card => {
+                const name = card.querySelector('.font-bold').innerText.toLowerCase();
+                if(name.includes(query)) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
 
         renderSubNav();
     </script>
