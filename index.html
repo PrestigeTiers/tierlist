@@ -267,6 +267,9 @@
 
         const TIERS_CONFIG = { 'HT1': 60, 'LT1': 45, 'HT2': 30, 'LT2': 20, 'HT3': 10, 'LT3': 6, 'HT4': 4, 'LT4': 3, 'HT5': 2, 'LT5': 1 };
         const REGIONS = ['EU', 'NA', 'AS'];
+        
+        const MAIN_MODES_LIST = ['sword', 'axe', 'vanilla', 'pot', 'nethop', 'uhc', 'smp', 'mace'];
+        const SUB_MODES_LIST = ['minecart', 'dsmp', 'spearmace', 'speed', 'ogvanilla'];
 
         let activeMain = 'global', activeSub = 'Overall';
 
@@ -323,7 +326,6 @@
             }
 
             if (activeSub === 'Overall' || REGIONS.includes(activeSub)) {
-                // --- SLICE HERE TO ENFORCE TOP 100 LIMIT ---
                 list = list.slice(0, 100);
 
                 let tableHtml = `
@@ -350,12 +352,18 @@
                     if (i === 1) { podiumClass = 'podium-2nd'; rankNumberClass = 'text-silver'; }
                     if (i === 2) { podiumClass = 'podium-3rd'; rankNumberClass = 'text-bronze'; }
 
+                    // Filter individual row badges based on active main tab selection
                     const sortedTiersForPlayer = Object.keys(ASSETS).map(m => {
                         const dbKeyClean = m.toLowerCase().replace(/\s+/g, '');
                         const t = p.ranks[dbKeyClean];
-                        return { assetName: m, tierStr: t, pts: t ? (TIERS_CONFIG[t] || 0) : 0 };
+                        return { assetName: m, tierStr: t, dbKey: dbKeyClean, pts: t ? (TIERS_CONFIG[t] || 0) : 0 };
                     })
-                    .filter(item => item.tierStr)
+                    .filter(item => {
+                        if (!item.tierStr) return false;
+                        if (activeMain === 'main') return MAIN_MODES_LIST.includes(item.dbKey);
+                        if (activeMain === 'sub') return SUB_MODES_LIST.includes(item.dbKey);
+                        return true; // Global shows all
+                    })
                     .sort((a, b) => b.pts - a.pts);
 
                     return `
