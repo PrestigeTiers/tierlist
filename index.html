@@ -131,14 +131,23 @@
         .sub-pill:hover { color: #ffffff; }
         .sub-pill.active { background: rgba(255,255,255,0.04); border-color: rgba(0, 242, 255, 0.3); color: #00f2ff; }
         
-        .tier-column { background: rgba(5, 6, 8, 0.5); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 16px; min-height: 250px; display: flex; flex-direction: column; }
+        .tier-column { background: rgba(5, 6, 8, 0.5); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 16px; min-height: 250px; display: flex; flex-direction: column; overflow: hidden; }
         @media (min-width: 768px) { .tier-column { height: 75vh; } }
         .tier-header { padding: 16px; border-bottom: 1px solid rgba(255,255,255,0.04); text-align: center; font-weight: 900; text-transform: uppercase; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; gap: 8px; }
         
         /* Neon/Glowing Custom Text Color Palette Classes */
-        .text-gold { color: #ffdf00 !important; text-shadow: 0 0 12px rgba(255, 223, 0, 0.6), 0 0 4px rgba(255, 223, 0, 0.3); }
-        .text-silver { color: #e0e0e0 !important; text-shadow: 0 0 12px rgba(224, 224, 224, 0.6), 0 0 4px rgba(224, 224, 224, 0.3); }
-        .text-bronze { color: #b87333 !important; text-shadow: 0 0 12px rgba(184, 115, 51, 0.7), 0 0 4px rgba(184, 115, 51, 0.4); }
+        .text-gold { color: #ffe633 !important; text-shadow: 0 0 12px rgba(255, 230, 51, 0.5); }
+        .text-silver { color: #f0f0f0 !important; text-shadow: 0 0 12px rgba(240, 240, 240, 0.5); }
+        .text-bronze { color: #ff9944 !important; text-shadow: 0 0 12px rgba(255, 153, 68, 0.5); }
+        .text-tier4 { color: #a855f7 !important; text-shadow: 0 0 12px rgba(168, 85, 247, 0.5); }
+        .text-tier5 { color: #3b82f6 !important; text-shadow: 0 0 12px rgba(59, 130, 246, 0.5); }
+
+        /* Custom Header Background Highlights */
+        .bg-gold-dark { background: rgba(255, 215, 0, 0.12); border-bottom: 1px solid rgba(255, 215, 0, 0.25) !important; }
+        .bg-silver-dark { background: rgba(192, 192, 192, 0.12); border-bottom: 1px solid rgba(192, 192, 192, 0.25) !important; }
+        .bg-bronze-dark { background: rgba(205, 127, 50, 0.12); border-bottom: 1px solid rgba(205, 127, 50, 0.25) !important; }
+        .bg-tier4-dark { background: rgba(168, 85, 247, 0.12); border-bottom: 1px solid rgba(168, 85, 247, 0.25) !important; }
+        .bg-tier5-dark { background: rgba(59, 130, 246, 0.12); border-bottom: 1px solid rgba(59, 130, 246, 0.25) !important; }
 
         .player-square { background: rgba(255, 255, 255, 0.01); border: 1px solid rgba(255, 255, 255, 0.04); border-radius: 10px; padding: 10px; display: flex; align-items: center; gap: 12px; transition: all 0.2s; cursor: pointer; }
         .player-square:hover { background: rgba(255, 255, 255, 0.05); border-color: rgba(0, 242, 255, 0.3); transform: translateY(-2px); }
@@ -352,7 +361,6 @@
                     if (i === 1) { podiumClass = 'podium-2nd'; rankNumberClass = 'text-silver'; }
                     if (i === 2) { podiumClass = 'podium-3rd'; rankNumberClass = 'text-bronze'; }
 
-                    // Filter individual row badges based on active main tab selection
                     const sortedTiersForPlayer = Object.keys(ASSETS).map(m => {
                         const dbKeyClean = m.toLowerCase().replace(/\s+/g, '');
                         const t = p.ranks[dbKeyClean];
@@ -362,7 +370,7 @@
                         if (!item.tierStr) return false;
                         if (activeMain === 'main') return MAIN_MODES_LIST.includes(item.dbKey);
                         if (activeMain === 'sub') return SUB_MODES_LIST.includes(item.dbKey);
-                        return true; // Global shows all
+                        return true;
                     })
                     .sort((a, b) => b.pts - a.pts);
 
@@ -406,14 +414,18 @@
                     const ltPlayers = window.PLAYERS.filter(p => p.ranks[currentModeLowerClean] === `LT${t}`);
                     const filteredPlayers = [...htPlayers, ...ltPlayers];
 
-                    let tierHeaderColorClass = 'text-zinc-500';
-                    if (t === 1) tierHeaderColorClass = 'text-gold';
-                    if (t === 2) tierHeaderColorClass = 'text-silver';
-                    if (t === 3) tierHeaderColorClass = 'text-bronze';
+                    let headerColorClass = 'text-zinc-400';
+                    let headerBgClass = 'bg-white/[0.02]';
+                    
+                    if (t === 1) { headerColorClass = 'text-gold'; headerBgClass = 'bg-gold-dark'; }
+                    if (t === 2) { headerColorClass = 'text-silver'; headerBgClass = 'bg-silver-dark'; }
+                    if (t === 3) { headerColorClass = 'text-bronze'; headerBgClass = 'bg-bronze-dark'; }
+                    if (t === 4) { headerColorClass = 'text-tier4'; headerBgClass = 'bg-tier4-dark'; }
+                    if (t === 5) { headerColorClass = 'text-tier5'; headerBgClass = 'bg-tier5-dark'; }
 
                     return `
                     <div class="tier-column">
-                        <div class="tier-header ${tierHeaderColorClass}">Tier ${t}</div>
+                        <div class="tier-header ${headerColorClass} ${headerBgClass}">Tier ${t}</div>
                         <div class="p-4 flex flex-col gap-3 overflow-y-auto no-scrollbar max-h-[400px] lg:max-h-none">
                             ${filteredPlayers.length === 0 ? '<div class="text-xs text-center text-zinc-600 p-4 font-semibold">Empty</div>' : filteredPlayers.map(p => `
                                 <div class="player-square" onclick="openProfile('${p.name}')">
