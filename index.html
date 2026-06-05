@@ -139,15 +139,13 @@
         .text-gold { color: #ffe633 !important; text-shadow: 0 0 12px rgba(255, 230, 51, 0.5); }
         .text-silver { color: #f0f0f0 !important; text-shadow: 0 0 12px rgba(240, 240, 240, 0.5); }
         .text-bronze { color: #ff9944 !important; text-shadow: 0 0 12px rgba(255, 153, 68, 0.5); }
-        .text-tier4 { color: #a855f7 !important; text-shadow: 0 0 12px rgba(168, 85, 247, 0.5); }
-        .text-tier5 { color: #3b82f6 !important; text-shadow: 0 0 12px rgba(59, 130, 246, 0.5); }
+        .text-standard-tier { color: #a1a1aa !important; }
 
         /* Custom Header Background Highlights */
         .bg-gold-dark { background: rgba(255, 215, 0, 0.12); border-bottom: 1px solid rgba(255, 215, 0, 0.25) !important; }
         .bg-silver-dark { background: rgba(192, 192, 192, 0.12); border-bottom: 1px solid rgba(192, 192, 192, 0.25) !important; }
         .bg-bronze-dark { background: rgba(205, 127, 50, 0.12); border-bottom: 1px solid rgba(205, 127, 50, 0.25) !important; }
-        .bg-tier4-dark { background: rgba(168, 85, 247, 0.12); border-bottom: 1px solid rgba(168, 85, 247, 0.25) !important; }
-        .bg-tier5-dark { background: rgba(59, 130, 246, 0.12); border-bottom: 1px solid rgba(59, 130, 246, 0.25) !important; }
+        .bg-standard-dark { background: rgba(255, 255, 255, 0.01); border-bottom: 1px solid rgba(255, 255, 255, 0.04) !important; }
 
         .player-square { background: rgba(255, 255, 255, 0.01); border: 1px solid rgba(255, 255, 255, 0.04); border-radius: 10px; padding: 10px; display: flex; align-items: center; gap: 12px; transition: all 0.2s; cursor: pointer; }
         .player-square:hover { background: rgba(255, 255, 255, 0.05); border-color: rgba(0, 242, 255, 0.3); transform: translateY(-2px); }
@@ -414,14 +412,12 @@
                     const ltPlayers = window.PLAYERS.filter(p => p.ranks[currentModeLowerClean] === `LT${t}`);
                     const filteredPlayers = [...htPlayers, ...ltPlayers];
 
-                    let headerColorClass = 'text-zinc-400';
-                    let headerBgClass = 'bg-white/[0.02]';
+                    let headerColorClass = 'text-standard-tier';
+                    let headerBgClass = 'bg-standard-dark';
                     
                     if (t === 1) { headerColorClass = 'text-gold'; headerBgClass = 'bg-gold-dark'; }
                     if (t === 2) { headerColorClass = 'text-silver'; headerBgClass = 'bg-silver-dark'; }
                     if (t === 3) { headerColorClass = 'text-bronze'; headerBgClass = 'bg-bronze-dark'; }
-                    if (t === 4) { headerColorClass = 'text-tier4'; headerBgClass = 'bg-tier4-dark'; }
-                    if (t === 5) { headerColorClass = 'text-tier5'; headerBgClass = 'bg-tier5-dark'; }
 
                     return `
                     <div class="tier-column">
