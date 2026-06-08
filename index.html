@@ -55,7 +55,8 @@
                         if (tierValue) {
                             const upperTier = tierValue.toString().toUpperCase().trim();
                             if (TIERS_CONFIG[upperTier]) {
-                                const formattedKey = modeKey.toLowerCase().replace(/\s+/g, '').trim();
+                                // FIXED: Cleans both spaces AND underscores to fix diamond_survival sync mismatch
+                                const formattedKey = modeKey.toLowerCase().replace(/[\s_]+/g, '').trim();
                                 cleanTiers[formattedKey] = upperTier;
                                 
                                 const pts = TIERS_CONFIG[upperTier];
@@ -253,7 +254,7 @@
             globe: `<svg viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 text-cyan-400"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>`
         };
 
-        // FIXED THE BED ASSET DIRECT LINK HERE TO PREVENT BROKEN PICTURE FRAME
+        // FIXED: Using a reliable, fast 2D Bed asset link that won't show blank borders or fail
         const ASSETS = {
             'Sword': 'https://cdn.jsdelivr.net/gh/misode/mcmeta@assets/assets/minecraft/textures/item/diamond_sword.png',
             'Axe': 'https://cdn.jsdelivr.net/gh/misode/mcmeta@assets/assets/minecraft/textures/item/diamond_axe.png',
@@ -269,7 +270,7 @@
             'Speed': 'https://minecraft.wiki/images/Splash_Potion_of_Swiftness_JE2_BE2.png',
             'Og Vanilla': 'https://cdn.jsdelivr.net/gh/misode/mcmeta@assets/assets/minecraft/textures/item/golden_apple.png',
             'Creeper': 'https://cdn.jsdelivr.net/gh/misode/mcmeta@assets/assets/minecraft/textures/item/creeper_spawn_egg.png',
-            'Bed': 'https://raw.githubusercontent.com/PrismLauncher/PrismLauncher/develop/launcher/resources/colors/minecraft/red_bed.png',
+            'Bed': 'https://api.mineatar.io/item/red_bed',
             'Debuff': 'https://cdn.jsdelivr.net/gh/misode/mcmeta@assets/assets/minecraft/textures/item/golden_carrot.png',
             'Trident': 'https://cdn.jsdelivr.net/gh/misode/mcmeta@assets/assets/minecraft/textures/item/trident.png',
             'Diamond Survival': 'https://cdn.jsdelivr.net/gh/misode/mcmeta@assets/assets/minecraft/textures/item/diamond_chestplate.png',
@@ -337,7 +338,8 @@
             } else if (REGIONS.includes(activeSub)) {
                 list = list.filter(p => p.region === activeSub).sort((a,b) => b.points - a.points);
             } else {
-                const currentModeLowerClean = activeSub.toLowerCase().replace(/\s+/g, '');
+                // FIXED: Sanitizes internal evaluation keys for spaces and underscores
+                const currentModeLowerClean = activeSub.toLowerCase().replace(/[\s_]+/g, '');
                 let columnsHtml = `<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 lg:gap-6">`;
                 
                 for (let t = 1; t <= 5; t++) {
@@ -399,7 +401,7 @@
                 if (i === 2) { podiumClass = 'podium-3rd'; rankNumberClass = 'text-bronze'; }
 
                 const sortedTiersForPlayer = Object.keys(ASSETS).map(m => {
-                    const dbKeyClean = m.toLowerCase().replace(/\s+/g, '');
+                    const dbKeyClean = m.toLowerCase().replace(/[\s_]+/g, '');
                     const t = p.ranks[dbKeyClean];
                     return { assetName: m, tierStr: t, dbKey: dbKeyClean, pts: t ? (TIERS_CONFIG[t] || 0) : 0 };
                 })
@@ -464,7 +466,7 @@
             document.getElementById('p-title').innerText = getPlayerTitle(p.points);
             
             const profilesTiersList = Object.keys(ASSETS).map(m => {
-                const dbKeyClean = m.toLowerCase().replace(/\s+/g, '');
+                const dbKeyClean = m.toLowerCase().replace(/[\s_]+/g, '');
                 const t = p.ranks[dbKeyClean];
                 return { modeName: m, tierStr: t, pts: t ? (TIERS_CONFIG[t] || 0) : 0 };
             })
