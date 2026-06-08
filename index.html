@@ -28,7 +28,7 @@
         const TIERS_CONFIG = { 'HT1': 60, 'LT1': 45, 'HT2': 30, 'LT2': 20, 'HT3': 10, 'LT3': 6, 'HT4': 4, 'LT4': 3, 'HT5': 2, 'LT5': 1 };
         
         const MAIN_MODES_LIST = ['sword', 'axe', 'vanilla', 'pot', 'nethop', 'uhc', 'smp', 'mace'];
-        const SUB_MODES_LIST = ['minecart', 'dsmp', 'spearmace', 'speed', 'ogvanilla'];
+        const SUB_MODES_LIST = ['minecart', 'dsmp', 'spearmace', 'speed', 'ogvanilla', 'creeper', 'bed', 'debuff', 'trident', 'diamondsurvival', 'manhunt', 'bow', 'elytra'];
 
         // LIVE LISTENER
         const userRef = ref(db, 'tier_list');
@@ -72,7 +72,6 @@
 
                     if (totalPoints === 0) return; 
 
-                    // Strict Region Fix: Pull directly from item.region, fallback to item.user_region or default cleanly
                     let finalRegion = (item.region || item.user_region || "NA").toUpperCase().trim();
                     if (finalRegion === "UNKNOWN" || finalRegion === "") {
                         finalRegion = "NA";
@@ -99,7 +98,6 @@
     </script>
 
     <style>
-        /* Background Layer Configurations */
         .bg-wrapper {
             position: fixed;
             inset: 0;
@@ -120,7 +118,6 @@
 
         body { color: #ffffff; font-family: 'Inter', sans-serif; overflow-x: hidden; overflow-y: auto; min-height: 100vh; position: relative; }
         
-        /* Premium UI Elements Layout Structures */
         .glass-card { background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 14px; backdrop-filter: blur(8px); }
         .profile-glass-box { background: rgba(0, 242, 255, 0.01); border: 1px solid rgba(0, 242, 255, 0.35); border-radius: 14px; backdrop-filter: blur(8px); box-shadow: 0 0 10px rgba(0, 242, 255, 0.05); }
 
@@ -137,13 +134,11 @@
         @media (min-width: 768px) { .tier-column { height: 75vh; } }
         .tier-header { padding: 16px; border-bottom: 1px solid rgba(255,255,255,0.04); text-align: center; font-weight: 900; text-transform: uppercase; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; gap: 8px; }
         
-        /* Neon/Glowing Custom Text Color Palette Classes */
         .text-gold { color: #ffe633 !important; text-shadow: 0 0 12px rgba(255, 230, 51, 0.5); }
         .text-silver { color: #f0f0f0 !important; text-shadow: 0 0 12px rgba(240, 240, 240, 0.5); }
         .text-bronze { color: #ff9944 !important; text-shadow: 0 0 12px rgba(255, 153, 68, 0.5); }
         .text-standard-tier { color: #a1a1aa !important; }
 
-        /* Custom Header Background Highlights */
         .bg-gold-dark { background: rgba(255, 215, 0, 0.12); border-bottom: 1px solid rgba(255, 215, 0, 0.25) !important; }
         .bg-silver-dark { background: rgba(192, 192, 192, 0.12); border-bottom: 1px solid rgba(192, 192, 192, 0.25) !important; }
         .bg-bronze-dark { background: rgba(205, 127, 50, 0.12); border-bottom: 1px solid rgba(205, 127, 50, 0.25) !important; }
@@ -271,14 +266,22 @@
             'DSMP': 'https://cdn.jsdelivr.net/gh/misode/mcmeta@assets/assets/minecraft/textures/item/chorus_fruit.png',
             'Spear Mace': 'https://cdn.jsdelivr.net/gh/misode/mcmeta@assets/assets/minecraft/textures/item/breeze_rod.png',
             'Speed': 'https://minecraft.wiki/images/Splash_Potion_of_Swiftness_JE2_BE2.png',
-            'Og Vanilla': 'https://cdn.jsdelivr.net/gh/misode/mcmeta@assets/assets/minecraft/textures/item/golden_apple.png'
+            'Og Vanilla': 'https://cdn.jsdelivr.net/gh/misode/mcmeta@assets/assets/minecraft/textures/item/golden_apple.png',
+            'Creeper': 'https://cdn.jsdelivr.net/gh/misode/mcmeta@assets/assets/minecraft/textures/item/creeper_spawn_egg.png',
+            'Bed': 'https://cdn.jsdelivr.net/gh/misode/mcmeta@assets/assets/minecraft/textures/item/red_bed.png',
+            'Debuff': 'https://cdn.jsdelivr.net/gh/misode/mcmeta@assets/assets/minecraft/textures/item/golden_carrot.png',
+            'Trident': 'https://cdn.jsdelivr.net/gh/misode/mcmeta@assets/assets/minecraft/textures/item/trident.png',
+            'Diamond Survival': 'https://cdn.jsdelivr.net/gh/misode/mcmeta@assets/assets/minecraft/textures/item/end_crystal.png',
+            'Manhunt': 'https://cdn.jsdelivr.net/gh/misode/mcmeta@assets/assets/minecraft/textures/item/compass_16.png',
+            'Bow': 'https://cdn.jsdelivr.net/gh/misode/mcmeta@assets/assets/minecraft/textures/item/bow.png',
+            'Elytra': 'https://cdn.jsdelivr.net/gh/misode/mcmeta@assets/assets/minecraft/textures/item/elytra.png'
         };
 
         const TIERS_CONFIG = { 'HT1': 60, 'LT1': 45, 'HT2': 30, 'LT2': 20, 'HT3': 10, 'LT3': 6, 'HT4': 4, 'LT4': 3, 'HT5': 2, 'LT5': 1 };
         const REGIONS = ['EU', 'NA', 'AS'];
         
         const MAIN_MODES_LIST = ['sword', 'axe', 'vanilla', 'pot', 'nethop', 'uhc', 'smp', 'mace'];
-        const SUB_MODES_LIST = ['minecart', 'dsmp', 'spearmace', 'speed', 'ogvanilla'];
+        const SUB_MODES_LIST = ['minecart', 'dsmp', 'spearmace', 'speed', 'ogvanilla', 'creeper', 'bed', 'debuff', 'trident', 'diamondsurvival', 'manhunt', 'bow', 'elytra'];
 
         let activeMain = 'global', activeSub = 'Overall';
 
@@ -303,7 +306,7 @@
             const modes = {
                 global: ['Overall', ...REGIONS],
                 main: ['Overall', 'Sword', 'Axe', 'Vanilla', 'Pot', 'NethOP', 'UHC', 'SMP', 'Mace'],
-                sub: ['Overall', 'Minecart', 'DSMP', 'Spear Mace', 'Speed', 'Og Vanilla']
+                sub: ['Overall', 'Minecart', 'DSMP', 'Spear Mace', 'Speed', 'Og Vanilla', 'Creeper', 'Bed', 'Debuff', 'Trident', 'Diamond Survival', 'Manhunt', 'Bow', 'Elytra']
             };
             document.getElementById('sub-nav-container').innerHTML = modes[activeMain].map(m => {
                 let iconHtml = (m === 'Overall') ? ICONS.trophy : (REGIONS.includes(m) ? ICONS.globe : `<img src="${ASSETS[m]}" style="width:20px">`);
@@ -333,7 +336,6 @@
             } else if (REGIONS.includes(activeSub)) {
                 list = list.filter(p => p.region === activeSub).sort((a,b) => b.points - a.points);
             } else {
-                // Individual Gamemode Tab rendering logic
                 const currentModeLowerClean = activeSub.toLowerCase().replace(/\s+/g, '');
                 let columnsHtml = `<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 lg:gap-6">`;
                 
@@ -370,7 +372,6 @@
                 return;
             }
 
-            // List/Table view used for Overall & Region views
             list = list.slice(0, 100);
             let tableHtml = `
                 <div class="hidden lg:flex items-center px-5 mb-2 text-xs font-bold tracking-widest uppercase text-zinc-500/80">
@@ -508,7 +509,7 @@
         window.closeInfo = function() { document.getElementById('infoModal').classList.remove('active'); }
         
         window.switchInfoTab = function(tab) {
-            if (tab === 'points') {
+            if(tab === 'points') {
                 document.getElementById('tab-points').className = "text-lg md:text-xl font-black pb-2 border-b-2 border-cyan-400 text-cyan-400";
                 document.getElementById('tab-titles').className = "text-lg md:text-xl font-black pb-2 border-b-2 border-transparent text-zinc-500 hover:text-white";
                 document.getElementById('info-tab-points').classList.remove('hidden');
@@ -523,70 +524,14 @@
 
         window.handleSearch = function(e) {
             const query = e.target.value.toLowerCase().trim();
-            if (!window.PLAYERS) return;
-            
-            if (query === '') {
-                renderContent();
-                return;
-            }
-
-            const matched = window.PLAYERS.filter(p => p.name.toLowerCase().includes(query));
-            const container = document.getElementById('content-display');
-            
-            if (matched.length === 0) {
-                container.innerHTML = '<div class="text-center p-20 text-zinc-500 font-bold">No matching players found.</div>';
-                return;
-            }
-
-            let searchHtml = `
-                <div class="hidden lg:flex items-center px-5 mb-2 text-xs font-bold tracking-widest uppercase text-zinc-500/80">
-                    <div class="w-20">#</div>
-                    <div class="flex-1">Player</div>
-                    <div class="w-24">Region</div>
-                    <div class="w-80">Tiers</div>
-                    <div class="w-32 text-right">Points</div>
-                </div>
-            `;
-
-            searchHtml += matched.map((p) => {
-                let originalRankIndex = [...window.PLAYERS].sort((a,b) => b.points - a.points).findIndex(x => x.name.toLowerCase() === p.name.toLowerCase());
-                
-                const sortedTiers = Object.keys(ASSETS).map(m => {
-                    const dbKeyClean = m.toLowerCase().replace(/\s+/g, '');
-                    return { assetName: m, tierStr: p.ranks[dbKeyClean], pts: p.ranks[dbKeyClean] ? (TIERS_CONFIG[p.ranks[dbKeyClean]] || 0) : 0 };
-                })
-                .filter(item => item.tierStr)
-                .sort((a, b) => b.pts - a.pts);
-
-                return `
-                <div class="glass-card p-4 md:p-5 mb-4 flex flex-col gap-4 lg:flex-row lg:items-center hover:bg-white/[0.04] hover:border-cyan-500/30 transition cursor-pointer" onclick="openProfile('${p.name}')">
-                    <div class="flex items-center justify-between lg:justify-start lg:w-20">
-                        <div class="font-black text-xl md:text-2xl text-zinc-500">#${originalRankIndex + 1}</div>
-                        <div class="lg:hidden rating-num">${p.points}</div>
-                    </div>
-                    <div class="flex-1 flex items-center gap-4 md:gap-5">
-                        <img src="${p.skin}" class="w-10 h-10 md:w-12 md:h-12 rounded-lg border border-white/10">
-                        <div class="flex flex-col">
-                            <span class="font-bold text-base md:text-lg leading-tight text-white">${p.name}</span>
-                            <span class="text-[11px] font-semibold text-zinc-400/80 mt-0.5 tracking-wide">${getPlayerTitle(p.points)}</span>
-                        </div>
-                    </div>
-                    <div class="flex items-center justify-between lg:w-24 border-t border-white/5 pt-3 lg:border-none lg:pt-0">
-                        <span class="bg-cyan-500/5 px-2.5 py-1 rounded-lg text-xs font-black border border-cyan-500/10 text-cyan-400 tracking-wider">${p.region}</span>
-                    </div>
-                    <div class="lg:w-80 flex flex-wrap gap-1.5 items-center">
-                        ${sortedTiers.map(item => `
-                            <div class="flex items-center bg-white/[0.02] border border-white/[0.05] rounded-md px-1.5 py-0.5 gap-1">
-                                <img src="${ASSETS[item.assetName]}" class="w-3.5 h-3.5">
-                                <div class="text-[9px] font-bold text-zinc-300">${item.tierStr}</div>
-                            </div>
-                        `).join('')}
-                    </div>
-                    <div class="hidden lg:block lg:w-32 text-right rating-num">${p.points}</div>
-                </div>`;
-            }).join('');
-
-            container.innerHTML = searchHtml;
+            if(!window.PLAYERS) return;
+            renderContent();
+            if(query === "") return;
+            const cards = document.querySelectorAll('#content-display > .glass-card, #content-display .player-square');
+            cards.forEach(card => {
+                const text = card.textContent.toLowerCase();
+                if(!text.includes(query)) card.style.setProperty('display', 'none', 'important');
+            });
         }
     </script>
 </body>
