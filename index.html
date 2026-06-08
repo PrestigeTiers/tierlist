@@ -333,6 +333,12 @@
                 list = list.filter(p => p.region === activeSub).sort((a,b) => b.points - a.points);
             }
 
+            // Handle Search Filter Input
+            const query = (document.getElementById('searchBar')?.value || '').toLowerCase().trim();
+            if (query !== '') {
+                list = list.filter(p => p.name.toLowerCase().includes(query));
+            }
+
             if (activeSub === 'Overall' || REGIONS.includes(activeSub)) {
                 list = list.slice(0, 100);
 
@@ -439,6 +445,10 @@
             }
         }
 
+        window.handleSearch = function(e) {
+            renderContent();
+        };
+
         window.switchMain = switchMain;
         window.switchSub = switchSub;
 
@@ -499,35 +509,27 @@
                     <div class="text-xs font-medium text-zinc-400 mt-1">${t.desc}</div>
                 </div>
             `).join('');
-
-            switchInfoTab('points');
+            
             document.getElementById('infoModal').classList.add('active');
         }
-        window.closeInfo = function() { document.getElementById('infoModal').classList.remove('active'); }
 
+        window.closeInfo = function() { document.getElementById('infoModal').classList.remove('active'); }
+        
         window.switchInfoTab = function(tab) {
             if(tab === 'points') {
-                document.getElementById('info-tab-points').classList.remove('hidden');
-                document.getElementById('info-tab-titles').classList.add('hidden');
                 document.getElementById('tab-points').className = "text-lg md:text-xl font-black pb-2 border-b-2 border-cyan-400 text-cyan-400";
                 document.getElementById('tab-titles').className = "text-lg md:text-xl font-black pb-2 border-b-2 border-transparent text-zinc-500 hover:text-white";
+                document.getElementById('info-tab-points').classList.remove('hidden');
+                document.getElementById('info-tab-titles').classList.add('hidden');
             } else {
-                document.getElementById('info-tab-points').classList.add('hidden');
-                document.getElementById('info-tab-titles').classList.remove('hidden');
-                document.getElementById('tab-points').className = "text-lg md:text-xl font-black pb-2 border-b-2 border-transparent text-zinc-500 hover:text-white";
                 document.getElementById('tab-titles').className = "text-lg md:text-xl font-black pb-2 border-b-2 border-cyan-400 text-cyan-400";
+                document.getElementById('tab-points').className = "text-lg md:text-xl font-black pb-2 border-b-2 border-transparent text-zinc-500 hover:text-white";
+                document.getElementById('info-tab-titles').classList.remove('hidden');
+                document.getElementById('info-tab-points').classList.add('hidden');
             }
         }
 
-        window.handleSearch = function(event) {
-            if (event.key === 'Enter') {
-                const query = event.target.value.toLowerCase().trim();
-                if (query.length > 0) {
-                    window.openProfile(query);
-                }
-            }
-        }
-
+        // Run subnavigation render setup on document load
         renderSubNav();
     </script>
 </body>
