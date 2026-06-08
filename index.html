@@ -253,6 +253,7 @@
             globe: `<svg viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 text-cyan-400"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>`
         };
 
+        // FIXED THE BED ASSET DIRECT LINK HERE TO PREVENT BROKEN PICTURE FRAME
         const ASSETS = {
             'Sword': 'https://cdn.jsdelivr.net/gh/misode/mcmeta@assets/assets/minecraft/textures/item/diamond_sword.png',
             'Axe': 'https://cdn.jsdelivr.net/gh/misode/mcmeta@assets/assets/minecraft/textures/item/diamond_axe.png',
@@ -268,7 +269,7 @@
             'Speed': 'https://minecraft.wiki/images/Splash_Potion_of_Swiftness_JE2_BE2.png',
             'Og Vanilla': 'https://cdn.jsdelivr.net/gh/misode/mcmeta@assets/assets/minecraft/textures/item/golden_apple.png',
             'Creeper': 'https://cdn.jsdelivr.net/gh/misode/mcmeta@assets/assets/minecraft/textures/item/creeper_spawn_egg.png',
-            'Bed': 'https://cdn.jsdelivr.net/gh/misode/mcmeta@assets/assets/minecraft/textures/item/red_bed.png',
+            'Bed': 'https://minecraft.wiki/images/Red_Bed_JE2_BE2.png',
             'Debuff': 'https://cdn.jsdelivr.net/gh/misode/mcmeta@assets/assets/minecraft/textures/item/golden_carrot.png',
             'Trident': 'https://cdn.jsdelivr.net/gh/misode/mcmeta@assets/assets/minecraft/textures/item/trident.png',
             'Diamond Survival': 'https://cdn.jsdelivr.net/gh/misode/mcmeta@assets/assets/minecraft/textures/item/end_crystal.png',
@@ -480,6 +481,22 @@
         }
         window.closeProfile = function() { document.getElementById('profileModal').classList.remove('active'); }
 
+        // FIXED FEATURE: DIRECTLY BRING UP PLAYER PROFILE ACCORDING TO ENTER KEY OR TRIGGER
+        window.handleSearch = function(event) {
+            if (event.key === "Enter") {
+                const query = document.getElementById('searchBar').value.trim().toLowerCase();
+                if (!query) return;
+
+                const match = window.PLAYERS.find(p => p.name.toLowerCase() === query);
+                if (match) {
+                    window.openProfile(match.name);
+                    document.getElementById('searchBar').value = ""; // Clean input bar
+                } else {
+                    alert("Player profile not found! Make sure to check the spelling.");
+                }
+            }
+        }
+
         window.openInfo = function() {
             document.getElementById('info-tab-points').innerHTML = Object.entries(TIERS_CONFIG).map(([tier, pts]) => `
                 <div class="points-card">
@@ -496,20 +513,23 @@
                 { name: "Combat Specialist", desc: "Obtained 50+ total points." },
                 { name: "Combat Cadet", desc: "Obtained 20+ total points." },
                 { name: "Combat Novice", desc: "Obtained 10+ total points." },
-                { name: "Rookie", desc: "Less than 10 points." }
+                { name: "Rookie", desc: "Obtained less than 10 total points." }
             ];
+
             document.getElementById('info-tab-titles').innerHTML = titlesData.map(t => `
                 <div class="points-card">
-                    <h4 class="text-cyan-400 !text-sm drop-shadow-[0_0_6px_rgba(0,242,255,0.2)]">${t.name}</h4>
-                    <div class="text-xs font-medium text-zinc-400 mt-1">${t.desc}</div>
+                    <h4 class="text-cyan-400 font-black text-sm">${t.name}</h4>
+                    <p class="text-xs text-zinc-400 mt-1">${t.desc}</p>
                 </div>
             `).join('');
+
             document.getElementById('infoModal').classList.add('active');
         }
+
         window.closeInfo = function() { document.getElementById('infoModal').classList.remove('active'); }
-        
+
         window.switchInfoTab = function(tab) {
-            if(tab === 'points') {
+            if (tab === 'points') {
                 document.getElementById('tab-points').className = "text-lg md:text-xl font-black pb-2 border-b-2 border-cyan-400 text-cyan-400";
                 document.getElementById('tab-titles').className = "text-lg md:text-xl font-black pb-2 border-b-2 border-transparent text-zinc-500 hover:text-white";
                 document.getElementById('info-tab-points').classList.remove('hidden');
@@ -520,18 +540,6 @@
                 document.getElementById('info-tab-titles').classList.remove('hidden');
                 document.getElementById('info-tab-points').classList.add('hidden');
             }
-        }
-
-        window.handleSearch = function(e) {
-            const query = e.target.value.toLowerCase().trim();
-            if(!window.PLAYERS) return;
-            renderContent();
-            if(query === "") return;
-            const cards = document.querySelectorAll('#content-display > .glass-card, #content-display .player-square');
-            cards.forEach(card => {
-                const text = card.textContent.toLowerCase();
-                if(!text.includes(query)) card.style.setProperty('display', 'none', 'important');
-            });
         }
     </script>
 </body>
