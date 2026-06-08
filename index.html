@@ -90,6 +90,7 @@
                 });
 
                 window.PLAYERS = playerArray;
+                renderSubNav();
                 renderContent(); 
             } else {
                 document.getElementById('content-display').innerHTML = '<div class="text-center p-20 text-zinc-500 font-bold">No verified tier data found.</div>';
@@ -331,92 +332,14 @@
                 }
             } else if (REGIONS.includes(activeSub)) {
                 list = list.filter(p => p.region === activeSub).sort((a,b) => b.points - a.points);
-            }
-
-            // Handle Search Filter Input
-            const query = (document.getElementById('searchBar')?.value || '').toLowerCase().trim();
-            if (query !== '') {
-                list = list.filter(p => p.name.toLowerCase().includes(query));
-            }
-
-            if (activeSub === 'Overall' || REGIONS.includes(activeSub)) {
-                list = list.slice(0, 100);
-
-                let tableHtml = `
-                    <div class="hidden lg:flex items-center px-5 mb-2 text-xs font-bold tracking-widest uppercase text-zinc-500/80">
-                        <div class="w-20">#</div>
-                        <div class="flex-1">Player</div>
-                        <div class="w-24">Region</div>
-                        <div class="w-80">Tiers</div>
-                        <div class="w-32 text-right">Points</div>
-                    </div>
-                `;
-
-                tableHtml += list.map((p, i) => {
-                    let displayPoints = p.points;
-                    if (activeSub === 'Overall') {
-                        if (activeMain === 'main') displayPoints = p.mainPoints;
-                        if (activeMain === 'sub') displayPoints = p.subPoints;
-                    }
-
-                    let podiumClass = '';
-                    let rankNumberClass = 'text-zinc-600'; 
-                    
-                    if (i === 0) { podiumClass = 'podium-1st'; rankNumberClass = 'text-gold'; }
-                    if (i === 1) { podiumClass = 'podium-2nd'; rankNumberClass = 'text-silver'; }
-                    if (i === 2) { podiumClass = 'podium-3rd'; rankNumberClass = 'text-bronze'; }
-
-                    const sortedTiersForPlayer = Object.keys(ASSETS).map(m => {
-                        const dbKeyClean = m.toLowerCase().replace(/\s+/g, '');
-                        const t = p.ranks[dbKeyClean];
-                        return { assetName: m, tierStr: t, dbKey: dbKeyClean, pts: t ? (TIERS_CONFIG[t] || 0) : 0 };
-                    })
-                    .filter(item => {
-                        if (!item.tierStr) return false;
-                        if (activeMain === 'main') return MAIN_MODES_LIST.includes(item.dbKey);
-                        if (activeMain === 'sub') return SUB_MODES_LIST.includes(item.dbKey);
-                        return true;
-                    })
-                    .sort((a, b) => b.pts - a.pts);
-
-                    return `
-                    <div class="glass-card p-4 md:p-5 mb-4 flex flex-col gap-4 lg:flex-row lg:items-center hover:bg-white/[0.04] hover:border-cyan-500/30 transition cursor-pointer ${podiumClass}" onclick="openProfile('${p.name}')">
-                        <div class="flex items-center justify-between lg:justify-start lg:w-20">
-                            <div class="font-black text-xl md:text-2xl ${rankNumberClass}">#${i+1}</div>
-                            <div class="lg:hidden rating-num">${displayPoints}</div>
-                        </div>
-                        
-                        <div class="flex-1 flex items-center gap-4 md:gap-5">
-                            <img src="${p.skin}" class="w-10 h-10 md:w-12 md:h-12 rounded-lg border border-white/10">
-                            <div class="flex flex-col">
-                                <span class="font-bold text-base md:text-lg leading-tight text-white">${p.name}</span>
-                                <span class="text-[11px] font-semibold text-zinc-400/80 mt-0.5 tracking-wide">${getPlayerTitle(p.points)}</span>
-                            </div>
-                        </div>
-
-                        <div class="flex items-center justify-between lg:w-24 border-t border-white/5 pt-3 lg:border-none lg:pt-0">
-                            <span class="bg-cyan-500/5 px-2.5 py-1 rounded-lg text-xs font-black border border-cyan-500/10 text-cyan-400 tracking-wider">${p.region}</span>
-                        </div>
-
-                        <div class="lg:w-80 flex flex-wrap gap-1.5 items-center">
-                            ${sortedTiersForPlayer.map(item => `
-                                <div class="flex items-center bg-white/[0.02] border border-white/[0.05] rounded-md px-1.5 py-0.5 gap-1">
-                                    <img src="${ASSETS[item.assetName]}" class="w-3.5 h-3.5">
-                                    <div class="text-[9px] font-bold text-zinc-300">${item.tierStr}</div>
-                                </div>
-                            `).join('')}
-                        </div>
-                        
-                        <div class="hidden lg:block lg:w-32 text-right rating-num">${displayPoints}</div>
-                    </div>
-                `}).join('');
-                
-                container.innerHTML = tableHtml;
             } else {
+                // Individual Gamemode Tab rendering logic
                 const currentModeLowerClean = activeSub.toLowerCase().replace(/\s+/g, '');
-                container.innerHTML = `<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 lg:gap-6">${[1,2,3,4,5].map(t => {
-                    const htPlayers = window.PLAYERS.filter(p => p.ranks[currentModeLowerClean] === `HT${t}`);
-                    const ltPlayers = window.PLAYERS.filter(p => p.ranks[currentModeLowerClean] === `LT${t}`);
+                let columnsHtml = `<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 lg:gap-6">`;
+                
+                for (let t = 1; t <= 5; t++) {
+                    const htPlayers = list.filter(p => p.ranks[currentModeLowerClean] === `HT${t}`);
+                    const ltPlayers = list.filter(p => p.ranks[currentModeLowerClean] === `LT${t}`);
                     const filteredPlayers = [...htPlayers, ...ltPlayers];
 
                     let headerColorClass = 'text-standard-tier';
@@ -426,7 +349,7 @@
                     if (t === 2) { headerColorClass = 'text-silver'; headerBgClass = 'bg-silver-dark'; }
                     if (t === 3) { headerColorClass = 'text-bronze'; headerBgClass = 'bg-bronze-dark'; }
 
-                    return `
+                    columnsHtml += `
                     <div class="tier-column">
                         <div class="tier-header ${headerColorClass} ${headerBgClass}">Tier ${t}</div>
                         <div class="p-4 flex flex-col gap-3 overflow-y-auto no-scrollbar max-h-[400px] lg:max-h-none">
@@ -440,14 +363,86 @@
                                 </div>
                             `).join('')}
                         </div>
-                    </div>
-                `}).join('')}</div>`;
+                    </div>`;
+                }
+                columnsHtml += `</div>`;
+                container.innerHTML = columnsHtml;
+                return;
             }
-        }
 
-        window.handleSearch = function(e) {
-            renderContent();
-        };
+            // List/Table view used for Overall & Region views
+            list = list.slice(0, 100);
+            let tableHtml = `
+                <div class="hidden lg:flex items-center px-5 mb-2 text-xs font-bold tracking-widest uppercase text-zinc-500/80">
+                    <div class="w-20">#</div>
+                    <div class="flex-1">Player</div>
+                    <div class="w-24">Region</div>
+                    <div class="w-80">Tiers</div>
+                    <div class="w-32 text-right">Points</div>
+                </div>
+            `;
+
+            tableHtml += list.map((p, i) => {
+                let displayPoints = p.points;
+                if (activeSub === 'Overall') {
+                    if (activeMain === 'main') displayPoints = p.mainPoints;
+                    if (activeMain === 'sub') displayPoints = p.subPoints;
+                }
+
+                let podiumClass = '';
+                let rankNumberClass = 'text-zinc-600'; 
+                
+                if (i === 0) { podiumClass = 'podium-1st'; rankNumberClass = 'text-gold'; }
+                if (i === 1) { podiumClass = 'podium-2nd'; rankNumberClass = 'text-silver'; }
+                if (i === 2) { podiumClass = 'podium-3rd'; rankNumberClass = 'text-bronze'; }
+
+                const sortedTiersForPlayer = Object.keys(ASSETS).map(m => {
+                    const dbKeyClean = m.toLowerCase().replace(/\s+/g, '');
+                    const t = p.ranks[dbKeyClean];
+                    return { assetName: m, tierStr: t, dbKey: dbKeyClean, pts: t ? (TIERS_CONFIG[t] || 0) : 0 };
+                })
+                .filter(item => {
+                    if (!item.tierStr) return false;
+                    if (activeMain === 'main') return MAIN_MODES_LIST.includes(item.dbKey);
+                    if (activeMain === 'sub') return SUB_MODES_LIST.includes(item.dbKey);
+                    return true;
+                })
+                .sort((a, b) => b.pts - a.pts);
+
+                return `
+                <div class="glass-card p-4 md:p-5 mb-4 flex flex-col gap-4 lg:flex-row lg:items-center hover:bg-white/[0.04] hover:border-cyan-500/30 transition cursor-pointer ${podiumClass}" onclick="openProfile('${p.name}')">
+                    <div class="flex items-center justify-between lg:justify-start lg:w-20">
+                        <div class="font-black text-xl md:text-2xl ${rankNumberClass}">#${i+1}</div>
+                        <div class="lg:hidden rating-num">${displayPoints}</div>
+                    </div>
+                    
+                    <div class="flex-1 flex items-center gap-4 md:gap-5">
+                        <img src="${p.skin}" class="w-10 h-10 md:w-12 md:h-12 rounded-lg border border-white/10">
+                        <div class="flex flex-col">
+                            <span class="font-bold text-base md:text-lg leading-tight text-white">${p.name}</span>
+                            <span class="text-[11px] font-semibold text-zinc-400/80 mt-0.5 tracking-wide">${getPlayerTitle(p.points)}</span>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between lg:w-24 border-t border-white/5 pt-3 lg:border-none lg:pt-0">
+                        <span class="bg-cyan-500/5 px-2.5 py-1 rounded-lg text-xs font-black border border-cyan-500/10 text-cyan-400 tracking-wider">${p.region}</span>
+                    </div>
+
+                    <div class="lg:w-80 flex flex-wrap gap-1.5 items-center">
+                        ${sortedTiersForPlayer.map(item => `
+                            <div class="flex items-center bg-white/[0.02] border border-white/[0.05] rounded-md px-1.5 py-0.5 gap-1">
+                                <img src="${ASSETS[item.assetName]}" class="w-3.5 h-3.5">
+                                <div class="text-[9px] font-bold text-zinc-300">${item.tierStr}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    
+                    <div class="hidden lg:block lg:w-32 text-right rating-num">${displayPoints}</div>
+                </div>
+            `}).join('');
+            
+            container.innerHTML = tableHtml;
+        }
 
         window.switchMain = switchMain;
         window.switchSub = switchSub;
@@ -464,7 +459,6 @@
             
             document.getElementById('p-rank-pos').innerText = `#${rankIndex + 1}`;
             document.getElementById('p-total').innerText = p.points;
-
             document.getElementById('p-title').innerText = getPlayerTitle(p.points);
             
             const profilesTiersList = Object.keys(ASSETS).map(m => {
@@ -509,14 +503,12 @@
                     <div class="text-xs font-medium text-zinc-400 mt-1">${t.desc}</div>
                 </div>
             `).join('');
-            
             document.getElementById('infoModal').classList.add('active');
         }
-
         window.closeInfo = function() { document.getElementById('infoModal').classList.remove('active'); }
         
         window.switchInfoTab = function(tab) {
-            if(tab === 'points') {
+            if (tab === 'points') {
                 document.getElementById('tab-points').className = "text-lg md:text-xl font-black pb-2 border-b-2 border-cyan-400 text-cyan-400";
                 document.getElementById('tab-titles').className = "text-lg md:text-xl font-black pb-2 border-b-2 border-transparent text-zinc-500 hover:text-white";
                 document.getElementById('info-tab-points').classList.remove('hidden');
@@ -529,8 +521,73 @@
             }
         }
 
-        // Run subnavigation render setup on document load
-        renderSubNav();
+        window.handleSearch = function(e) {
+            const query = e.target.value.toLowerCase().trim();
+            if (!window.PLAYERS) return;
+            
+            if (query === '') {
+                renderContent();
+                return;
+            }
+
+            const matched = window.PLAYERS.filter(p => p.name.toLowerCase().includes(query));
+            const container = document.getElementById('content-display');
+            
+            if (matched.length === 0) {
+                container.innerHTML = '<div class="text-center p-20 text-zinc-500 font-bold">No matching players found.</div>';
+                return;
+            }
+
+            let searchHtml = `
+                <div class="hidden lg:flex items-center px-5 mb-2 text-xs font-bold tracking-widest uppercase text-zinc-500/80">
+                    <div class="w-20">#</div>
+                    <div class="flex-1">Player</div>
+                    <div class="w-24">Region</div>
+                    <div class="w-80">Tiers</div>
+                    <div class="w-32 text-right">Points</div>
+                </div>
+            `;
+
+            searchHtml += matched.map((p) => {
+                let originalRankIndex = [...window.PLAYERS].sort((a,b) => b.points - a.points).findIndex(x => x.name.toLowerCase() === p.name.toLowerCase());
+                
+                const sortedTiers = Object.keys(ASSETS).map(m => {
+                    const dbKeyClean = m.toLowerCase().replace(/\s+/g, '');
+                    return { assetName: m, tierStr: p.ranks[dbKeyClean], pts: p.ranks[dbKeyClean] ? (TIERS_CONFIG[p.ranks[dbKeyClean]] || 0) : 0 };
+                })
+                .filter(item => item.tierStr)
+                .sort((a, b) => b.pts - a.pts);
+
+                return `
+                <div class="glass-card p-4 md:p-5 mb-4 flex flex-col gap-4 lg:flex-row lg:items-center hover:bg-white/[0.04] hover:border-cyan-500/30 transition cursor-pointer" onclick="openProfile('${p.name}')">
+                    <div class="flex items-center justify-between lg:justify-start lg:w-20">
+                        <div class="font-black text-xl md:text-2xl text-zinc-500">#${originalRankIndex + 1}</div>
+                        <div class="lg:hidden rating-num">${p.points}</div>
+                    </div>
+                    <div class="flex-1 flex items-center gap-4 md:gap-5">
+                        <img src="${p.skin}" class="w-10 h-10 md:w-12 md:h-12 rounded-lg border border-white/10">
+                        <div class="flex flex-col">
+                            <span class="font-bold text-base md:text-lg leading-tight text-white">${p.name}</span>
+                            <span class="text-[11px] font-semibold text-zinc-400/80 mt-0.5 tracking-wide">${getPlayerTitle(p.points)}</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between lg:w-24 border-t border-white/5 pt-3 lg:border-none lg:pt-0">
+                        <span class="bg-cyan-500/5 px-2.5 py-1 rounded-lg text-xs font-black border border-cyan-500/10 text-cyan-400 tracking-wider">${p.region}</span>
+                    </div>
+                    <div class="lg:w-80 flex flex-wrap gap-1.5 items-center">
+                        ${sortedTiers.map(item => `
+                            <div class="flex items-center bg-white/[0.02] border border-white/[0.05] rounded-md px-1.5 py-0.5 gap-1">
+                                <img src="${ASSETS[item.assetName]}" class="w-3.5 h-3.5">
+                                <div class="text-[9px] font-bold text-zinc-300">${item.tierStr}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="hidden lg:block lg:w-32 text-right rating-num">${p.points}</div>
+                </div>`;
+            }).join('');
+
+            container.innerHTML = searchHtml;
+        }
     </script>
 </body>
 </html>
