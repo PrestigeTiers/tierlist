@@ -162,31 +162,7 @@
         @media (min-width: 768px) { .search-input { width: 200px; } }
         .search-input:focus { border-color: #00f2ff; box-shadow: 0 0 8px rgba(0, 242, 255, 0.2); }
         
-        /* Custom Styled Horizontal & Vertical Scrollbars */
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 10px;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: rgba(0, 242, 255, 0.3);
-            border-radius: 10px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: rgba(0, 242, 255, 0.7);
-        }
-
-        * {
-            scrollbar-width: thin;
-            scrollbar-color: rgba(0, 242, 255, 0.4) rgba(0, 0, 0, 0.2);
-        }
-
+        .no-scrollbar::-webkit-scrollbar { display: none; }
         .points-card { background: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 16px; position: relative; overflow: hidden; text-align: left; }
         @media (min-width: 768px) { .points-card { padding: 20px; } }
         .points-card h4 { color: #ffffff; font-size: 0.75rem; font-weight: 800; margin-bottom: 8px; }
@@ -227,15 +203,15 @@
     </header>
 
     <div class="max-w-7xl mx-auto relative z-10">
-        <div id="sub-nav-container" class="glass-card p-2 flex gap-2 mb-6 overflow-x-auto pb-3"></div>
+        <div id="sub-nav-container" class="glass-card p-2 flex gap-2 mb-6 overflow-x-auto no-scrollbar"></div>
     </div>
 
-    <main class="max-w-7xl mx-auto lg:h-[73vh] lg:overflow-y-auto lg:pr-2 relative z-10" id="content-display">
+    <main class="max-w-7xl mx-auto lg:h-[73vh] lg:overflow-y-auto lg:pr-2 no-scrollbar relative z-10" id="content-display">
         <div class="text-center p-20 text-zinc-500 font-bold">Connecting to Database...</div>
     </main>
 
     <div id="infoModal" class="modal-overlay" onclick="closeInfo()">
-        <div class="bg-[#090a0d] p-6 md:p-10 rounded-3xl border border-white/10 w-[950px] max-w-full max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
+        <div class="bg-[#090a0d] p-6 md:p-10 rounded-3xl border border-white/10 w-[950px] max-w-full max-h-[90vh] overflow-y-auto no-scrollbar" onclick="event.stopPropagation()">
             <div class="flex gap-4 border-b border-white/10 mb-6 pb-2">
                 <button onclick="switchInfoTab('points')" id="tab-points" class="text-lg md:text-xl font-black pb-2 border-b-2 border-cyan-400 text-cyan-400">Point System</button>
                 <button onclick="switchInfoTab('titles')" id="tab-titles" class="text-lg md:text-xl font-black pb-2 border-b-2 border-transparent text-zinc-500 hover:text-white">Titles</button>
@@ -278,6 +254,7 @@
             globe: `<svg viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 text-cyan-400"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>`
         };
 
+        // FIXED: Using a reliable, fast 2D Bed asset link that won't show blank borders or fail
         const ASSETS = {
             'Sword': 'https://cdn.jsdelivr.net/gh/misode/mcmeta@assets/assets/minecraft/textures/item/diamond_sword.png',
             'Axe': 'https://cdn.jsdelivr.net/gh/misode/mcmeta@assets/assets/minecraft/textures/item/diamond_axe.png',
@@ -302,7 +279,12 @@
             'Elytra': 'https://cdn.jsdelivr.net/gh/misode/mcmeta@assets/assets/minecraft/textures/item/elytra.png'
         };
 
+        const TIERS_CONFIG = { 'HT1': 60, 'LT1': 45, 'HT2': 30, 'LT2': 20, 'HT3': 10, 'LT3': 6, 'HT4': 4, 'LT4': 3, 'HT5': 2, 'LT5': 1 };
         const REGIONS = ['EU', 'NA', 'AS'];
+        
+        const MAIN_MODES_LIST = ['sword', 'axe', 'vanilla', 'pot', 'nethop', 'uhc', 'smp', 'mace'];
+        const SUB_MODES_LIST = ['minecart', 'dsmp', 'spearmace', 'speed', 'ogvanilla', 'creeper', 'bed', 'debuff', 'trident', 'diamondsurvival', 'manhunt', 'bow', 'elytra'];
+
         let activeMain = 'global', activeSub = 'Overall';
 
         function getPlayerTitle(pts) {
@@ -356,6 +338,7 @@
             } else if (REGIONS.includes(activeSub)) {
                 list = list.filter(p => p.region === activeSub).sort((a,b) => b.points - a.points);
             } else {
+                // FIXED: Sanitizes internal evaluation keys for spaces and underscores
                 const currentModeLowerClean = activeSub.toLowerCase().replace(/[\s_]+/g, '');
                 let columnsHtml = `<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 lg:gap-6">`;
                 
@@ -374,7 +357,7 @@
                     columnsHtml += `
                     <div class="tier-column">
                         <div class="tier-header ${headerColorClass} ${headerBgClass}">Tier ${t}</div>
-                        <div class="p-4 flex flex-col gap-3 overflow-y-auto max-h-[400px] lg:max-h-none">
+                        <div class="p-4 flex flex-col gap-3 overflow-y-auto no-scrollbar max-h-[400px] lg:max-h-none">
                             ${filteredPlayers.length === 0 ? '<div class="text-xs text-center text-zinc-600 p-4 font-semibold">Empty</div>' : filteredPlayers.map(p => `
                                 <div class="player-square" onclick="openProfile('${p.name}')">
                                     <img src="${p.skin}" class="w-8 h-8 rounded border border-white/10">
@@ -500,6 +483,7 @@
         }
         window.closeProfile = function() { document.getElementById('profileModal').classList.remove('active'); }
 
+        // FIXED FEATURE: DIRECTLY BRING UP PLAYER PROFILE ACCORDING TO ENTER KEY OR TRIGGER
         window.handleSearch = function(event) {
             if (event.key === "Enter") {
                 const query = document.getElementById('searchBar').value.trim().toLowerCase();
@@ -508,7 +492,7 @@
                 const match = window.PLAYERS.find(p => p.name.toLowerCase() === query);
                 if (match) {
                     window.openProfile(match.name);
-                    document.getElementById('searchBar').value = "";
+                    document.getElementById('searchBar').value = ""; // Clean input bar
                 } else {
                     alert("Player profile not found! Make sure to check the spelling.");
                 }
