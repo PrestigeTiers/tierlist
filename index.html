@@ -9,7 +9,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-        // YOUR FIREBASE CONFIG
         const firebaseConfig = {
             apiKey: "AIzaSyDsi2sk-hGyhkI1rqVpmSbozKVPDaoVyf8",
             authDomain: "banana-tiers.firebaseapp.com",
@@ -21,16 +20,14 @@
             measurementId: "G-HYECP0CP35"
         };
 
-        // INITIALIZE FIREBASE
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        const TIERS_CONFIG = { 'HT1': 60, 'LT1': 45, 'HT2': 30, 'LT2': 20, 'HT3': 10, 'LT3': 6, 'HT4': 4, 'LT4': 3, 'HT5': 2, 'LT5': 1 };
+        window.TIERS_CONFIG = { 'HT1': 60, 'LT1': 45, 'HT2': 30, 'LT2': 20, 'HT3': 10, 'LT3': 6, 'HT4': 4, 'LT4': 3, 'HT5': 2, 'LT5': 1 };
         
         const MAIN_MODES_LIST = ['sword', 'axe', 'vanilla', 'pot', 'nethop', 'uhc', 'smp', 'mace'];
         const SUB_MODES_LIST = ['minecart', 'dsmp', 'spearmace', 'speed', 'ogvanilla', 'creeper', 'bed', 'debuff', 'trident', 'diamondsurvival', 'manhunt', 'bow', 'elytra'];
 
-        // LIVE LISTENER
         const userRef = ref(db, 'tier_list');
         onValue(userRef, (snapshot) => {
             const data = snapshot.val();
@@ -54,12 +51,11 @@
                         const tierValue = rawTiers[modeKey];
                         if (tierValue) {
                             const upperTier = tierValue.toString().toUpperCase().trim();
-                            if (TIERS_CONFIG[upperTier]) {
-                                // FIXED: Cleans both spaces AND underscores to fix diamond_survival sync mismatch
+                            if (window.TIERS_CONFIG[upperTier]) {
                                 const formattedKey = modeKey.toLowerCase().replace(/[\s_]+/g, '').trim();
                                 cleanTiers[formattedKey] = upperTier;
                                 
-                                const pts = TIERS_CONFIG[upperTier];
+                                const pts = window.TIERS_CONFIG[upperTier];
                                 totalPoints += pts;
                                 
                                 if (MAIN_MODES_LIST.includes(formattedKey)) {
@@ -90,8 +86,8 @@
                 });
 
                 window.PLAYERS = playerArray;
-                renderSubNav();
-                renderContent(); 
+                if (window.renderSubNav) window.renderSubNav();
+                if (window.renderContent) window.renderContent(); 
             } else {
                 document.getElementById('content-display').innerHTML = '<div class="text-center p-20 text-zinc-500 font-bold">No verified tier data found.</div>';
             }
@@ -162,7 +158,31 @@
         @media (min-width: 768px) { .search-input { width: 200px; } }
         .search-input:focus { border-color: #00f2ff; box-shadow: 0 0 8px rgba(0, 242, 255, 0.2); }
         
-        .no-scrollbar::-webkit-scrollbar { display: none; }
+        /* CUSTOM VISIBLE SCROLLBAR (Fixes horizontal scroll navigation) */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0, 242, 255, 0.3);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 242, 255, 0.7);
+        }
+
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(0, 242, 255, 0.4) rgba(0, 0, 0, 0.2);
+        }
+
         .points-card { background: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 16px; position: relative; overflow: hidden; text-align: left; }
         @media (min-width: 768px) { .points-card { padding: 20px; } }
         .points-card h4 { color: #ffffff; font-size: 0.75rem; font-weight: 800; margin-bottom: 8px; }
@@ -196,22 +216,22 @@
 
         <div class="flex items-center gap-2 md:gap-3">
             <div class="flex-1 md:flex-none">
-                <input type="text" id="searchBar" class="search-input" placeholder="Search players..." onkeyup="handleSearch(event)">
+                <input type="text" id="searchBar" class="search-input" placeholder="Search players..." onkeydown="handleSearch(event)">
             </div>
             <button onclick="openInfo()" class="pill-btn bg-white/5 text-white border-white/10 hover:border-cyan-400 whitespace-nowrap">Information</button>
         </div>
     </header>
 
     <div class="max-w-7xl mx-auto relative z-10">
-        <div id="sub-nav-container" class="glass-card p-2 flex gap-2 mb-6 overflow-x-auto no-scrollbar"></div>
+        <div id="sub-nav-container" class="glass-card p-2 flex gap-2 mb-6 overflow-x-auto pb-3"></div>
     </div>
 
-    <main class="max-w-7xl mx-auto lg:h-[73vh] lg:overflow-y-auto lg:pr-2 no-scrollbar relative z-10" id="content-display">
+    <main class="max-w-7xl mx-auto lg:h-[73vh] lg:overflow-y-auto lg:pr-2 relative z-10" id="content-display">
         <div class="text-center p-20 text-zinc-500 font-bold">Connecting to Database...</div>
     </main>
 
     <div id="infoModal" class="modal-overlay" onclick="closeInfo()">
-        <div class="bg-[#090a0d] p-6 md:p-10 rounded-3xl border border-white/10 w-[950px] max-w-full max-h-[90vh] overflow-y-auto no-scrollbar" onclick="event.stopPropagation()">
+        <div class="bg-[#090a0d] p-6 md:p-10 rounded-3xl border border-white/10 w-[950px] max-w-full max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
             <div class="flex gap-4 border-b border-white/10 mb-6 pb-2">
                 <button onclick="switchInfoTab('points')" id="tab-points" class="text-lg md:text-xl font-black pb-2 border-b-2 border-cyan-400 text-cyan-400">Point System</button>
                 <button onclick="switchInfoTab('titles')" id="tab-titles" class="text-lg md:text-xl font-black pb-2 border-b-2 border-transparent text-zinc-500 hover:text-white">Titles</button>
@@ -248,13 +268,13 @@
     </div>
 
     <script>
-        window.PLAYERS = []; 
+        window.PLAYERS = window.PLAYERS || []; 
+
         const ICONS = {
             trophy: `<svg viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 text-cyan-400"><path d="M18 2H6c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94A5.01 5.01 0 0 0 11 13.9V17H8v2h8v-2h-3v-3.1a5.01 5.01 0 0 0 2.61-3.96C18.08 9.63 20 7.55 20 5V4c0-1.1-.9-2-2-2zm-10 5.09A3.001 3.001 0 0 1 6 4h2v3.09zM18 4v1c0 .98-.71 1.79-1.64 1.97A2.996 2.996 0 0 1 16 4h2z"/></svg>`,
             globe: `<svg viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 text-cyan-400"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>`
         };
 
-        // FIXED: Using a reliable, fast 2D Bed asset link that won't show blank borders or fail
         const ASSETS = {
             'Sword': 'https://cdn.jsdelivr.net/gh/misode/mcmeta@assets/assets/minecraft/textures/item/diamond_sword.png',
             'Axe': 'https://cdn.jsdelivr.net/gh/misode/mcmeta@assets/assets/minecraft/textures/item/diamond_axe.png',
@@ -279,9 +299,7 @@
             'Elytra': 'https://cdn.jsdelivr.net/gh/misode/mcmeta@assets/assets/minecraft/textures/item/elytra.png'
         };
 
-        const TIERS_CONFIG = { 'HT1': 60, 'LT1': 45, 'HT2': 30, 'LT2': 20, 'HT3': 10, 'LT3': 6, 'HT4': 4, 'LT4': 3, 'HT5': 2, 'LT5': 1 };
         const REGIONS = ['EU', 'NA', 'AS'];
-        
         const MAIN_MODES_LIST = ['sword', 'axe', 'vanilla', 'pot', 'nethop', 'uhc', 'smp', 'mace'];
         const SUB_MODES_LIST = ['minecart', 'dsmp', 'spearmace', 'speed', 'ogvanilla', 'creeper', 'bed', 'debuff', 'trident', 'diamondsurvival', 'manhunt', 'bow', 'elytra'];
 
@@ -297,31 +315,36 @@
             return "Rookie";
         }
 
-        function switchMain(key) {
+        window.switchMain = function(key) {
             activeMain = key; activeSub = 'Overall';
             document.querySelectorAll('.pill-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(`btn-${key}`).classList.add('active');
+            const btn = document.getElementById(`btn-${key}`);
+            if (btn) btn.classList.add('active');
             renderSubNav(); renderContent();
         }
 
-        function renderSubNav() {
+        window.renderSubNav = function() {
             const modes = {
                 global: ['Overall', ...REGIONS],
                 main: ['Overall', 'Sword', 'Axe', 'Vanilla', 'Pot', 'NethOP', 'UHC', 'SMP', 'Mace'],
                 sub: ['Overall', 'Minecart', 'DSMP', 'Spear Mace', 'Speed', 'Og Vanilla', 'Creeper', 'Bed', 'Debuff', 'Trident', 'Diamond Survival', 'Manhunt', 'Bow', 'Elytra']
             };
-            document.getElementById('sub-nav-container').innerHTML = modes[activeMain].map(m => {
+            const container = document.getElementById('sub-nav-container');
+            if (!container) return;
+            container.innerHTML = modes[activeMain].map(m => {
                 let iconHtml = (m === 'Overall') ? ICONS.trophy : (REGIONS.includes(m) ? ICONS.globe : `<img src="${ASSETS[m]}" style="width:20px">`);
                 return `<button onclick="switchSub('${m}')" class="sub-pill ${activeSub === m ? 'active' : ''}">${iconHtml}${m}</button>`;
             }).join('');
         }
 
-        function switchSub(m) { activeSub = m; renderSubNav(); renderContent(); }
+        window.switchSub = function(m) { activeSub = m; renderSubNav(); renderContent(); }
 
-        function renderContent() {
+        window.renderContent = function() {
             const container = document.getElementById('content-display');
+            if (!container) return;
+
             if(!window.PLAYERS || window.PLAYERS.length === 0) {
-                container.innerHTML = '<div class="text-center p-20 text-zinc-500 font-bold">No verified players with tiers to display.</div>';
+                container.innerHTML = '<div class="text-center p-20 text-zinc-500 font-bold">Connecting to Database...</div>';
                 return;
             }
 
@@ -338,13 +361,12 @@
             } else if (REGIONS.includes(activeSub)) {
                 list = list.filter(p => p.region === activeSub).sort((a,b) => b.points - a.points);
             } else {
-                // FIXED: Sanitizes internal evaluation keys for spaces and underscores
                 const currentModeLowerClean = activeSub.toLowerCase().replace(/[\s_]+/g, '');
                 let columnsHtml = `<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 lg:gap-6">`;
                 
                 for (let t = 1; t <= 5; t++) {
-                    const htPlayers = list.filter(p => p.ranks[currentModeLowerClean] === `HT${t}`);
-                    const ltPlayers = list.filter(p => p.ranks[currentModeLowerClean] === `LT${t}`);
+                    const htPlayers = list.filter(p => p.ranks && p.ranks[currentModeLowerClean] === `HT${t}`);
+                    const ltPlayers = list.filter(p => p.ranks && p.ranks[currentModeLowerClean] === `LT${t}`);
                     const filteredPlayers = [...htPlayers, ...ltPlayers];
 
                     let headerColorClass = 'text-standard-tier';
@@ -357,7 +379,7 @@
                     columnsHtml += `
                     <div class="tier-column">
                         <div class="tier-header ${headerColorClass} ${headerBgClass}">Tier ${t}</div>
-                        <div class="p-4 flex flex-col gap-3 overflow-y-auto no-scrollbar max-h-[400px] lg:max-h-none">
+                        <div class="p-4 flex flex-col gap-3 overflow-y-auto max-h-[400px] lg:max-h-none">
                             ${filteredPlayers.length === 0 ? '<div class="text-xs text-center text-zinc-600 p-4 font-semibold">Empty</div>' : filteredPlayers.map(p => `
                                 <div class="player-square" onclick="openProfile('${p.name}')">
                                     <img src="${p.skin}" class="w-8 h-8 rounded border border-white/10">
@@ -402,8 +424,8 @@
 
                 const sortedTiersForPlayer = Object.keys(ASSETS).map(m => {
                     const dbKeyClean = m.toLowerCase().replace(/[\s_]+/g, '');
-                    const t = p.ranks[dbKeyClean];
-                    return { assetName: m, tierStr: t, dbKey: dbKeyClean, pts: t ? (TIERS_CONFIG[t] || 0) : 0 };
+                    const t = p.ranks ? p.ranks[dbKeyClean] : null;
+                    return { assetName: m, tierStr: t, dbKey: dbKeyClean, pts: t ? (window.TIERS_CONFIG[t] || 0) : 0 };
                 })
                 .filter(item => {
                     if (!item.tierStr) return false;
@@ -448,10 +470,8 @@
             container.innerHTML = tableHtml;
         }
 
-        window.switchMain = switchMain;
-        window.switchSub = switchSub;
-
         window.openProfile = function(name) {
+            if (!window.PLAYERS) return;
             let orderedList = [...window.PLAYERS].sort((a,b) => b.points - a.points);
             const rankIndex = orderedList.findIndex(x => x.name.toLowerCase() === name.toLowerCase());
             if(rankIndex === -1) return;
@@ -467,8 +487,8 @@
             
             const profilesTiersList = Object.keys(ASSETS).map(m => {
                 const dbKeyClean = m.toLowerCase().replace(/[\s_]+/g, '');
-                const t = p.ranks[dbKeyClean];
-                return { modeName: m, tierStr: t, pts: t ? (TIERS_CONFIG[t] || 0) : 0 };
+                const t = p.ranks ? p.ranks[dbKeyClean] : null;
+                return { modeName: m, tierStr: t, pts: t ? (window.TIERS_CONFIG[t] || 0) : 0 };
             })
             .filter(item => item.tierStr)
             .sort((a, b) => b.pts - a.pts);
@@ -481,6 +501,7 @@
                 
             document.getElementById('profileModal').classList.add('active');
         }
+
         window.closeProfile = function() { document.getElementById('profileModal').classList.remove('active'); }
 
         // FIXED FEATURE: DIRECTLY BRING UP PLAYER PROFILE ACCORDING TO ENTER KEY OR TRIGGER
@@ -489,10 +510,10 @@
                 const query = document.getElementById('searchBar').value.trim().toLowerCase();
                 if (!query) return;
 
-                const match = window.PLAYERS.find(p => p.name.toLowerCase() === query);
+                const match = window.PLAYERS ? window.PLAYERS.find(p => p.name.toLowerCase() === query) : null;
                 if (match) {
                     window.openProfile(match.name);
-                    document.getElementById('searchBar').value = ""; // Clean input bar
+                    document.getElementById('searchBar').value = "";
                 } else {
                     alert("Player profile not found! Make sure to check the spelling.");
                 }
@@ -500,7 +521,8 @@
         }
 
         window.openInfo = function() {
-            document.getElementById('info-tab-points').innerHTML = Object.entries(TIERS_CONFIG).map(([tier, pts]) => `
+            if (!window.TIERS_CONFIG) return;
+            document.getElementById('info-tab-points').innerHTML = Object.entries(window.TIERS_CONFIG).map(([tier, pts]) => `
                 <div class="points-card">
                     <h4>${tier}</h4>
                     <div class="pts-val">${pts} pts</div>
@@ -543,6 +565,9 @@
                 document.getElementById('info-tab-points').classList.add('hidden');
             }
         }
+
+        // Initial setup
+        window.renderSubNav();
     </script>
 </body>
 </html>
