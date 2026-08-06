@@ -20,7 +20,6 @@
             min-height: 100vh;
         }
 
-        /* Background effects */
         .bg-wrapper {
             position: fixed;
             inset: 0;
@@ -38,7 +37,6 @@
             backdrop-filter: blur(4px);
         }
 
-        /* Component Styling */
         .glass-card {
             background: rgba(255, 255, 255, 0.02);
             border: 1px solid rgba(255, 255, 255, 0.06);
@@ -115,7 +113,6 @@
             font-size: 1.1rem;
         }
 
-        /* Tier Headers */
         .tier-1 { color: #ffe633; background: rgba(255, 215, 0, 0.12); border-bottom-color: rgba(255, 215, 0, 0.25); }
         .tier-2 { color: #f0f0f0; background: rgba(192, 192, 192, 0.12); border-bottom-color: rgba(192, 192, 192, 0.25); }
         .tier-3 { color: #ff9944; background: rgba(205, 127, 50, 0.12); border-bottom-color: rgba(205, 127, 50, 0.25); }
@@ -145,7 +142,6 @@
             text-shadow: 0 0 10px rgba(0, 242, 255, 0.2);
         }
 
-        /* Podium Highlighting */
         .podium-1st { background: linear-gradient(to right, rgba(255, 223, 0, 0.1), rgba(255, 223, 0, 0.03), rgba(255, 255, 255, 0.02)); border-left: 2px solid rgba(255, 223, 0, 0.4); }
         .podium-2nd { background: linear-gradient(to right, rgba(224, 224, 224, 0.1), rgba(224, 224, 224, 0.03), rgba(255, 255, 255, 0.02)); border-left: 2px solid rgba(224, 224, 224, 0.4); }
         .podium-3rd { background: linear-gradient(to right, rgba(184, 115, 51, 0.1), rgba(184, 115, 51, 0.03), rgba(255, 255, 255, 0.02)); border-left: 2px solid rgba(184, 115, 51, 0.4); }
@@ -176,7 +172,6 @@
         @media (min-width: 768px) { .search-input { width: 200px; } }
         .search-input:focus { border-color: var(--accent-cyan); box-shadow: 0 0 8px rgba(0, 242, 255, 0.2); }
 
-        /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.2); border-radius: 10px; }
         ::-webkit-scrollbar-thumb { background: rgba(0, 242, 255, 0.3); border-radius: 10px; }
@@ -264,7 +259,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-        // Application State Management
         const state = {
             players: [],
             activeMain: 'global',
@@ -320,7 +314,6 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // Core App Initialization & Data Fetching
         function init() {
             setupEventListeners();
             
@@ -398,7 +391,6 @@
             return "Rookie";
         }
 
-        // Render Functions
         function renderSubNav() {
             const modes = {
                 global: ['Overall', ...REGIONS],
@@ -537,9 +529,8 @@
             document.getElementById('content-display').innerHTML = `<div class="text-center p-20 text-zinc-500 font-bold">${message}</div>`;
         }
 
-        // Event Handling
         function setupEventListeners() {
-            // Navigation Bar Delegated Clicks
+
             document.getElementById('main-nav').addEventListener('click', (e) => {
                 const btn = e.target.closest('[data-mode]');
                 if (!btn) return;
@@ -553,7 +544,6 @@
                 renderContent();
             });
 
-            // Sub Navigation Delegated Clicks
             document.getElementById('sub-nav-container').addEventListener('click', (e) => {
                 const btn = e.target.closest('[data-sub]');
                 if (!btn) return;
@@ -563,21 +553,18 @@
                 renderContent();
             });
 
-            // Player Profile Trigger
             document.getElementById('content-display').addEventListener('click', (e) => {
                 const playerCard = e.target.closest('[data-player]');
                 if (playerCard) openProfile(playerCard.dataset.player);
             });
 
-            // Search Handlers
             document.getElementById('searchBar').addEventListener('keydown', (e) => {
                 if (e.key === 'Enter') {
                     const query = e.target.value.trim();
                     if (query) openProfile(query);
                 }
             });
-
-            // Modal Toggles
+            
             document.getElementById('infoBtn').addEventListener('click', () => toggleModal('infoModal', true));
             document.getElementById('infoModal').addEventListener('click', (e) => {
                 if (e.target.id === 'infoModal') toggleModal('infoModal', false);
@@ -622,7 +609,6 @@
             if (modal) modal.classList.toggle('active', show);
         }
 
-        // Launch Application
         init();
     </script>
 </body>
