@@ -4,103 +4,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Prestige Tiers | Minecraft Rankings</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyDsi2sk-hGyhkI1rqVpmSbozKVPDaoVyf8",
-            authDomain: "banana-tiers.firebaseapp.com",
-            databaseURL: "https://banana-tiers-default-rtdb.europe-west1.firebasedatabase.app",
-            projectId: "banana-tiers",
-            storageBucket: "banana-tiers.firebasestorage.app",
-            messagingSenderId: "180092644757",
-            appId: "1:180092644757:web:2092687c03e602cf16da9c",
-            measurementId: "G-HYECP0CP35"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
-
-        window.TIERS_CONFIG = { 'HT1': 60, 'LT1': 45, 'HT2': 30, 'LT2': 20, 'HT3': 10, 'LT3': 6, 'HT4': 4, 'LT4': 3, 'HT5': 2, 'LT5': 1 };
-        
-        const MAIN_MODES_LIST = ['sword', 'axe', 'vanilla', 'pot', 'nethop', 'uhc', 'smp', 'mace'];
-        const SUB_MODES_LIST = ['minecart', 'dsmp', 'spearmace', 'speed', 'ogvanilla', 'creeper', 'bed', 'debuff', 'trident', 'diamondsurvival', 'manhunt', 'bow', 'elytra'];
-
-        const userRef = ref(db, 'tier_list');
-        onValue(userRef, (snapshot) => {
-            const data = snapshot.val();
-            if (data) {
-                const playerArray = [];
-
-                Object.keys(data).forEach(key => {
-                    const item = data[key];
-                    if (!item) return;
-                    
-                    const username = item.ign || item.username;
-                    if (!username || /^\d+$/.test(username) || username.toLowerCase() === 'unknown') return; 
-
-                    const rawTiers = item.tiers || {};
-                    const cleanTiers = {};
-                    let totalPoints = 0;
-                    let mainPoints = 0;
-                    let subPoints = 0;
-
-                    Object.keys(rawTiers).forEach(modeKey => {
-                        const tierValue = rawTiers[modeKey];
-                        if (tierValue) {
-                            const upperTier = tierValue.toString().toUpperCase().trim();
-                            if (window.TIERS_CONFIG[upperTier]) {
-                                const formattedKey = modeKey.toLowerCase().replace(/[\s_]+/g, '').trim();
-                                cleanTiers[formattedKey] = upperTier;
-                                
-                                const pts = window.TIERS_CONFIG[upperTier];
-                                totalPoints += pts;
-                                
-                                if (MAIN_MODES_LIST.includes(formattedKey)) {
-                                    mainPoints += pts;
-                                } else if (SUB_MODES_LIST.includes(formattedKey)) {
-                                    subPoints += pts;
-                                }
-                            }
-                        }
-                    });
-
-                    if (totalPoints === 0) return; 
-
-                    let finalRegion = (item.region || item.user_region || "NA").toUpperCase().trim();
-                    if (finalRegion === "UNKNOWN" || finalRegion === "") {
-                        finalRegion = "NA";
-                    }
-
-                    playerArray.push({
-                        name: username,
-                        region: finalRegion,
-                        skin: `https://mc-heads.net/avatar/${username}/64`,
-                        ranks: cleanTiers, 
-                        points: totalPoints,
-                        mainPoints: mainPoints,
-                        subPoints: subPoints
-                    });
-                });
-
-                window.PLAYERS = playerArray;
-                if (window.renderSubNav) window.renderSubNav();
-                if (window.renderContent) window.renderContent(); 
-            } else {
-                document.getElementById('content-display').innerHTML = '<div class="text-center p-20 text-zinc-500 font-bold">No verified tier data found.</div>';
-            }
-        });
-    </script>
-
+    
     <style>
+        :root {
+            --bg-dark: #0a0b0e;
+            --accent-cyan: #00f2ff;
+        }
+
+        body {
+            color: #ffffff;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-dark);
+            min-height: 100vh;
+        }
+
+        /* Background effects */
         .bg-wrapper {
             position: fixed;
             inset: 0;
             z-index: -2;
-            background: url('background.png') no-repeat center center;
-            background-size: cover;
+            background: url('background.png') no-repeat center center / cover;
             transform: scale(1.05);
             filter: blur(8px) brightness(0.45);
         }
@@ -113,82 +38,150 @@
             backdrop-filter: blur(4px);
         }
 
-        body { color: #ffffff; font-family: 'Inter', sans-serif; overflow-x: hidden; overflow-y: auto; min-height: 100vh; position: relative; }
-        
-        .glass-card { background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 14px; backdrop-filter: blur(8px); }
-        .profile-glass-box { background: rgba(0, 242, 255, 0.01); border: 1px solid rgba(0, 242, 255, 0.35); border-radius: 14px; backdrop-filter: blur(8px); box-shadow: 0 0 10px rgba(0, 242, 255, 0.05); }
+        /* Component Styling */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 14px;
+            backdrop-filter: blur(8px);
+        }
 
-        .pill-btn { padding: 8px 16px; border-radius: 12px; transition: all 0.25s ease; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); color: #a1a1aa; font-weight: 600; font-size: 0.85rem; }
-        @media (min-width: 768px) { .pill-btn { padding: 10px 24px; font-size: 1rem; } }
+        .profile-glass-box {
+            background: rgba(0, 242, 255, 0.01);
+            border: 1px solid rgba(0, 242, 255, 0.35);
+            border-radius: 14px;
+            backdrop-filter: blur(8px);
+            box-shadow: 0 0 10px rgba(0, 242, 255, 0.05);
+        }
+
+        .pill-btn {
+            padding: 8px 16px;
+            border-radius: 12px;
+            transition: all 0.25s ease;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: #a1a1aa;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+        @media (min-width: 768px) {
+            .pill-btn { padding: 10px 24px; font-size: 1rem; }
+        }
         .pill-btn:hover { border-color: rgba(0, 242, 255, 0.4); color: #ffffff; }
-        .pill-btn.active { background: rgba(0, 242, 255, 0.06); border-color: #00f2ff; color: #00f2ff; box-shadow: 0 0 12px rgba(0, 242, 255, 0.15); }
-        
-        .sub-pill { display: flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 8px; background: transparent; transition: all 0.2s; border: 1px solid transparent; color: #a1a1aa; font-weight: 700; font-size: 0.95rem; white-space: nowrap; }
+        .pill-btn.active {
+            background: rgba(0, 242, 255, 0.06);
+            border-color: var(--accent-cyan);
+            color: var(--accent-cyan);
+            box-shadow: 0 0 12px rgba(0, 242, 255, 0.15);
+        }
+
+        .sub-pill {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+            color: #a1a1aa;
+            font-weight: 700;
+            font-size: 0.95rem;
+            white-space: nowrap;
+        }
         .sub-pill:hover { color: #ffffff; }
-        .sub-pill.active { background: rgba(255,255,255,0.04); border-color: rgba(0, 242, 255, 0.3); color: #00f2ff; }
-        
-        .tier-column { background: rgba(5, 6, 8, 0.5); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 16px; min-height: 250px; display: flex; flex-direction: column; overflow: hidden; }
+        .sub-pill.active {
+            background: rgba(255, 255, 255, 0.04);
+            border-color: rgba(0, 242, 255, 0.3);
+            color: var(--accent-cyan);
+        }
+
+        .tier-column {
+            background: rgba(5, 6, 8, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            min-height: 250px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
         @media (min-width: 768px) { .tier-column { height: 75vh; } }
-        .tier-header { padding: 16px; border-bottom: 1px solid rgba(255,255,255,0.04); text-align: center; font-weight: 900; text-transform: uppercase; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; gap: 8px; }
         
-        .text-gold { color: #ffe633 !important; text-shadow: 0 0 12px rgba(255, 230, 51, 0.5); }
-        .text-silver { color: #f0f0f0 !important; text-shadow: 0 0 12px rgba(240, 240, 240, 0.5); }
-        .text-bronze { color: #ff9944 !important; text-shadow: 0 0 12px rgba(255, 153, 68, 0.5); }
-        .text-standard-tier { color: #a1a1aa !important; }
+        .tier-header {
+            padding: 16px;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            text-align: center;
+            font-weight: 900;
+            text-transform: uppercase;
+            font-size: 1.1rem;
+        }
 
-        .bg-gold-dark { background: rgba(255, 215, 0, 0.12); border-bottom: 1px solid rgba(255, 215, 0, 0.25) !important; }
-        .bg-silver-dark { background: rgba(192, 192, 192, 0.12); border-bottom: 1px solid rgba(192, 192, 192, 0.25) !important; }
-        .bg-bronze-dark { background: rgba(205, 127, 50, 0.12); border-bottom: 1px solid rgba(205, 127, 50, 0.25) !important; }
-        .bg-standard-dark { background: rgba(255, 255, 255, 0.01); border-bottom: 1px solid rgba(255, 255, 255, 0.04) !important; }
+        /* Tier Headers */
+        .tier-1 { color: #ffe633; background: rgba(255, 215, 0, 0.12); border-bottom-color: rgba(255, 215, 0, 0.25); }
+        .tier-2 { color: #f0f0f0; background: rgba(192, 192, 192, 0.12); border-bottom-color: rgba(192, 192, 192, 0.25); }
+        .tier-3 { color: #ff9944; background: rgba(205, 127, 50, 0.12); border-bottom-color: rgba(205, 127, 50, 0.25); }
+        .tier-standard { color: #a1a1aa; background: rgba(255, 255, 255, 0.01); border-bottom-color: rgba(255, 255, 255, 0.04); }
 
-        .player-square { background: rgba(255, 255, 255, 0.01); border: 1px solid rgba(255, 255, 255, 0.04); border-radius: 10px; padding: 10px; display: flex; align-items: center; gap: 12px; transition: all 0.2s; cursor: pointer; }
-        .player-square:hover { background: rgba(255, 255, 255, 0.05); border-color: rgba(0, 242, 255, 0.3); transform: translateY(-2px); }
-        
-        .rating-num { color: #00f2ff; font-weight: 800; font-size: 1.3rem; text-shadow: 0 0 10px rgba(0, 242, 255, 0.2); }
-        @media (min-width: 768px) { .rating-num { font-size: 1.6rem; } }
-        
-        .podium-1st { background: linear-gradient(to right, rgba(255, 223, 0, 0.1) 0%, rgba(255, 223, 0, 0.03) 40%, rgba(255, 255, 255, 0.02) 100%) !important; border-left: 2px solid rgba(255, 223, 0, 0.4) !important; }
-        .podium-2nd { background: linear-gradient(to right, rgba(224, 224, 224, 0.1) 0%, rgba(224, 224, 224, 0.03) 40%, rgba(255, 255, 255, 0.02) 100%) !important; border-left: 2px solid rgba(224, 224, 224, 0.4) !important; }
-        .podium-3rd { background: linear-gradient(to right, rgba(184, 115, 51, 0.1) 0%, rgba(184, 115, 51, 0.03) 40%, rgba(255, 255, 255, 0.02) 100%) !important; border-left: 2px solid rgba(184, 115, 51, 0.4) !important; }
+        .player-square {
+            background: rgba(255, 255, 255, 0.01);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: 10px;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .player-square:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(0, 242, 255, 0.3);
+            transform: translateY(-2px);
+        }
 
-        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(4, 5, 7, 0.85); z-index: 100; backdrop-filter: blur(20px); align-items: center; justify-content: center; padding: 16px; }
+        .rating-num {
+            color: var(--accent-cyan);
+            font-weight: 800;
+            font-size: 1.3rem;
+            text-shadow: 0 0 10px rgba(0, 242, 255, 0.2);
+        }
+
+        /* Podium Highlighting */
+        .podium-1st { background: linear-gradient(to right, rgba(255, 223, 0, 0.1), rgba(255, 223, 0, 0.03), rgba(255, 255, 255, 0.02)); border-left: 2px solid rgba(255, 223, 0, 0.4); }
+        .podium-2nd { background: linear-gradient(to right, rgba(224, 224, 224, 0.1), rgba(224, 224, 224, 0.03), rgba(255, 255, 255, 0.02)); border-left: 2px solid rgba(224, 224, 224, 0.4); }
+        .podium-3rd { background: linear-gradient(to right, rgba(184, 115, 51, 0.1), rgba(184, 115, 51, 0.03), rgba(255, 255, 255, 0.02)); border-left: 2px solid rgba(184, 115, 51, 0.4); }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(4, 5, 7, 0.85);
+            z-index: 100;
+            backdrop-filter: blur(20px);
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
         .modal-overlay.active { display: flex; }
-        
-        .search-input { width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 8px 12px; font-size: 0.9rem; outline: none; transition: all 0.2s; }
+
+        .search-input {
+            width: 100%;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 10px;
+            padding: 8px 12px;
+            font-size: 0.9rem;
+            outline: none;
+            transition: all 0.2s;
+        }
         @media (min-width: 768px) { .search-input { width: 200px; } }
-        .search-input:focus { border-color: #00f2ff; box-shadow: 0 0 8px rgba(0, 242, 255, 0.2); }
-        
-        /* CUSTOM VISIBLE SCROLLBAR (Fixes horizontal scroll navigation) */
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
+        .search-input:focus { border-color: var(--accent-cyan); box-shadow: 0 0 8px rgba(0, 242, 255, 0.2); }
 
-        ::-webkit-scrollbar-track {
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 10px;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: rgba(0, 242, 255, 0.3);
-            border-radius: 10px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: rgba(0, 242, 255, 0.7);
-        }
-
-        * {
-            scrollbar-width: thin;
-            scrollbar-color: rgba(0, 242, 255, 0.4) rgba(0, 0, 0, 0.2);
-        }
-
-        .points-card { background: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 16px; position: relative; overflow: hidden; text-align: left; }
-        @media (min-width: 768px) { .points-card { padding: 20px; } }
-        .points-card h4 { color: #ffffff; font-size: 0.75rem; font-weight: 800; margin-bottom: 8px; }
-        .points-card .pts-val { color: #00f2ff; font-size: 1.5rem; font-weight: 900; margin-bottom: 12px; }
-        @media (min-width: 1024px) { .points-card .pts-val { font-size: 1.75rem; } }
-        .points-card .bar { height: 6px; background: #00f2ff; border-radius: 3px; margin-bottom: 12px; box-shadow: 0 0 8px rgba(0, 242, 255, 0.4); }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.2); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: rgba(0, 242, 255, 0.3); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(0, 242, 255, 0.7); }
+        * { scrollbar-width: thin; scrollbar-color: rgba(0, 242, 255, 0.4) rgba(0, 0, 0, 0.2); }
     </style>
 </head>
 <body class="p-4 md:p-8">
@@ -208,17 +201,17 @@
             </a>
         </div>
         
-        <div class="grid grid-cols-3 gap-2 md:flex md:gap-3">
-            <button onclick="switchMain('global')" id="btn-global" class="pill-btn active text-center">Global</button>
-            <button onclick="switchMain('main')" id="btn-main" class="pill-btn text-center">Main Modes</button>
-            <button onclick="switchMain('sub')" id="btn-sub" class="pill-btn text-center">Sub Modes</button>
+        <div class="grid grid-cols-3 gap-2 md:flex md:gap-3" id="main-nav">
+            <button data-mode="global" class="pill-btn active text-center">Global</button>
+            <button data-mode="main" class="pill-btn text-center">Main Modes</button>
+            <button data-mode="sub" class="pill-btn text-center">Sub Modes</button>
         </div>
 
         <div class="flex items-center gap-2 md:gap-3">
             <div class="flex-1 md:flex-none">
-                <input type="text" id="searchBar" class="search-input" placeholder="Search players..." onkeydown="handleSearch(event)">
+                <input type="text" id="searchBar" class="search-input" placeholder="Search players...">
             </div>
-            <button onclick="openInfo()" class="pill-btn bg-white/5 text-white border-white/10 hover:border-cyan-400 whitespace-nowrap">Information</button>
+            <button id="infoBtn" class="pill-btn bg-white/5 text-white border-white/10 hover:border-cyan-400 whitespace-nowrap">Information</button>
         </div>
     </header>
 
@@ -230,20 +223,20 @@
         <div class="text-center p-20 text-zinc-500 font-bold">Connecting to Database...</div>
     </main>
 
-    <div id="infoModal" class="modal-overlay" onclick="closeInfo()">
-        <div class="bg-[#090a0d] p-6 md:p-10 rounded-3xl border border-white/10 w-[950px] max-w-full max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
+    <div id="infoModal" class="modal-overlay">
+        <div class="bg-[#090a0d] p-6 md:p-10 rounded-3xl border border-white/10 w-[950px] max-w-full max-h-[90vh] overflow-y-auto">
             <div class="flex gap-4 border-b border-white/10 mb-6 pb-2">
-                <button onclick="switchInfoTab('points')" id="tab-points" class="text-lg md:text-xl font-black pb-2 border-b-2 border-cyan-400 text-cyan-400">Point System</button>
-                <button onclick="switchInfoTab('titles')" id="tab-titles" class="text-lg md:text-xl font-black pb-2 border-b-2 border-transparent text-zinc-500 hover:text-white">Titles</button>
+                <button id="tab-points" class="text-lg md:text-xl font-black pb-2 border-b-2 border-cyan-400 text-cyan-400">Point System</button>
+                <button id="tab-titles" class="text-lg md:text-xl font-black pb-2 border-b-2 border-transparent text-zinc-500 hover:text-white">Titles</button>
             </div>
             <div id="info-tab-points" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 md:gap-4"></div>
             <div id="info-tab-titles" class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 hidden"></div>
         </div>
     </div>
 
-    <div id="profileModal" class="modal-overlay" onclick="closeProfile()">
-        <div class="profile-card bg-[#090a0d] p-6 md:p-8 rounded-3xl border border-white/10 w-[450px] max-w-full" onclick="event.stopPropagation()">
-            <img id="p-avatar" src="" class="w-20 h-20 md:w-24 md:h-24 rounded-full mx-auto mb-2 border-4 border-cyan-400 shadow-[0_0_20px_rgba(0,242,255,0.2)]">
+    <div id="profileModal" class="modal-overlay">
+        <div class="profile-card bg-[#090a0d] p-6 md:p-8 rounded-3xl border border-white/10 w-[450px] max-w-full">
+            <img id="p-avatar" src="" alt="Player Avatar" class="w-20 h-20 md:w-24 md:h-24 rounded-full mx-auto mb-2 border-4 border-cyan-400 shadow-[0_0_20px_rgba(0,242,255,0.2)]">
             <h2 id="p-name" class="text-center text-2xl md:text-3xl font-black tracking-tight break-all"></h2>
             
             <div class="text-center mt-1 mb-2">
@@ -267,13 +260,21 @@
         </div>
     </div>
 
-    <script>
-        window.PLAYERS = window.PLAYERS || []; 
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-        const ICONS = {
-            trophy: `<svg viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 text-cyan-400"><path d="M18 2H6c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94A5.01 5.01 0 0 0 11 13.9V17H8v2h8v-2h-3v-3.1a5.01 5.01 0 0 0 2.61-3.96C18.08 9.63 20 7.55 20 5V4c0-1.1-.9-2-2-2zm-10 5.09A3.001 3.001 0 0 1 6 4h2v3.09zM18 4v1c0 .98-.71 1.79-1.64 1.97A2.996 2.996 0 0 1 16 4h2z"/></svg>`,
-            globe: `<svg viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 text-cyan-400"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>`
+        // Application State Management
+        const state = {
+            players: [],
+            activeMain: 'global',
+            activeSub: 'Overall'
         };
+
+        const TIERS_CONFIG = { 'HT1': 60, 'LT1': 45, 'HT2': 30, 'LT2': 20, 'HT3': 10, 'LT3': 6, 'HT4': 4, 'LT4': 3, 'HT5': 2, 'LT5': 1 };
+        const REGIONS = ['EU', 'NA', 'AS'];
+        const MAIN_MODES = ['sword', 'axe', 'vanilla', 'pot', 'nethop', 'uhc', 'smp', 'mace'];
+        const SUB_MODES = ['minecart', 'dsmp', 'spearmace', 'speed', 'ogvanilla', 'creeper', 'bed', 'debuff', 'trident', 'diamondsurvival', 'manhunt', 'bow', 'elytra'];
 
         const ASSETS = {
             'Sword': 'https://cdn.jsdelivr.net/gh/misode/mcmeta@assets/assets/minecraft/textures/item/diamond_sword.png',
@@ -299,11 +300,93 @@
             'Elytra': 'https://cdn.jsdelivr.net/gh/misode/mcmeta@assets/assets/minecraft/textures/item/elytra.png'
         };
 
-        const REGIONS = ['EU', 'NA', 'AS'];
-        const MAIN_MODES_LIST = ['sword', 'axe', 'vanilla', 'pot', 'nethop', 'uhc', 'smp', 'mace'];
-        const SUB_MODES_LIST = ['minecart', 'dsmp', 'spearmace', 'speed', 'ogvanilla', 'creeper', 'bed', 'debuff', 'trident', 'diamondsurvival', 'manhunt', 'bow', 'elytra'];
+        const ICONS = {
+            trophy: `<svg viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 text-cyan-400"><path d="M18 2H6c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94A5.01 5.01 0 0 0 11 13.9V17H8v2h8v-2h-3v-3.1a5.01 5.01 0 0 0 2.61-3.96C18.08 9.63 20 7.55 20 5V4c0-1.1-.9-2-2-2zm-10 5.09A3.001 3.001 0 0 1 6 4h2v3.09zM18 4v1c0 .98-.71 1.79-1.64 1.97A2.996 2.996 0 0 1 16 4h2z"/></svg>`,
+            globe: `<svg viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 text-cyan-400"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>`
+        };
 
-        let activeMain = 'global', activeSub = 'Overall';
+        // Firebase Initialization
+        const firebaseConfig = {
+            apiKey: "AIzaSyDsi2sk-hGyhkI1rqVpmSbozKVPDaoVyf8",
+            authDomain: "banana-tiers.firebaseapp.com",
+            databaseURL: "https://banana-tiers-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "banana-tiers",
+            storageBucket: "banana-tiers.firebasestorage.app",
+            messagingSenderId: "180092644757",
+            appId: "1:180092644757:web:2092687c03e602cf16da9c",
+            measurementId: "G-HYECP0CP35"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // Core App Initialization & Data Fetching
+        function init() {
+            setupEventListeners();
+            
+            const userRef = ref(db, 'tier_list');
+            onValue(userRef, (snapshot) => {
+                const data = snapshot.val();
+                if (!data) {
+                    renderEmptyState('No verified tier data found.');
+                    return;
+                }
+                
+                state.players = parsePlayerData(data);
+                renderSubNav();
+                renderContent();
+            });
+        }
+
+        function parsePlayerData(data) {
+            const playerArray = [];
+
+            Object.keys(data).forEach(key => {
+                const item = data[key];
+                if (!item) return;
+
+                const username = item.ign || item.username;
+                if (!username || /^\d+$/.test(username) || username.toLowerCase() === 'unknown') return;
+
+                const rawTiers = item.tiers || {};
+                const cleanTiers = {};
+                let totalPoints = 0, mainPoints = 0, subPoints = 0;
+
+                Object.keys(rawTiers).forEach(modeKey => {
+                    const tierValue = rawTiers[modeKey];
+                    if (!tierValue) return;
+
+                    const upperTier = tierValue.toString().toUpperCase().trim();
+                    if (TIERS_CONFIG[upperTier]) {
+                        const formattedKey = modeKey.toLowerCase().replace(/[\s_]+/g, '').trim();
+                        cleanTiers[formattedKey] = upperTier;
+
+                        const pts = TIERS_CONFIG[upperTier];
+                        totalPoints += pts;
+
+                        if (MAIN_MODES.includes(formattedKey)) mainPoints += pts;
+                        else if (SUB_MODES.includes(formattedKey)) subPoints += pts;
+                    }
+                });
+
+                if (totalPoints === 0) return;
+
+                let finalRegion = (item.region || item.user_region || "NA").toUpperCase().trim();
+                if (finalRegion === "UNKNOWN" || finalRegion === "") finalRegion = "NA";
+
+                playerArray.push({
+                    name: username,
+                    region: finalRegion,
+                    skin: `https://mc-heads.net/avatar/${username}/64`,
+                    ranks: cleanTiers,
+                    points: totalPoints,
+                    mainPoints,
+                    subPoints
+                });
+            });
+
+            return playerArray;
+        }
 
         function getPlayerTitle(pts) {
             if (pts >= 400) return "Combat Grandmaster";
@@ -315,89 +398,77 @@
             return "Rookie";
         }
 
-        window.switchMain = function(key) {
-            activeMain = key; activeSub = 'Overall';
-            document.querySelectorAll('.pill-btn').forEach(b => b.classList.remove('active'));
-            const btn = document.getElementById(`btn-${key}`);
-            if (btn) btn.classList.add('active');
-            renderSubNav(); renderContent();
-        }
-
-        window.renderSubNav = function() {
+        // Render Functions
+        function renderSubNav() {
             const modes = {
                 global: ['Overall', ...REGIONS],
                 main: ['Overall', 'Sword', 'Axe', 'Vanilla', 'Pot', 'NethOP', 'UHC', 'SMP', 'Mace'],
                 sub: ['Overall', 'Minecart', 'DSMP', 'Spear Mace', 'Speed', 'Og Vanilla', 'Creeper', 'Bed', 'Debuff', 'Trident', 'Diamond Survival', 'Manhunt', 'Bow', 'Elytra']
             };
+
             const container = document.getElementById('sub-nav-container');
             if (!container) return;
-            container.innerHTML = modes[activeMain].map(m => {
-                let iconHtml = (m === 'Overall') ? ICONS.trophy : (REGIONS.includes(m) ? ICONS.globe : `<img src="${ASSETS[m]}" style="width:20px">`);
-                return `<button onclick="switchSub('${m}')" class="sub-pill ${activeSub === m ? 'active' : ''}">${iconHtml}${m}</button>`;
+
+            container.innerHTML = modes[state.activeMain].map(m => {
+                const iconHtml = (m === 'Overall') ? ICONS.trophy : (REGIONS.includes(m) ? ICONS.globe : `<img src="${ASSETS[m]}" style="width:20px" alt="${m}">`);
+                return `<button data-sub="${m}" class="sub-pill ${state.activeSub === m ? 'active' : ''}">${iconHtml}${m}</button>`;
             }).join('');
         }
 
-        window.switchSub = function(m) { activeSub = m; renderSubNav(); renderContent(); }
-
-        window.renderContent = function() {
+        function renderContent() {
             const container = document.getElementById('content-display');
             if (!container) return;
 
-            if(!window.PLAYERS || window.PLAYERS.length === 0) {
-                container.innerHTML = '<div class="text-center p-20 text-zinc-500 font-bold">Connecting to Database...</div>';
+            if (state.players.length === 0) {
+                renderEmptyState('Connecting to Database...');
                 return;
             }
 
-            let list = [...window.PLAYERS];
-            
-            if (activeSub === 'Overall') {
-                if (activeMain === 'main') {
-                    list = list.filter(p => p.mainPoints > 0).sort((a,b) => b.mainPoints - a.mainPoints);
-                } else if (activeMain === 'sub') {
-                    list = list.filter(p => p.subPoints > 0).sort((a,b) => b.subPoints - a.subPoints);
-                } else {
-                    list.sort((a,b) => b.points - a.points);
-                }
-            } else if (REGIONS.includes(activeSub)) {
-                list = list.filter(p => p.region === activeSub).sort((a,b) => b.points - a.points);
+            let list = [...state.players];
+
+            if (state.activeSub === 'Overall') {
+                if (state.activeMain === 'main') list = list.filter(p => p.mainPoints > 0).sort((a,b) => b.mainPoints - a.mainPoints);
+                else if (state.activeMain === 'sub') list = list.filter(p => p.subPoints > 0).sort((a,b) => b.subPoints - a.subPoints);
+                else list.sort((a,b) => b.points - a.points);
+            } else if (REGIONS.includes(state.activeSub)) {
+                list = list.filter(p => p.region === state.activeSub).sort((a,b) => b.points - a.points);
             } else {
-                const currentModeLowerClean = activeSub.toLowerCase().replace(/[\s_]+/g, '');
-                let columnsHtml = `<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 lg:gap-6">`;
-                
-                for (let t = 1; t <= 5; t++) {
-                    const htPlayers = list.filter(p => p.ranks && p.ranks[currentModeLowerClean] === `HT${t}`);
-                    const ltPlayers = list.filter(p => p.ranks && p.ranks[currentModeLowerClean] === `LT${t}`);
-                    const filteredPlayers = [...htPlayers, ...ltPlayers];
-
-                    let headerColorClass = 'text-standard-tier';
-                    let headerBgClass = 'bg-standard-dark';
-                    
-                    if (t === 1) { headerColorClass = 'text-gold'; headerBgClass = 'bg-gold-dark'; }
-                    if (t === 2) { headerColorClass = 'text-silver'; headerBgClass = 'bg-silver-dark'; }
-                    if (t === 3) { headerColorClass = 'text-bronze'; headerBgClass = 'bg-bronze-dark'; }
-
-                    columnsHtml += `
-                    <div class="tier-column">
-                        <div class="tier-header ${headerColorClass} ${headerBgClass}">Tier ${t}</div>
-                        <div class="p-4 flex flex-col gap-3 overflow-y-auto max-h-[400px] lg:max-h-none">
-                            ${filteredPlayers.length === 0 ? '<div class="text-xs text-center text-zinc-600 p-4 font-semibold">Empty</div>' : filteredPlayers.map(p => `
-                                <div class="player-square" onclick="openProfile('${p.name}')">
-                                    <img src="${p.skin}" class="w-8 h-8 rounded border border-white/10">
-                                    <div class="flex flex-col">
-                                        <span class="font-bold text-sm text-white">${p.name}</span>
-                                        <span class="text-[9px] ${p.ranks[currentModeLowerClean].startsWith('HT') ? 'text-cyan-400' : 'text-zinc-500'} font-black uppercase tracking-wider">${p.ranks[currentModeLowerClean]}</span>
-                                    </div>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>`;
-                }
-                columnsHtml += `</div>`;
-                container.innerHTML = columnsHtml;
+                renderTierColumns(container, list);
                 return;
             }
 
-            list = list.slice(0, 100);
+            renderLeaderboardTable(container, list.slice(0, 100));
+        }
+
+        function renderTierColumns(container, list) {
+            const currentModeClean = state.activeSub.toLowerCase().replace(/[\s_]+/g, '');
+            let columnsHtml = `<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 lg:gap-6">`;
+
+            for (let t = 1; t <= 5; t++) {
+                const filtered = list.filter(p => p.ranks && (p.ranks[currentModeClean] === `HT${t}` || p.ranks[currentModeClean] === `LT${t}`));
+                const headerColorClass = t === 1 ? 'tier-1' : t === 2 ? 'tier-2' : t === 3 ? 'tier-3' : 'tier-standard';
+
+                columnsHtml += `
+                <div class="tier-column">
+                    <div class="tier-header ${headerColorClass}">Tier ${t}</div>
+                    <div class="p-4 flex flex-col gap-3 overflow-y-auto max-h-[400px] lg:max-h-none">
+                        ${filtered.length === 0 ? '<div class="text-xs text-center text-zinc-600 p-4 font-semibold">Empty</div>' : filtered.map(p => `
+                            <div class="player-square" data-player="${p.name}">
+                                <img src="${p.skin}" class="w-8 h-8 rounded border border-white/10" alt="${p.name}">
+                                <div class="flex flex-col">
+                                    <span class="font-bold text-sm text-white">${p.name}</span>
+                                    <span class="text-[9px] ${p.ranks[currentModeClean].startsWith('HT') ? 'text-cyan-400' : 'text-zinc-500'} font-black uppercase tracking-wider">${p.ranks[currentModeClean]}</span>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>`;
+            }
+            columnsHtml += `</div>`;
+            container.innerHTML = columnsHtml;
+        }
+
+        function renderLeaderboardTable(container, list) {
             let tableHtml = `
                 <div class="hidden lg:flex items-center px-5 mb-2 text-xs font-bold tracking-widest uppercase text-zinc-500/80">
                     <div class="w-20">#</div>
@@ -410,164 +481,149 @@
 
             tableHtml += list.map((p, i) => {
                 let displayPoints = p.points;
-                if (activeSub === 'Overall') {
-                    if (activeMain === 'main') displayPoints = p.mainPoints;
-                    if (activeMain === 'sub') displayPoints = p.subPoints;
+                if (state.activeSub === 'Overall') {
+                    if (state.activeMain === 'main') displayPoints = p.mainPoints;
+                    if (state.activeMain === 'sub') displayPoints = p.subPoints;
                 }
 
-                let podiumClass = '';
-                let rankNumberClass = 'text-zinc-600'; 
-                
-                if (i === 0) { podiumClass = 'podium-1st'; rankNumberClass = 'text-gold'; }
-                if (i === 1) { podiumClass = 'podium-2nd'; rankNumberClass = 'text-silver'; }
-                if (i === 2) { podiumClass = 'podium-3rd'; rankNumberClass = 'text-bronze'; }
+                const podiumClass = i === 0 ? 'podium-1st' : i === 1 ? 'podium-2nd' : i === 2 ? 'podium-3rd' : '';
+                const rankColor = i === 0 ? 'text-[#ffe633]' : i === 1 ? 'text-[#f0f0f0]' : i === 2 ? 'text-[#ff9944]' : 'text-zinc-600';
 
-                const sortedTiersForPlayer = Object.keys(ASSETS).map(m => {
-                    const dbKeyClean = m.toLowerCase().replace(/[\s_]+/g, '');
-                    const t = p.ranks ? p.ranks[dbKeyClean] : null;
-                    return { assetName: m, tierStr: t, dbKey: dbKeyClean, pts: t ? (window.TIERS_CONFIG[t] || 0) : 0 };
+                const sortedTiers = Object.keys(ASSETS).map(m => {
+                    const key = m.toLowerCase().replace(/[\s_]+/g, '');
+                    const tier = p.ranks ? p.ranks[key] : null;
+                    return { assetName: m, tierStr: tier, key, pts: tier ? (TIERS_CONFIG[tier] || 0) : 0 };
                 })
                 .filter(item => {
                     if (!item.tierStr) return false;
-                    if (activeMain === 'main') return MAIN_MODES_LIST.includes(item.dbKey);
-                    if (activeMain === 'sub') return SUB_MODES_LIST.includes(item.dbKey);
+                    if (state.activeMain === 'main') return MAIN_MODES.includes(item.key);
+                    if (state.activeMain === 'sub') return SUB_MODES.includes(item.key);
                     return true;
                 })
                 .sort((a, b) => b.pts - a.pts);
 
                 return `
-                <div class="glass-card p-4 md:p-5 mb-4 flex flex-col gap-4 lg:flex-row lg:items-center hover:bg-white/[0.04] hover:border-cyan-500/30 transition cursor-pointer ${podiumClass}" onclick="openProfile('${p.name}')">
+                <div class="glass-card p-4 md:p-5 mb-4 flex flex-col gap-4 lg:flex-row lg:items-center hover:bg-white/[0.04] hover:border-cyan-500/30 transition cursor-pointer ${podiumClass}" data-player="${p.name}">
                     <div class="flex items-center justify-between lg:justify-start lg:w-20">
-                        <div class="font-black text-xl md:text-2xl ${rankNumberClass}">#${i+1}</div>
+                        <div class="font-black text-xl md:text-2xl ${rankColor}">#${i+1}</div>
                         <div class="lg:hidden rating-num">${displayPoints}</div>
                     </div>
-                    
                     <div class="flex-1 flex items-center gap-4 md:gap-5">
-                        <img src="${p.skin}" class="w-10 h-10 md:w-12 md:h-12 rounded-lg border border-white/10">
+                        <img src="${p.skin}" class="w-10 h-10 md:w-12 md:h-12 rounded-lg border border-white/10" alt="${p.name}">
                         <div class="flex flex-col">
                             <span class="font-bold text-base md:text-lg leading-tight text-white">${p.name}</span>
                             <span class="text-[11px] font-semibold text-zinc-400/80 mt-0.5 tracking-wide">${getPlayerTitle(p.points)}</span>
                         </div>
                     </div>
-
                     <div class="flex items-center justify-between lg:w-24 border-t border-white/5 pt-3 lg:border-none lg:pt-0">
                         <span class="bg-cyan-500/5 px-2.5 py-1 rounded-lg text-xs font-black border border-cyan-500/10 text-cyan-400 tracking-wider">${p.region}</span>
                     </div>
-
                     <div class="lg:w-80 flex flex-wrap gap-1.5 items-center">
-                        ${sortedTiersForPlayer.map(item => `
+                        ${sortedTiers.map(item => `
                             <div class="flex items-center bg-white/[0.02] border border-white/[0.05] rounded-md px-1.5 py-0.5 gap-1">
-                                <img src="${ASSETS[item.assetName]}" class="w-3.5 h-3.5">
+                                <img src="${ASSETS[item.assetName]}" class="w-3.5 h-3.5" alt="${item.assetName}">
                                 <div class="text-[9px] font-bold text-zinc-300">${item.tierStr}</div>
                             </div>
                         `).join('')}
                     </div>
-                    
                     <div class="hidden lg:block lg:w-32 text-right rating-num">${displayPoints}</div>
-                </div>
-            `}).join('');
-            
+                </div>`;
+            }).join('');
+
             container.innerHTML = tableHtml;
         }
 
-        window.openProfile = function(name) {
-            if (!window.PLAYERS) return;
-            let orderedList = [...window.PLAYERS].sort((a,b) => b.points - a.points);
-            const rankIndex = orderedList.findIndex(x => x.name.toLowerCase() === name.toLowerCase());
-            if(rankIndex === -1) return;
-            const p = orderedList[rankIndex];
+        function renderEmptyState(message) {
+            document.getElementById('content-display').innerHTML = `<div class="text-center p-20 text-zinc-500 font-bold">${message}</div>`;
+        }
 
+        // Event Handling
+        function setupEventListeners() {
+            // Navigation Bar Delegated Clicks
+            document.getElementById('main-nav').addEventListener('click', (e) => {
+                const btn = e.target.closest('[data-mode]');
+                if (!btn) return;
+                
+                document.querySelectorAll('#main-nav .pill-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+
+                state.activeMain = btn.dataset.mode;
+                state.activeSub = 'Overall';
+                renderSubNav();
+                renderContent();
+            });
+
+            // Sub Navigation Delegated Clicks
+            document.getElementById('sub-nav-container').addEventListener('click', (e) => {
+                const btn = e.target.closest('[data-sub]');
+                if (!btn) return;
+                
+                state.activeSub = btn.dataset.sub;
+                renderSubNav();
+                renderContent();
+            });
+
+            // Player Profile Trigger
+            document.getElementById('content-display').addEventListener('click', (e) => {
+                const playerCard = e.target.closest('[data-player]');
+                if (playerCard) openProfile(playerCard.dataset.player);
+            });
+
+            // Search Handlers
+            document.getElementById('searchBar').addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    const query = e.target.value.trim();
+                    if (query) openProfile(query);
+                }
+            });
+
+            // Modal Toggles
+            document.getElementById('infoBtn').addEventListener('click', () => toggleModal('infoModal', true));
+            document.getElementById('infoModal').addEventListener('click', (e) => {
+                if (e.target.id === 'infoModal') toggleModal('infoModal', false);
+            });
+            document.getElementById('profileModal').addEventListener('click', (e) => {
+                if (e.target.id === 'profileModal') toggleModal('profileModal', false);
+            });
+        }
+
+        function openProfile(name) {
+            const list = [...state.players].sort((a,b) => b.points - a.points);
+            const rankIndex = list.findIndex(x => x.name.toLowerCase() === name.toLowerCase());
+            if (rankIndex === -1) return;
+
+            const p = list[rankIndex];
             document.getElementById('p-avatar').src = p.skin;
             document.getElementById('p-name').innerText = p.name;
             document.getElementById('p-region').innerText = `Region: ${p.region}`;
-            
             document.getElementById('p-rank-pos').innerText = `#${rankIndex + 1}`;
             document.getElementById('p-total').innerText = p.points;
             document.getElementById('p-title').innerText = getPlayerTitle(p.points);
-            
+
             const profilesTiersList = Object.keys(ASSETS).map(m => {
-                const dbKeyClean = m.toLowerCase().replace(/[\s_]+/g, '');
-                const t = p.ranks ? p.ranks[dbKeyClean] : null;
-                return { modeName: m, tierStr: t, pts: t ? (window.TIERS_CONFIG[t] || 0) : 0 };
+                const key = m.toLowerCase().replace(/[\s_]+/g, '');
+                const tier = p.ranks ? p.ranks[key] : null;
+                return { modeName: m, tierStr: tier, pts: tier ? (TIERS_CONFIG[tier] || 0) : 0 };
             })
             .filter(item => item.tierStr)
             .sort((a, b) => b.pts - a.pts);
 
             document.getElementById('p-tiers-grid').innerHTML = profilesTiersList.map(item => `
                 <div class="flex flex-col items-center p-2 profile-glass-box rounded-xl">
-                    <img src="${ASSETS[item.modeName]}" class="w-6 h-6 mb-1">
+                    <img src="${ASSETS[item.modeName]}" class="w-6 h-6 mb-1" alt="${item.modeName}">
                     <span class="text-[10px] font-bold text-zinc-400">${item.tierStr}</span>
                 </div>`).join('');
-                
-            document.getElementById('profileModal').classList.add('active');
+
+            toggleModal('profileModal', true);
         }
 
-        window.closeProfile = function() { document.getElementById('profileModal').classList.remove('active'); }
-
-        // FIXED FEATURE: DIRECTLY BRING UP PLAYER PROFILE ACCORDING TO ENTER KEY OR TRIGGER
-        window.handleSearch = function(event) {
-            if (event.key === "Enter") {
-                const query = document.getElementById('searchBar').value.trim().toLowerCase();
-                if (!query) return;
-
-                const match = window.PLAYERS ? window.PLAYERS.find(p => p.name.toLowerCase() === query) : null;
-                if (match) {
-                    window.openProfile(match.name);
-                    document.getElementById('searchBar').value = "";
-                } else {
-                    alert("Player profile not found! Make sure to check the spelling.");
-                }
-            }
+        function toggleModal(id, show) {
+            const modal = document.getElementById(id);
+            if (modal) modal.classList.toggle('active', show);
         }
 
-        window.openInfo = function() {
-            if (!window.TIERS_CONFIG) return;
-            document.getElementById('info-tab-points').innerHTML = Object.entries(window.TIERS_CONFIG).map(([tier, pts]) => `
-                <div class="points-card">
-                    <h4>${tier}</h4>
-                    <div class="pts-val">${pts} pts</div>
-                    <div class="bar" style="width: ${Math.max(5, (pts/60)*100)}%"></div>
-                </div>
-            `).join('');
-
-            const titlesData = [
-                { name: "Combat Grandmaster", desc: "Obtained 400+ total points." },
-                { name: "Combat Master", desc: "Obtained 250+ total points." },
-                { name: "Combat Ace", desc: "Obtained 100+ total points." },
-                { name: "Combat Specialist", desc: "Obtained 50+ total points." },
-                { name: "Combat Cadet", desc: "Obtained 20+ total points." },
-                { name: "Combat Novice", desc: "Obtained 10+ total points." },
-                { name: "Rookie", desc: "Obtained less than 10 total points." }
-            ];
-
-            document.getElementById('info-tab-titles').innerHTML = titlesData.map(t => `
-                <div class="points-card">
-                    <h4 class="text-cyan-400 font-black text-sm">${t.name}</h4>
-                    <p class="text-xs text-zinc-400 mt-1">${t.desc}</p>
-                </div>
-            `).join('');
-
-            document.getElementById('infoModal').classList.add('active');
-        }
-
-        window.closeInfo = function() { document.getElementById('infoModal').classList.remove('active'); }
-
-        window.switchInfoTab = function(tab) {
-            if (tab === 'points') {
-                document.getElementById('tab-points').className = "text-lg md:text-xl font-black pb-2 border-b-2 border-cyan-400 text-cyan-400";
-                document.getElementById('tab-titles').className = "text-lg md:text-xl font-black pb-2 border-b-2 border-transparent text-zinc-500 hover:text-white";
-                document.getElementById('info-tab-points').classList.remove('hidden');
-                document.getElementById('info-tab-titles').classList.add('hidden');
-            } else {
-                document.getElementById('tab-titles').className = "text-lg md:text-xl font-black pb-2 border-b-2 border-cyan-400 text-cyan-400";
-                document.getElementById('tab-points').className = "text-lg md:text-xl font-black pb-2 border-b-2 border-transparent text-zinc-500 hover:text-white";
-                document.getElementById('info-tab-titles').classList.remove('hidden');
-                document.getElementById('info-tab-points').classList.add('hidden');
-            }
-        }
-
-        // Initial setup
-        window.renderSubNav();
+        // Launch Application
+        init();
     </script>
 </body>
 </html>
