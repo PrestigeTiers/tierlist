@@ -27,6 +27,7 @@
             --bone: #f2f8fd;
             --ink: #8aa0c4;
             --danger: #ff6b81;
+            --success: #6bffb0;
             --mx: 50%;
             --my: 50%;
             --font-display: 'Outfit', system-ui, sans-serif;
@@ -42,6 +43,7 @@
             background-color: var(--void);
             min-height: 100vh;
             position: relative;
+            overflow-x: hidden;
         }
 
         ::selection { background: rgba(127,227,255,0.35); color: #fff; }
@@ -51,7 +53,7 @@
         .bg-wrapper {
             position: fixed;
             inset: 0;
-            z-index: -6;
+            z-index: -8;
             background: url('background.png') no-repeat center center / cover, var(--void);
             transform: scale(1.05);
             filter: blur(16px) brightness(0.26) saturate(1.1);
@@ -60,7 +62,7 @@
         .bg-overlay {
             position: fixed;
             inset: 0;
-            z-index: -5;
+            z-index: -7;
             background:
                 radial-gradient(ellipse 55% 38% at 15% -8%, rgba(127,227,255,0.16), transparent 70%),
                 radial-gradient(ellipse 50% 36% at 105% 6%, rgba(185,139,255,0.1), transparent 70%),
@@ -73,7 +75,7 @@
         .bg-facets {
             position: fixed;
             inset: 0;
-            z-index: -4;
+            z-index: -6;
             opacity: 0.35;
             pointer-events: none;
             background-image:
@@ -84,8 +86,30 @@
 
         /* grain, keeps everything from looking flat/plastic */
         .bg-grain {
-            position: fixed; inset: 0; z-index: -3; pointer-events: none; opacity: 0.05; mix-blend-mode: overlay;
+            position: fixed; inset: 0; z-index: -5; pointer-events: none; opacity: 0.05; mix-blend-mode: overlay;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+        }
+
+        /* ---------- Aurora ribbon (signature ambient motion) ---------- */
+        .aurora-layer {
+            position: fixed;
+            inset: -10% -10% auto -10%;
+            height: 70vh;
+            z-index: -4;
+            pointer-events: none;
+            opacity: 0.5;
+            mix-blend-mode: screen;
+            background:
+                radial-gradient(ellipse 42% 30% at 20% 0%, rgba(127,227,255,0.30), transparent 62%),
+                radial-gradient(ellipse 38% 26% at 55% 6%, rgba(185,139,255,0.24), transparent 60%),
+                radial-gradient(ellipse 34% 22% at 82% 2%, rgba(111,255,200,0.14), transparent 60%);
+            filter: blur(30px);
+            animation: auroraDrift 16s ease-in-out infinite alternate;
+        }
+        @keyframes auroraDrift {
+            0%   { transform: translate3d(-3%, 0, 0) scaleX(1); }
+            50%  { transform: translate3d(2%, 2%, 0) scaleX(1.08); }
+            100% { transform: translate3d(-1%, -1%, 0) scaleX(0.98); }
         }
 
         /* cursor-following spotlight — follows the mouse across the whole page */
@@ -96,6 +120,9 @@
             pointer-events: none;
             background: radial-gradient(650px circle at var(--mx) var(--my), rgba(127,227,255,0.09), rgba(185,139,255,0.03) 35%, transparent 60%);
         }
+
+        /* comet cursor-trail canvas */
+        #cometCanvas { position: fixed; inset: 0; z-index: 40; pointer-events: none; }
 
         .glow-blob { position: fixed; z-index: -3; border-radius: 50%; filter: blur(95px); opacity: 0.28; pointer-events: none; }
         .glow-blob-1 { width: 500px; height: 500px; top: -170px; left: -130px; background: var(--sky-2); animation: drift1 22s ease-in-out infinite; }
@@ -126,7 +153,7 @@
         }
 
         /* ---------- Rounded surfaces ---------- */
-        .glass-card, .tier-column, .player-square {
+        .glass-card, .tier-column, .player-square, .grid-card {
             border-radius: 22px;
         }
         .facet { border-radius: 20px; }
@@ -166,9 +193,12 @@
         }
         @keyframes rippleAnim { to { transform: scale(3.2); opacity: 0; } }
 
-        /* ---------- Entrance animation ---------- */
+        /* ---------- Entrance / transition animation ---------- */
         @keyframes riseIn { from { opacity: 0; transform: translateY(16px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
         .enter-anim { animation: riseIn 0.5s cubic-bezier(.2,.8,.2,1) both; }
+
+        #content-display { transition: opacity 0.18s ease, transform 0.18s ease; }
+        #content-display.swap-out { opacity: 0; transform: translateY(6px); }
 
         /* ---------- Hero strip (the "thesis" of the page) ---------- */
         .hero-strip {
@@ -227,6 +257,7 @@
             border: 1px solid rgba(127,227,255,0.22);
             text-align: center;
             transition: transform 0.2s ease, border-color 0.2s ease;
+            cursor: default;
         }
         .hero-stat:hover { transform: translateY(-2px); border-color: rgba(127,227,255,0.5); }
         .hero-stat .num { font-family: var(--font-mono); font-weight: 800; font-size: 1.4rem; color: var(--sky-1); text-shadow: 0 0 14px rgba(127,227,255,0.4); }
@@ -263,7 +294,7 @@
             font-weight: 800;
             box-shadow: 0 6px 28px rgba(127,227,255,0.45), 0 0 0 1px rgba(255,255,255,0.1) inset;
         }
-        .pill-btn .ripple, .sub-pill .ripple { background: radial-gradient(circle, rgba(255,255,255,0.5), rgba(255,255,255,0) 70%); }
+        .pill-btn .ripple, .sub-pill .ripple, .toolbar-btn .ripple { background: radial-gradient(circle, rgba(255,255,255,0.5), rgba(255,255,255,0) 70%); }
 
         /* ---------- Sub pills (mode selectors) ---------- */
         .sub-pill {
@@ -303,6 +334,28 @@
             filter: drop-shadow(0 0 3px rgba(127,227,255,0.45));
         }
 
+        /* ---------- Toolbar (sort / view controls) ---------- */
+        .toolbar-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
+            border-radius: 9999px;
+            border: 1px solid rgba(255,255,255,0.09);
+            background: rgba(255,255,255,0.02);
+            color: var(--ink);
+            font-weight: 700;
+            font-size: 0.76rem;
+            letter-spacing: 0.03em;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+        .toolbar-btn:hover { color: var(--bone); border-color: rgba(127,227,255,0.4); }
+        .toolbar-btn.active { color: var(--sky-1); border-color: var(--sky-2); background: rgba(127,227,255,0.1); }
+
         /* ---------- Tier columns ---------- */
         .tier-column {
             background: linear-gradient(180deg, var(--obsidian-3), var(--obsidian) 70%);
@@ -332,6 +385,14 @@
             gap: 8px;
         }
         .tier-header .facet-dot { width: 9px; height: 9px; transform: rotate(45deg); flex-shrink: 0; }
+        .tier-header .count-chip {
+            font-family: var(--font-mono);
+            font-size: 0.65rem;
+            padding: 2px 8px;
+            border-radius: 9999px;
+            background: rgba(255,255,255,0.06);
+            text-shadow: none;
+        }
 
         .tier-1 { color: var(--gold); background: linear-gradient(180deg, rgba(255,210,63,0.22), transparent); box-shadow: inset 0 -2px 0 var(--gold); text-shadow: 0 0 18px rgba(255,210,63,0.6); }
         .tier-1 .facet-dot { background: var(--gold); box-shadow: 0 0 10px rgba(255,210,63,0.8); }
@@ -378,7 +439,7 @@
             transition: all 0.22s ease;
         }
         .player-square img.avatar-frame { border-radius: 10px; }
-        .player-square:hover img.avatar-frame, .glass-card:hover img.avatar-frame {
+        .player-square:hover img.avatar-frame, .glass-card:hover img.avatar-frame, .grid-card:hover img.avatar-frame {
             border-color: var(--sky-2);
             box-shadow: 0 0 16px rgba(127,227,255,0.55);
             transform: scale(1.05);
@@ -389,6 +450,23 @@
         .podium-2nd { background: linear-gradient(90deg, rgba(230,236,242,0.15), rgba(230,236,242,0.03), transparent); box-shadow: 0 0 0 1px rgba(230,236,242,0.3) inset, 0 10px 30px rgba(230,236,242,0.09); }
         .podium-3rd { background: linear-gradient(90deg, rgba(217,136,74,0.17), rgba(217,136,74,0.03), transparent); box-shadow: 0 0 0 1px rgba(217,136,74,0.32) inset, 0 10px 30px rgba(217,136,74,0.1); }
         @keyframes ringPulse { 0%, 100% { opacity: 0.35; } 50% { opacity: 0.75; } }
+
+        /* ---------- Grid view cards ---------- */
+        .grid-card {
+            background: linear-gradient(155deg, rgba(255,255,255,0.045), rgba(255,255,255,0.006));
+            border: 1px solid rgba(255,255,255,0.08);
+            padding: 18px 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 8px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.18s cubic-bezier(.2,.8,.2,1), box-shadow 0.22s ease, border-color 0.22s ease;
+        }
+        .grid-card:hover { box-shadow: 0 16px 38px rgba(0,0,0,0.5); border-color: rgba(127,227,255,0.35); }
 
         .modal-overlay {
             display: none;
@@ -455,6 +533,8 @@
         .tier-badge:hover { transform: translateY(-3px) scale(1.06); box-shadow: 0 8px 18px rgba(0,0,0,0.4); }
         .tier-badge.ht-badge { border-color: rgba(127,227,255,0.4) !important; box-shadow: 0 0 14px rgba(127,227,255,0.18); }
 
+        /* ---------- Search + autocomplete ---------- */
+        .search-wrap { position: relative; }
         .search-input {
             width: 100%;
             background: rgba(0,0,0,0.35);
@@ -466,9 +546,38 @@
             transition: all 0.2s;
             color: var(--bone);
         }
-        @media (min-width: 768px) { .search-input { width: 210px; } }
+        @media (min-width: 768px) { .search-input { width: 230px; } }
         .search-input::placeholder { color: var(--ink); }
         .search-input:focus { border-color: var(--sky-2); box-shadow: 0 0 16px rgba(127,227,255,0.38); }
+
+        .autocomplete-panel {
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            width: 100%;
+            min-width: 240px;
+            background: linear-gradient(160deg, var(--obsidian-3), var(--obsidian));
+            border: 1px solid rgba(127,227,255,0.25);
+            border-radius: 16px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.55), 0 0 24px rgba(127,227,255,0.1);
+            overflow: hidden;
+            z-index: 60;
+            display: none;
+        }
+        .autocomplete-panel.active { display: block; }
+        .ac-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 9px 14px;
+            cursor: pointer;
+            transition: background 0.12s ease;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+        }
+        .ac-item:last-child { border-bottom: none; }
+        .ac-item:hover, .ac-item.ac-active { background: rgba(127,227,255,0.12); }
+        .ac-item mark { background: none; color: var(--sky-2); font-weight: 800; }
+        .ac-empty { padding: 14px; text-align: center; font-size: 0.75rem; color: var(--ink); font-family: var(--font-mono); }
 
         .live-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--sky-2); box-shadow: 0 0 10px 2px rgba(127,227,255,0.8); animation: pulseDot 1.6s ease-in-out infinite; }
         @keyframes pulseDot { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.7); } }
@@ -505,13 +614,51 @@
 
         textarea.search-input { border-radius: 20px; resize: vertical; line-height: 1.5; }
 
+        /* ---------- Skeleton loading ---------- */
+        .skeleton { position: relative; overflow: hidden; background: rgba(255,255,255,0.04); border-radius: 12px; }
+        .skeleton::after {
+            content: '';
+            position: absolute; inset: 0;
+            background: linear-gradient(90deg, transparent, rgba(127,227,255,0.12), transparent);
+            transform: translateX(-100%);
+            animation: shimmer 1.4s ease-in-out infinite;
+        }
+        @keyframes shimmer { 100% { transform: translateX(100%); } }
+
+        /* ---------- Toasts ---------- */
+        #toastStack { position: fixed; bottom: 20px; right: 20px; z-index: 200; display: flex; flex-direction: column; gap: 10px; align-items: flex-end; }
+        .toast {
+            display: flex; align-items: center; gap: 10px;
+            padding: 12px 18px;
+            border-radius: 14px;
+            background: linear-gradient(155deg, rgba(19,26,48,0.95), rgba(9,12,21,0.95));
+            border: 1px solid rgba(127,227,255,0.3);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.5), 0 0 20px rgba(127,227,255,0.12);
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--bone);
+            font-family: var(--font-body);
+            animation: toastIn 0.3s cubic-bezier(.2,.8,.2,1) both;
+            max-width: 300px;
+        }
+        .toast.toast-out { animation: toastOut 0.25s ease forwards; }
+        .toast.toast-error { border-color: rgba(255,107,129,0.4); }
+        .toast.toast-success { border-color: rgba(107,255,176,0.4); }
+        @keyframes toastIn { from { opacity: 0; transform: translateX(30px) scale(0.95); } to { opacity: 1; transform: translateX(0) scale(1); } }
+        @keyframes toastOut { to { opacity: 0; transform: translateX(30px) scale(0.95); } }
+
+        #confettiCanvas { position: fixed; inset: 0; z-index: 150; pointer-events: none; }
+
+        /* ---------- Kbd hint ---------- */
+        .kbd-hint { font-family: var(--font-mono); font-size: 0.62rem; padding: 2px 6px; border-radius: 6px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); color: var(--ink); }
+
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: rgba(0,0,0,0.25); border-radius: 10px; }
         ::-webkit-scrollbar-thumb { background: linear-gradient(180deg, var(--sky-1), var(--sky-2), var(--prestige)); border-radius: 10px; }
         * { scrollbar-width: thin; scrollbar-color: var(--sky-2) rgba(0,0,0,0.25); }
 
         @media (prefers-reduced-motion: reduce) {
-            .shard-field, .glow-blob, .logo-badge::before, .hero-strip::before, .podium-1st::after, .cursor-glow, #profileModal > div::before { display: none; }
+            .shard-field, .glow-blob, .logo-badge::before, .hero-strip::before, .podium-1st::after, .cursor-glow, #profileModal > div::before, .aurora-layer, #cometCanvas, #confettiCanvas { display: none; }
             *, .live-dot { animation: none !important; transition: none !important; }
         }
     </style>
@@ -522,6 +669,7 @@
     <div class="bg-overlay"></div>
     <div class="bg-facets"></div>
     <div class="bg-grain"></div>
+    <div class="aurora-layer"></div>
     <div class="cursor-glow"></div>
     <div class="glow-blob glow-blob-1"></div>
     <div class="glow-blob glow-blob-2"></div>
@@ -538,6 +686,9 @@
         <span style="left:91%; animation-duration:10.5s; animation-delay:0.3s; --drift:12px;"></span>
         <span style="left:95%; animation-duration:12.5s; animation-delay:3.6s; --drift:-14px;"></span>
     </div>
+    <canvas id="cometCanvas"></canvas>
+    <canvas id="confettiCanvas"></canvas>
+    <div id="toastStack"></div>
 
     <header class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between mb-6 max-w-7xl mx-auto relative z-10">
         <div class="flex items-center justify-between lg:justify-start gap-3">
@@ -572,18 +723,20 @@
         </div>
 
         <div class="flex items-center gap-2 md:gap-3">
-            <div class="flex-1 md:flex-none">
-                <input type="text" id="searchBar" class="search-input" placeholder="search_player()">
+            <div class="flex-1 md:flex-none search-wrap">
+                <input type="text" id="searchBar" autocomplete="off" class="search-input" placeholder="search_player()  /">
+                <div id="autocompletePanel" class="autocomplete-panel"></div>
             </div>
             <button id="infoBtn" class="pill-btn text-center whitespace-nowrap">Information</button>
         </div>
     </header>
 
     <div class="max-w-7xl mx-auto relative z-10">
-        <div id="sub-nav-container" class="glass-card p-2.5 flex items-center gap-2 mb-6 overflow-x-auto hidden"></div>
+        <div id="sub-nav-container" class="glass-card p-2.5 flex items-center gap-2 mb-4 overflow-x-auto hidden"></div>
+        <div id="toolbar-container" class="flex items-center justify-between gap-2 mb-4 flex-wrap hidden"></div>
     </div>
 
-    <main class="max-w-7xl mx-auto lg:h-[76vh] lg:overflow-y-auto lg:pr-2 relative z-10" id="content-display">
+    <main class="max-w-7xl mx-auto lg:h-[74vh] lg:overflow-y-auto lg:pr-2 relative z-10" id="content-display">
         <div class="text-center p-20 font-bold" style="color: var(--ink); font-family: var(--font-mono);">Loading...</div>
     </main>
 
@@ -592,15 +745,21 @@
             <div class="flex gap-4 border-b border-white/10 mb-6 pb-2">
                 <button id="tab-points" class="text-base md:text-lg font-black pb-2 border-b-2 tracking-wide uppercase" style="border-color: var(--sky-2); color: var(--sky-1); font-family: var(--font-display);">Point System</button>
                 <button id="tab-titles" class="text-base md:text-lg font-black pb-2 border-b-2 border-transparent tracking-wide uppercase transition" style="color: var(--ink); font-family: var(--font-display);">Titles</button>
+                <button id="tab-shortcuts" class="text-base md:text-lg font-black pb-2 border-b-2 border-transparent tracking-wide uppercase transition" style="color: var(--ink); font-family: var(--font-display);">Shortcuts</button>
             </div>
             <div id="info-tab-points" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 md:gap-4"></div>
             <div id="info-tab-titles" class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 hidden"></div>
+            <div id="info-tab-shortcuts" class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4 hidden"></div>
         </div>
     </div>
 
     <div id="profileModal" class="modal-overlay">
         <div class="profile-card p-6 md:p-8 w-[450px] max-w-full">
             <div class="profile-card-inner">
+                <button id="p-close" class="absolute top-4 right-4 w-8 h-8 rounded-full flex items-center justify-center transition hover:bg-white/10" style="color: var(--ink); z-index:2;" aria-label="Close">✕</button>
+                <button id="p-share" class="absolute top-4 left-4 w-8 h-8 rounded-full flex items-center justify-center transition hover:bg-white/10" style="color: var(--ink); z-index:2;" title="Copy profile link" aria-label="Copy link">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.07 0l1.93-1.93a5 5 0 0 0-7.07-7.07L10.5 5.5"/><path d="M14 11a5 5 0 0 0-7.07 0L5 12.93a5 5 0 0 0 7.07 7.07L13.5 18.5"/></svg>
+                </button>
                 <img id="p-avatar" src="" alt="Player Avatar" class="avatar-frame w-20 h-20 md:w-24 md:h-24 rounded-full mx-auto mb-2 border-4" style="border-color: var(--sky-2);">
                 <h2 id="p-name" class="text-center text-2xl md:text-3xl font-black tracking-tight break-all" style="font-family: var(--font-display);"></h2>
 
@@ -647,7 +806,11 @@
         const state = {
             players: [],
             activeMain: 'global',
-            activeSub: 'Overall'
+            activeSub: 'Overall',
+            sortBy: 'points',   // points | name | region
+            view: 'list',       // list | grid
+            acIndex: -1,
+            hasLoaded: false
         };
 
         const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -692,7 +855,10 @@
 
         const ICONS = {
             trophy: `<svg viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 shrink-0" style="color: var(--sky-2);"><path d="M18 2H6c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94A5.01 5.01 0 0 0 11 13.9V17H8v2h8v-2h-3v-3.1a5.01 5.01 0 0 0 2.61-3.96C18.08 9.63 20 7.55 20 5V4c0-1.1-.9-2-2-2zm-10 5.09A3.001 3.001 0 0 1 6 4h2v3.09zM18 4v1c0 .98-.71 1.79-1.64 1.97A2.996 2.996 0 0 1 16 4h2z"/></svg>`,
-            globe: `<svg viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 shrink-0" style="color: var(--sky-2);"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>`
+            globe: `<svg viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 shrink-0" style="color: var(--sky-2);"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>`,
+            grid: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-3.5 h-3.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>`,
+            list: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-3.5 h-3.5"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg>`,
+            sort: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-3.5 h-3.5"><path d="M3 6h18M6 12h12M10 18h4"/></svg>`
         };
 
         // Firebase Initialization
@@ -714,16 +880,22 @@
             setupEventListeners();
             initCursorGlow();
             initTiltEvents();
+            initCometTrail();
             renderInfoModal();
             renderSubNav();
+            renderToolbar();
             renderContent();
 
             const userRef = ref(db, 'tier_list');
             onValue(userRef, (snapshot) => {
                 const data = snapshot.val();
                 state.players = data ? parsePlayerData(data) : [];
+                const firstLoad = !state.hasLoaded;
+                state.hasLoaded = true;
                 renderSubNav();
+                renderToolbar();
                 renderContent();
+                if (firstLoad) handleDeepLink();
             });
         }
 
@@ -804,6 +976,21 @@
             return String(str == null ? '' : str).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
         }
 
+        function escapeRegex(str) { return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+
+        /* ---------- Toasts ---------- */
+        function showToast(message, type = 'default') {
+            const stack = document.getElementById('toastStack');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type === 'error' ? 'toast-error' : type === 'success' ? 'toast-success' : ''}`;
+            toast.textContent = message;
+            stack.appendChild(toast);
+            setTimeout(() => {
+                toast.classList.add('toast-out');
+                setTimeout(() => toast.remove(), 260);
+            }, 2600);
+        }
+
         /* ---------- Interactive fx ---------- */
 
         function initCursorGlow() {
@@ -823,7 +1010,7 @@
             if (prefersReducedMotion) return;
             const content = document.getElementById('content-display');
             content.addEventListener('mousemove', (e) => {
-                const card = e.target.closest('.player-square, .glass-card[data-player]');
+                const card = e.target.closest('.player-square, .glass-card[data-player], .grid-card');
                 if (!card) return;
                 const rect = card.getBoundingClientRect();
                 const x = (e.clientX - rect.left) / rect.width - 0.5;
@@ -831,9 +1018,96 @@
                 card.style.transform = `perspective(700px) rotateY(${x * 7}deg) rotateX(${-y * 7}deg) translateY(-2px) scale(1.015)`;
             });
             content.addEventListener('mouseout', (e) => {
-                const card = e.target.closest('.player-square, .glass-card[data-player]');
+                const card = e.target.closest('.player-square, .glass-card[data-player], .grid-card');
                 if (card && !card.contains(e.relatedTarget)) card.style.transform = '';
             });
+        }
+
+        // Lightweight comet-style cursor trail on a canvas layer
+        function initCometTrail() {
+            const canvas = document.getElementById('cometCanvas');
+            if (prefersReducedMotion) { canvas.style.display = 'none'; return; }
+            const ctx = canvas.getContext('2d');
+            let particles = [];
+            let w, h, lastSpawn = 0;
+
+            function resize() { w = canvas.width = window.innerWidth; h = canvas.height = window.innerHeight; }
+            resize();
+            window.addEventListener('resize', resize);
+
+            window.addEventListener('mousemove', (e) => {
+                const now = performance.now();
+                if (now - lastSpawn < 22) return;
+                lastSpawn = now;
+                for (let i = 0; i < 2; i++) {
+                    particles.push({
+                        x: e.clientX, y: e.clientY,
+                        vx: (Math.random() - 0.5) * 0.6,
+                        vy: (Math.random() - 0.5) * 0.6 - 0.2,
+                        life: 1,
+                        size: Math.random() * 2.4 + 1.2,
+                        hue: Math.random() > 0.6 ? 'rgba(185,139,255,' : 'rgba(127,227,255,'
+                    });
+                }
+                if (particles.length > 160) particles = particles.slice(-160);
+            });
+
+            function tick() {
+                ctx.clearRect(0, 0, w, h);
+                particles.forEach(p => {
+                    p.x += p.vx; p.y += p.vy; p.life -= 0.018;
+                    if (p.life <= 0) return;
+                    ctx.beginPath();
+                    ctx.fillStyle = p.hue + (p.life * 0.55) + ')';
+                    ctx.shadowBlur = 8;
+                    ctx.shadowColor = 'rgba(127,227,255,0.8)';
+                    ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+                particles = particles.filter(p => p.life > 0);
+                requestAnimationFrame(tick);
+            }
+            requestAnimationFrame(tick);
+        }
+
+        // Simple confetti burst, used to celebrate opening the #1 profile
+        function fireConfetti() {
+            if (prefersReducedMotion) return;
+            const canvas = document.getElementById('confettiCanvas');
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width = window.innerWidth;
+            const h = canvas.height = window.innerHeight;
+            const colors = ['#ffd23f', '#7fe3ff', '#b98bff', '#e6ecf2', '#dff6ff'];
+            let pieces = Array.from({ length: 90 }, () => ({
+                x: w / 2 + (Math.random() - 0.5) * 200,
+                y: h * 0.3 + (Math.random() - 0.5) * 60,
+                vx: (Math.random() - 0.5) * 9,
+                vy: Math.random() * -9 - 3,
+                size: Math.random() * 6 + 4,
+                color: colors[Math.floor(Math.random() * colors.length)],
+                rot: Math.random() * 360,
+                vr: (Math.random() - 0.5) * 14,
+                life: 1
+            }));
+            let frame = 0;
+            function step() {
+                ctx.clearRect(0, 0, w, h);
+                frame++;
+                pieces.forEach(p => {
+                    p.vy += 0.22; p.x += p.vx; p.y += p.vy; p.rot += p.vr; p.life -= 0.008;
+                    ctx.save();
+                    ctx.translate(p.x, p.y);
+                    ctx.rotate(p.rot * Math.PI / 180);
+                    ctx.globalAlpha = Math.max(p.life, 0);
+                    ctx.fillStyle = p.color;
+                    ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6);
+                    ctx.restore();
+                });
+                pieces = pieces.filter(p => p.life > 0 && p.y < h + 40);
+                if (frame < 220 && pieces.length) requestAnimationFrame(step);
+                else ctx.clearRect(0, 0, w, h);
+            }
+            requestAnimationFrame(step);
         }
 
         function spawnRipple(e, el) {
@@ -867,6 +1141,17 @@
             });
         }
 
+        // Cross-fade the content area whenever it's about to be re-rendered
+        function swapContent(renderFn) {
+            const container = document.getElementById('content-display');
+            if (prefersReducedMotion) { renderFn(container); return; }
+            container.classList.add('swap-out');
+            setTimeout(() => {
+                renderFn(container);
+                requestAnimationFrame(() => container.classList.remove('swap-out'));
+            }, 140);
+        }
+
         /* ---------- Rendering ---------- */
 
         function renderSubNav() {
@@ -885,6 +1170,35 @@
                 const iconHtml = (m === 'Overall') ? ICONS.trophy : (REGIONS.includes(m) ? ICONS.globe : `<img src="${ASSETS[m]}" class="sub-pill-icon" alt="${m}">`);
                 return `<button data-sub="${m}" class="sub-pill ${state.activeSub === m ? 'active' : ''}">${iconHtml}<span>${m}</span></button>`;
             }).join('');
+        }
+
+        function isTierGridView() {
+            return state.activeSub !== 'Overall' && !REGIONS.includes(state.activeSub);
+        }
+
+        function renderToolbar() {
+            const container = document.getElementById('toolbar-container');
+            if (!container) return;
+
+            if (isTierGridView()) { container.classList.add('hidden'); container.innerHTML = ''; return; }
+            container.classList.remove('hidden');
+
+            const sortOptions = [
+                { key: 'points', label: 'Points' },
+                { key: 'name', label: 'Name' },
+                { key: 'region', label: 'Region' }
+            ];
+
+            container.innerHTML = `
+                <div class="flex items-center gap-2 flex-wrap">
+                    <span class="text-[10px] font-bold uppercase tracking-widest mr-1" style="color: var(--ink); font-family: var(--font-mono);">Sort</span>
+                    ${sortOptions.map(o => `<button data-sort="${o.key}" class="toolbar-btn ${state.sortBy === o.key ? 'active' : ''}">${ICONS.sort}${o.label}</button>`).join('')}
+                </div>
+                <div class="flex items-center gap-2">
+                    <button data-view="list" class="toolbar-btn ${state.view === 'list' ? 'active' : ''}" title="List view">${ICONS.list}<span class="hidden sm:inline">List</span></button>
+                    <button data-view="grid" class="toolbar-btn ${state.view === 'grid' ? 'active' : ''}" title="Grid view">${ICONS.grid}<span class="hidden sm:inline">Grid</span></button>
+                </div>
+            `;
         }
 
         function heroLabel() {
@@ -906,7 +1220,7 @@
                         <div class="num num-animate" data-target="${count}">0</div>
                         <div class="lbl">Ranked</div>
                     </div>
-                    <div class="hero-stat">
+                    <div class="hero-stat cursor-pointer" data-player="${topPlayer ? escapeHtml(topPlayer.name) : ''}">
                         <div class="num" style="font-size:1.1rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:140px;">${topPlayer ? escapeHtml(topPlayer.name) : '—'}</div>
                         <div class="lbl">Top Player</div>
                     </div>
@@ -919,28 +1233,60 @@
         }
 
         function renderContent() {
-            const container = document.getElementById('content-display');
-            if (!container) return;
+            swapContent((container) => {
+                if (!state.hasLoaded) { renderSkeleton(container); return; }
 
-            if (state.players.length === 0) {
-                renderEmptyState('Connecting to Database...');
-                return;
-            }
+                if (state.players.length === 0) {
+                    renderEmptyState('No players ranked yet — check back soon.');
+                    return;
+                }
 
-            let list = [...state.players];
+                let list = [...state.players];
 
-            if (state.activeSub === 'Overall') {
-                if (state.activeMain === 'main') list = list.filter(p => p.mainPoints > 0).sort((a,b) => b.mainPoints - a.mainPoints);
-                else if (state.activeMain === 'sub') list = list.filter(p => p.subPoints > 0).sort((a,b) => b.subPoints - a.subPoints);
-                else list.sort((a,b) => b.points - a.points);
-            } else if (REGIONS.includes(state.activeSub)) {
-                list = list.filter(p => p.region === state.activeSub).sort((a,b) => b.points - a.points);
+                if (state.activeSub === 'Overall') {
+                    if (state.activeMain === 'main') list = list.filter(p => p.mainPoints > 0);
+                    else if (state.activeMain === 'sub') list = list.filter(p => p.subPoints > 0);
+                    list = sortList(list);
+                } else if (REGIONS.includes(state.activeSub)) {
+                    list = sortList(list.filter(p => p.region === state.activeSub));
+                } else {
+                    renderTierColumns(container, list);
+                    return;
+                }
+
+                renderLeaderboard(container, list.slice(0, 100));
+            });
+        }
+
+        function sortList(list) {
+            const arr = [...list];
+            if (state.sortBy === 'name') {
+                arr.sort((a, b) => a.name.localeCompare(b.name));
+            } else if (state.sortBy === 'region') {
+                arr.sort((a, b) => a.region.localeCompare(b.region) || b.points - a.points);
             } else {
-                renderTierColumns(container, list);
-                return;
+                const key = state.activeMain === 'main' ? 'mainPoints' : state.activeMain === 'sub' ? 'subPoints' : 'points';
+                arr.sort((a, b) => b[key] - a[key]);
             }
+            return arr;
+        }
 
-            renderLeaderboardTable(container, list.slice(0, 100));
+        function renderSkeleton(container) {
+            const cards = Array.from({ length: 6 }).map((_, i) => `
+                <div class="glass-card p-5 mb-4 flex items-center gap-5">
+                    <div class="skeleton" style="width:32px; height:24px;"></div>
+                    <div class="skeleton rounded-full" style="width:48px; height:48px; border-radius:12px;"></div>
+                    <div class="flex-1 flex flex-col gap-2">
+                        <div class="skeleton" style="width:40%; height:14px;"></div>
+                        <div class="skeleton" style="width:25%; height:10px;"></div>
+                    </div>
+                    <div class="skeleton" style="width:60px; height:20px;"></div>
+                </div>
+            `).join('');
+            container.innerHTML = `
+                <div class="skeleton mb-6" style="height:120px; border-radius:26px;"></div>
+                ${cards}
+            `;
         }
 
         function renderTierColumns(container, list) {
@@ -964,7 +1310,7 @@
 
                 columnsHtml += `
                 <div class="tier-column enter-anim" style="animation-delay:${(t - 1) * 70}ms">
-                    <div class="tier-header ${headerColorClass}"><span class="facet-dot"></span>Tier ${t}</div>
+                    <div class="tier-header ${headerColorClass}"><span class="facet-dot"></span>Tier ${t}<span class="count-chip">${filtered.length}</span></div>
                     <div class="p-4 flex flex-col gap-3 overflow-y-auto max-h-[400px] lg:max-h-none">
                         ${filtered.length === 0 ? '<div class="text-xs text-center p-4 font-semibold" style="color:var(--ink);">Empty</div>' : filtered.map((p, i) => `
                             <div class="player-square enter-anim" style="animation-delay:${Math.min(i, 10) * 30}ms" data-player="${p.name}">
@@ -986,11 +1332,51 @@
             animateHeroNumbers(container);
         }
 
-        function renderLeaderboardTable(container, list) {
+        function renderLeaderboard(container, list) {
             const topPlayer = list[0];
-            let tableHtml = renderHeroStrip(list.length, topPlayer);
+            let html = renderHeroStrip(list.length, topPlayer);
+            html += state.view === 'grid' ? renderGridView(list) : renderListView(list);
+            container.innerHTML = html;
+            animateHeroNumbers(container);
+        }
 
-            tableHtml += `
+        function tiersForPlayer(p) {
+            return Object.keys(ASSETS).map(m => {
+                const key = m.toLowerCase().replace(/[\s_]+/g, '');
+                const tier = p.ranks ? p.ranks[key] : null;
+                return { assetName: m, tierStr: tier, key, pts: tier ? (TIERS_CONFIG[tier] || 0) : 0 };
+            }).filter(item => {
+                if (!item.tierStr) return false;
+                if (state.activeMain === 'main') return MAIN_MODES.includes(item.key);
+                if (state.activeMain === 'sub') return SUB_MODES.includes(item.key);
+                return true;
+            }).sort((a, b) => b.pts - a.pts);
+        }
+
+        function renderGridView(list) {
+            return `<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                ${list.map((p, i) => {
+                    const displayPoints = state.activeMain === 'main' ? p.mainPoints : state.activeMain === 'sub' ? p.subPoints : p.points;
+                    const podiumClass = i === 0 ? 'podium-1st' : i === 1 ? 'podium-2nd' : i === 2 ? 'podium-3rd' : '';
+                    const rankColor = i === 0 ? 'var(--gold)' : i === 1 ? 'var(--silver)' : i === 2 ? 'var(--bronze)' : 'var(--ink)';
+                    const topTiers = tiersForPlayer(p).slice(0, 3);
+                    return `
+                    <div class="grid-card enter-anim ${podiumClass}" style="animation-delay:${Math.min(i, 20) * 25}ms" data-player="${p.name}">
+                        <div class="font-black text-sm" style="color:${rankColor}; font-family: var(--font-mono);">#${i + 1}</div>
+                        <img src="${p.skin}" class="avatar-frame w-14 h-14 rounded-full" alt="${p.name}">
+                        <span class="font-bold text-sm break-all" style="color:var(--bone);">${p.name}</span>
+                        <span class="rating-badge px-2 py-0.5 text-[10px] font-black" style="background: rgba(127,227,255,0.06); border: 1px solid rgba(127,227,255,0.22); color: var(--sky-2); font-family: var(--font-mono);">${p.region}</span>
+                        <div class="rating-num" style="font-size:1.05rem;">${displayPoints}</div>
+                        <div class="flex gap-1 flex-wrap justify-center">
+                            ${topTiers.map(item => `<img src="${ASSETS[item.assetName]}" class="w-4 h-4" title="${item.assetName}: ${item.tierStr}" alt="${item.assetName}">`).join('')}
+                        </div>
+                    </div>`;
+                }).join('')}
+            </div>`;
+        }
+
+        function renderListView(list) {
+            let html = `
                 <div class="hidden lg:flex items-center px-5 mb-2 text-xs font-bold tracking-widest uppercase" style="color: var(--ink);">
                     <div class="w-20">#</div>
                     <div class="flex-1">Player</div>
@@ -1000,28 +1386,11 @@
                 </div>
             `;
 
-            tableHtml += list.map((p, i) => {
-                let displayPoints = p.points;
-                if (state.activeSub === 'Overall') {
-                    if (state.activeMain === 'main') displayPoints = p.mainPoints;
-                    if (state.activeMain === 'sub') displayPoints = p.subPoints;
-                }
-
+            html += list.map((p, i) => {
+                const displayPoints = state.activeMain === 'main' ? p.mainPoints : state.activeMain === 'sub' ? p.subPoints : p.points;
                 const podiumClass = i === 0 ? 'podium-1st' : i === 1 ? 'podium-2nd' : i === 2 ? 'podium-3rd' : '';
                 const rankColor = i === 0 ? 'var(--gold)' : i === 1 ? 'var(--silver)' : i === 2 ? 'var(--bronze)' : 'var(--ink)';
-
-                const sortedTiers = Object.keys(ASSETS).map(m => {
-                    const key = m.toLowerCase().replace(/[\s_]+/g, '');
-                    const tier = p.ranks ? p.ranks[key] : null;
-                    return { assetName: m, tierStr: tier, key, pts: tier ? (TIERS_CONFIG[tier] || 0) : 0 };
-                })
-                .filter(item => {
-                    if (!item.tierStr) return false;
-                    if (state.activeMain === 'main') return MAIN_MODES.includes(item.key);
-                    if (state.activeMain === 'sub') return SUB_MODES.includes(item.key);
-                    return true;
-                })
-                .sort((a, b) => b.pts - a.pts);
+                const sortedTiers = tiersForPlayer(p);
 
                 return `
                 <div class="glass-card p-4 md:p-5 mb-4 flex flex-col gap-4 lg:flex-row lg:items-center cursor-pointer enter-anim ${podiumClass}" style="animation-delay:${Math.min(i, 20) * 25}ms" data-player="${p.name}">
@@ -1051,8 +1420,7 @@
                 </div>`;
             }).join('');
 
-            container.innerHTML = tableHtml;
-            animateHeroNumbers(container);
+            return html;
         }
 
         function renderEmptyState(message) {
@@ -1080,23 +1448,94 @@
                         <span class="text-xs font-black" style="color:var(--sky-1); font-family: var(--font-mono);">${t.min}+ pts</span>
                     </div>`).join('');
             }
+
+            const shortcutsContainer = document.getElementById('info-tab-shortcuts');
+            if (shortcutsContainer) {
+                const shortcuts = [
+                    { key: '/', desc: 'Focus the search bar' },
+                    { key: '↑ / ↓', desc: 'Move through search suggestions' },
+                    { key: 'Enter', desc: 'Open the selected / typed player' },
+                    { key: 'Esc', desc: 'Close any open panel' }
+                ];
+                shortcutsContainer.innerHTML = shortcuts.map(s => `
+                    <div class="profile-glass-box p-3 flex items-center justify-between">
+                        <span class="font-bold text-sm" style="color:var(--bone);">${s.desc}</span>
+                        <span class="kbd-hint">${s.key}</span>
+                    </div>`).join('');
+            }
         }
 
         function switchInfoTab(tab) {
-            const pointsBtn = document.getElementById('tab-points');
-            const titlesBtn = document.getElementById('tab-titles');
-            const pointsPanel = document.getElementById('info-tab-points');
-            const titlesPanel = document.getElementById('info-tab-titles');
-
-            const isPoints = tab === 'points';
-            pointsPanel.classList.toggle('hidden', !isPoints);
-            titlesPanel.classList.toggle('hidden', isPoints);
-
-            pointsBtn.style.borderColor = isPoints ? 'var(--sky-2)' : 'transparent';
-            pointsBtn.style.color = isPoints ? 'var(--sky-1)' : 'var(--ink)';
-            titlesBtn.style.borderColor = isPoints ? 'transparent' : 'var(--sky-2)';
-            titlesBtn.style.color = isPoints ? 'var(--ink)' : 'var(--sky-1)';
+            const tabs = ['points', 'titles', 'shortcuts'];
+            tabs.forEach(t => {
+                const btn = document.getElementById(`tab-${t}`);
+                const panel = document.getElementById(`info-tab-${t}`);
+                const isActive = t === tab;
+                panel.classList.toggle('hidden', !isActive);
+                btn.style.borderColor = isActive ? 'var(--sky-2)' : 'transparent';
+                btn.style.color = isActive ? 'var(--sky-1)' : 'var(--ink)';
+            });
         }
+
+        /* ---------- Autocomplete search ---------- */
+
+        function matchingPlayers(query) {
+            const q = query.trim().toLowerCase();
+            if (!q) return [];
+            return state.players
+                .filter(p => p.name.toLowerCase().includes(q))
+                .sort((a, b) => {
+                    const aStarts = a.name.toLowerCase().startsWith(q) ? 0 : 1;
+                    const bStarts = b.name.toLowerCase().startsWith(q) ? 0 : 1;
+                    if (aStarts !== bStarts) return aStarts - bStarts;
+                    return b.points - a.points;
+                })
+                .slice(0, 6);
+        }
+
+        function renderAutocomplete(query) {
+            const panel = document.getElementById('autocompletePanel');
+            const matches = matchingPlayers(query);
+            state.acIndex = -1;
+
+            if (!query.trim()) { panel.classList.remove('active'); panel.innerHTML = ''; return; }
+
+            if (matches.length === 0) {
+                panel.innerHTML = `<div class="ac-empty">No players found</div>`;
+                panel.classList.add('active');
+                return;
+            }
+
+            const q = escapeRegex(query.trim());
+            const re = new RegExp(`(${q})`, 'ig');
+
+            panel.innerHTML = matches.map((p, i) => {
+                const highlighted = escapeHtml(p.name).replace(re, '<mark>$1</mark>');
+                return `
+                <div class="ac-item" data-index="${i}" data-name="${escapeHtml(p.name)}">
+                    <img src="${p.skin}" class="w-6 h-6 rounded" alt="${p.name}">
+                    <span class="font-semibold text-sm" style="color:var(--bone);">${highlighted}</span>
+                    <span class="ml-auto text-[10px] font-bold" style="color:var(--ink); font-family: var(--font-mono);">${p.points} pts</span>
+                </div>`;
+            }).join('');
+            panel.classList.add('active');
+        }
+
+        function highlightAcIndex(delta) {
+            const panel = document.getElementById('autocompletePanel');
+            const items = Array.from(panel.querySelectorAll('.ac-item'));
+            if (!items.length) return;
+            state.acIndex = Math.max(0, Math.min(items.length - 1, state.acIndex + delta));
+            items.forEach((el, i) => el.classList.toggle('ac-active', i === state.acIndex));
+            items[state.acIndex].scrollIntoView({ block: 'nearest' });
+        }
+
+        function closeAutocomplete() {
+            document.getElementById('autocompletePanel').classList.remove('active');
+            state.acIndex = -1;
+        }
+
+        /* ---------- Event wiring ---------- */
 
         function setupEventListeners() {
 
@@ -1111,6 +1550,7 @@
                 state.activeMain = btn.dataset.mode;
                 state.activeSub = 'Overall';
                 renderSubNav();
+                renderToolbar();
                 renderContent();
             });
 
@@ -1121,22 +1561,69 @@
 
                 state.activeSub = btn.dataset.sub;
                 renderSubNav();
+                renderToolbar();
                 renderContent();
+            });
+
+            document.getElementById('toolbar-container').addEventListener('click', (e) => {
+                const sortBtn = e.target.closest('[data-sort]');
+                const viewBtn = e.target.closest('[data-view]');
+                if (sortBtn) {
+                    spawnRipple(e, sortBtn);
+                    state.sortBy = sortBtn.dataset.sort;
+                    renderToolbar();
+                    renderContent();
+                } else if (viewBtn) {
+                    spawnRipple(e, viewBtn);
+                    state.view = viewBtn.dataset.view;
+                    renderToolbar();
+                    renderContent();
+                }
             });
 
             document.getElementById('content-display').addEventListener('click', (e) => {
                 const playerCard = e.target.closest('[data-player]');
-                if (playerCard) {
+                if (playerCard && playerCard.dataset.player) {
                     spawnRipple(e, playerCard);
                     openProfile(playerCard.dataset.player);
                 }
             });
 
-            document.getElementById('searchBar').addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') {
-                    const query = e.target.value.trim();
-                    if (query) openProfile(query);
+            const searchBar = document.getElementById('searchBar');
+            searchBar.addEventListener('input', (e) => renderAutocomplete(e.target.value));
+            searchBar.addEventListener('focus', (e) => { if (e.target.value.trim()) renderAutocomplete(e.target.value); });
+
+            searchBar.addEventListener('keydown', (e) => {
+                const panel = document.getElementById('autocompletePanel');
+                const items = Array.from(panel.querySelectorAll('.ac-item'));
+                if (e.key === 'ArrowDown') { e.preventDefault(); if (items.length) highlightAcIndex(1); }
+                else if (e.key === 'ArrowUp') { e.preventDefault(); if (items.length) highlightAcIndex(-1); }
+                else if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (state.acIndex >= 0 && items[state.acIndex]) {
+                        openProfile(items[state.acIndex].dataset.name);
+                    } else {
+                        const query = e.target.value.trim();
+                        if (query) {
+                            const matches = matchingPlayers(query);
+                            if (matches.length) openProfile(matches[0].name);
+                            else showToast(`No player matching "${query}"`, 'error');
+                        }
+                    }
+                    closeAutocomplete();
+                } else if (e.key === 'Escape') {
+                    closeAutocomplete();
+                    e.target.blur();
                 }
+            });
+
+            document.getElementById('autocompletePanel').addEventListener('click', (e) => {
+                const item = e.target.closest('.ac-item');
+                if (item) { openProfile(item.dataset.name); closeAutocomplete(); }
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.search-wrap')) closeAutocomplete();
             });
 
             document.getElementById('infoBtn').addEventListener('click', (e) => { spawnRipple(e, e.currentTarget); toggleModal('infoModal', true); });
@@ -1144,17 +1631,49 @@
                 if (e.target.id === 'infoModal') toggleModal('infoModal', false);
             });
             document.getElementById('profileModal').addEventListener('click', (e) => {
-                if (e.target.id === 'profileModal') toggleModal('profileModal', false);
+                if (e.target.id === 'profileModal') closeProfile();
+            });
+            document.getElementById('p-close').addEventListener('click', closeProfile);
+            document.getElementById('p-share').addEventListener('click', (e) => {
+                spawnRipple(e, e.currentTarget);
+                navigator.clipboard.writeText(window.location.href).then(() => {
+                    showToast('Profile link copied', 'success');
+                }).catch(() => showToast('Could not copy link', 'error'));
             });
 
             document.getElementById('tab-points').addEventListener('click', () => switchInfoTab('points'));
             document.getElementById('tab-titles').addEventListener('click', () => switchInfoTab('titles'));
+            document.getElementById('tab-shortcuts').addEventListener('click', () => switchInfoTab('shortcuts'));
+
+            // Global keyboard shortcuts
+            document.addEventListener('keydown', (e) => {
+                const tag = (e.target.tagName || '').toLowerCase();
+                const isTyping = tag === 'input' || tag === 'textarea';
+
+                if (e.key === '/' && !isTyping) {
+                    e.preventDefault();
+                    document.getElementById('searchBar').focus();
+                } else if (e.key === 'Escape') {
+                    if (document.getElementById('profileModal').classList.contains('active')) closeProfile();
+                    else if (document.getElementById('infoModal').classList.contains('active')) toggleModal('infoModal', false);
+                }
+            });
+
+            window.addEventListener('hashchange', handleDeepLink);
         }
 
-        function openProfile(name) {
+        function handleDeepLink() {
+            const match = window.location.hash.match(/#player=(.+)/);
+            if (match) {
+                const name = decodeURIComponent(match[1]);
+                if (state.players.some(p => p.name.toLowerCase() === name.toLowerCase())) openProfile(name, false);
+            }
+        }
+
+        function openProfile(name, updateHash = true) {
             const list = [...state.players].sort((a,b) => b.points - a.points);
             const rankIndex = list.findIndex(x => x.name.toLowerCase() === name.toLowerCase());
-            if (rankIndex === -1) return;
+            if (rankIndex === -1) { showToast(`No player matching "${name}"`, 'error'); return; }
 
             const p = list[rankIndex];
 
@@ -1177,13 +1696,7 @@
             progressBar.style.width = '0%';
             requestAnimationFrame(() => { progressBar.style.width = progress.pct + '%'; });
 
-            const profilesTiersList = Object.keys(ASSETS).map(m => {
-                const key = m.toLowerCase().replace(/[\s_]+/g, '');
-                const tier = p.ranks ? p.ranks[key] : null;
-                return { modeName: m, tierStr: tier, pts: tier ? (TIERS_CONFIG[tier] || 0) : 0 };
-            })
-            .filter(item => item.tierStr)
-            .sort((a, b) => b.pts - a.pts);
+            const profilesTiersList = tiersForModeAgnostic(p);
 
             document.getElementById('p-tiers-grid').innerHTML = profilesTiersList.map((item, i) => `
                 <div class="flex flex-col items-center p-2 profile-glass-box rounded-xl tier-badge enter-anim ${item.tierStr.startsWith('HT') ? 'ht-badge' : ''}" style="animation-delay:${i * 35}ms">
@@ -1192,6 +1705,22 @@
                 </div>`).join('');
 
             toggleModal('profileModal', true);
+
+            if (updateHash) history.replaceState(null, '', `#player=${encodeURIComponent(p.name)}`);
+            if (rankIndex === 0) setTimeout(fireConfetti, 200);
+        }
+
+        function tiersForModeAgnostic(p) {
+            return Object.keys(ASSETS).map(m => {
+                const key = m.toLowerCase().replace(/[\s_]+/g, '');
+                const tier = p.ranks ? p.ranks[key] : null;
+                return { modeName: m, tierStr: tier, pts: tier ? (TIERS_CONFIG[tier] || 0) : 0 };
+            }).filter(item => item.tierStr).sort((a, b) => b.pts - a.pts);
+        }
+
+        function closeProfile() {
+            toggleModal('profileModal', false);
+            if (window.location.hash.startsWith('#player=')) history.replaceState(null, '', window.location.pathname + window.location.search);
         }
 
         function toggleModal(id, show) {
