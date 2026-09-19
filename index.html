@@ -957,6 +957,9 @@
 
                 const username = item.ign || item.username;
                 if (!username || /^\d+$/.test(username) || username.toLowerCase() === 'unknown') return;
+                // Real Minecraft Java usernames are 3-16 chars, letters/numbers/underscore only.
+                // Anything else (HTML, scripts, junk) never enters state.players or gets rendered.
+                if (!/^[A-Za-z0-9_]{3,16}$/.test(username)) return;
 
                 const rawTiers = item.tiers || {};
                 const cleanTiers = {};
@@ -1355,10 +1358,10 @@
                     <div class="tier-header ${headerColorClass}"><span class="facet-dot"></span>Tier ${t}<span class="count-chip">${filtered.length}</span></div>
                     <div class="p-4 flex flex-col gap-5 overflow-y-auto max-h-[400px] lg:max-h-none">
                         ${filtered.length === 0 ? '<div class="text-xs text-center p-4 font-semibold" style="color:var(--ink);">Empty</div>' : filtered.map((p, i) => `
-                            <div class="player-square enter-anim" style="animation-delay:${Math.min(i, 14) * 40}ms" data-player="${p.name}">
-                                <img src="${p.skin}" class="avatar-frame w-12 h-12 shrink-0" alt="${p.name}">
+                            <div class="player-square enter-anim" style="animation-delay:${Math.min(i, 14) * 40}ms" data-player="${escapeHtml(p.name)}">
+                                <img src="${escapeHtml(p.skin)}" class="avatar-frame w-12 h-12 shrink-0" alt="${escapeHtml(p.name)}">
                                 <div class="flex flex-col gap-1.5 min-w-0">
-                                    <span class="font-bold text-base truncate leading-tight tracking-wide" style="color:var(--bone);">${p.name}</span>
+                                    <span class="font-bold text-base truncate leading-tight tracking-wide" style="color:var(--bone);">${escapeHtml(p.name)}</span>
                                     <span class="text-[11px] font-black uppercase tracking-widest leading-none" style="color:${p.ranks[currentModeClean].startsWith('HT') ? 'var(--sky-2)' : '#9ca3af'}; text-shadow: ${p.ranks[currentModeClean].startsWith('HT') ? '0 0 12px rgba(127,227,255,0.6)' : 'none'};">${p.ranks[currentModeClean]}</span>
                                 </div>
                             </div>
@@ -1403,10 +1406,10 @@
                     const rankColor = i === 0 ? 'var(--gold)' : i === 1 ? 'var(--silver)' : i === 2 ? 'var(--bronze)' : 'var(--ink)';
                     const topTiers = tiersForPlayer(p).slice(0, 3);
                     return `
-                    <div class="grid-card enter-anim ${podiumClass}" style="animation-delay:${Math.min(i, 20) * 25}ms" data-player="${p.name}">
+                    <div class="grid-card enter-anim ${podiumClass}" style="animation-delay:${Math.min(i, 20) * 25}ms" data-player="${escapeHtml(p.name)}">
                         <div class="font-black text-sm" style="color:${rankColor}; font-family: var(--font-mono);">#${i + 1}</div>
-                        <img src="${p.skin}" class="avatar-frame w-14 h-14 rounded-full" alt="${p.name}">
-                        <span class="font-bold text-sm break-all" style="color:var(--bone);">${p.name}</span>
+                        <img src="${escapeHtml(p.skin)}" class="avatar-frame w-14 h-14 rounded-full" alt="${escapeHtml(p.name)}">
+                        <span class="font-bold text-sm break-all" style="color:var(--bone);">${escapeHtml(p.name)}</span>
                         <span class="rating-badge px-2 py-0.5 text-[10px] font-black" style="background: rgba(127,227,255,0.06); border: 1px solid rgba(127,227,255,0.22); color: var(--sky-2); font-family: var(--font-mono);">${p.region}</span>
                         <div class="rating-num" style="font-size:1.05rem;">${displayPoints}</div>
                         <div class="flex gap-1 flex-wrap justify-center">
@@ -1435,15 +1438,15 @@
                 const sortedTiers = tiersForPlayer(p);
 
                 return `
-                <div class="glass-card p-4 md:p-5 mb-4 flex flex-col gap-4 lg:flex-row lg:items-center cursor-pointer enter-anim ${podiumClass}" style="animation-delay:${Math.min(i, 20) * 25}ms" data-player="${p.name}">
+                <div class="glass-card p-4 md:p-5 mb-4 flex flex-col gap-4 lg:flex-row lg:items-center cursor-pointer enter-anim ${podiumClass}" style="animation-delay:${Math.min(i, 20) * 25}ms" data-player="${escapeHtml(p.name)}">
                     <div class="flex items-center justify-between lg:justify-start lg:w-20">
                         <div class="font-black text-xl md:text-2xl" style="color:${rankColor}; font-family: var(--font-mono);">#${i+1}</div>
                         <div class="lg:hidden rating-num">${displayPoints}</div>
                     </div>
                     <div class="flex-1 flex items-center gap-4 md:gap-5">
-                        <img src="${p.skin}" class="avatar-frame w-10 h-10 md:w-12 md:h-12" alt="${p.name}">
+                        <img src="${escapeHtml(p.skin)}" class="avatar-frame w-10 h-10 md:w-12 md:h-12" alt="${escapeHtml(p.name)}">
                         <div class="flex flex-col">
-                            <span class="font-bold text-base md:text-lg leading-tight" style="color:var(--bone);">${p.name}</span>
+                            <span class="font-bold text-base md:text-lg leading-tight" style="color:var(--bone);">${escapeHtml(p.name)}</span>
                             <span class="text-[11px] font-semibold mt-0.5 tracking-wide" style="color:var(--ink);">${getPlayerTitle(p.points)}</span>
                         </div>
                     </div>
@@ -1554,7 +1557,7 @@
                 const highlighted = escapeHtml(p.name).replace(re, '<mark>$1</mark>');
                 return `
                 <div class="ac-item" data-index="${i}" data-name="${escapeHtml(p.name)}">
-                    <img src="${p.skin}" class="w-6 h-6 rounded" alt="${p.name}">
+                    <img src="${escapeHtml(p.skin)}" class="w-6 h-6 rounded" alt="${escapeHtml(p.name)}">
                     <span class="font-semibold text-sm" style="color:var(--bone);">${highlighted}</span>
                     <span class="ml-auto text-[10px] font-bold" style="color:var(--ink); font-family: var(--font-mono);">${p.points} pts</span>
                 </div>`;
