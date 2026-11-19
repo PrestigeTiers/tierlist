@@ -1454,6 +1454,10 @@
 
         const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+        // Refresh the page every 15 minutes so the latest leaderboard data is loaded.
+        const PAGE_REFRESH_INTERVAL_MS = 15 * 60 * 1000;
+        window.setInterval(() => window.location.reload(), PAGE_REFRESH_INTERVAL_MS);
+
         const TIERS_CONFIG = { 'HT1': 60, 'LT1': 45, 'HT2': 30, 'LT2': 20, 'HT3': 10, 'LT3': 6, 'HT4': 4, 'LT4': 3, 'HT5': 2, 'LT5': 1 };
         const REGIONS = ['EU', 'NA', 'AS'];
         const MAIN_MODES = ['sword', 'axe', 'vanilla', 'pot', 'nethop', 'uhc', 'smp', 'mace'];
